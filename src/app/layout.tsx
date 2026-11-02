@@ -1,20 +1,17 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+// Estilos de producción de seritene.com (incluyen Tailwind v4 ya compilado).
+// Se importan por separado para que el plugin de Tailwind no los reprocese.
+import "./styles/seritene/base.css";
+import "./styles/seritene/site-shell.css";
+import "./styles/seritene/home.css";
+import "./styles/seritene/home-projects.css";
+import "./styles/seritene/home-team.css";
 
 export const metadata: Metadata = {
-  title: "Website Clone",
-  description: "Pixel-perfect website clone",
+  metadataBase: new URL("https://seritene.com"),
+  title: "Seritene | Textil personalizado y merchandising en Tenerife",
+  description:
+    "Ropa personalizada, camisetas fullprint, merchandising e imprenta en Tenerife. Consulta stock y precios según cantidad y marcaje, y solicita tu pedido por WhatsApp.",
 };
 
 export default function RootLayout({
@@ -23,11 +20,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="es">
+      <head>
+        <link rel="preload" href="/sites/seritene/montserrat-semibold-core.woff2" as="font" type="font/woff2" crossOrigin="" />
+      </head>
+      <body>{children}</body>
     </html>
   );
 }
