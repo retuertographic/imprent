@@ -29,7 +29,7 @@ en `content.ts`. WhatsApp, teléfono, email e Instagram mantienen sus destinos r
 ## Estilos
 
 `src/app/styles/seritene/*.css` son las hojas de producción del sitio (Tailwind v4 compilado + CSS de
-marca), con las rutas de fuentes reescritas a `/sites/seritene/`. Se importan una a una desde
+marca), con las fuentes en `src/app/styles/seritene/fonts/` y `url()` relativas. Se importan una a una desde
 `src/app/layout.tsx` (no vía `@import` en un CSS con Tailwind: el plugin de PostCSS las recortaba).
 
 Tokens principales: `--brand-green: #43b02a`, `--brand-ink: #080808`; tipografía Montserrat
@@ -38,7 +38,7 @@ Tokens principales: `--brand-green: #43b02a`, `--brand-ink: #080808`; tipografí
 ## Recursos
 
 Todo en `public/sites/seritene/` con la misma ruta relativa que en el origen
-(`/optimized/*.webp`, `/team/*.webp`, `/trabajos/proyecto-XX-{thumb,full}.webp`, `/reels/*.jpg`,
+(salvo las fuentes; `/optimized/*.webp`, `/team/*.webp`, `/trabajos/proyecto-XX-{thumb,full}.webp`, `/reels/*.jpg`,
 logos, Seribot, icono de WhatsApp, fuentes). El favicon (`seritene-symbol.png`) está en `src/app/icon.png`.
 
 ## Verificación

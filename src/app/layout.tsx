@@ -21,9 +21,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <head>
-        <link rel="preload" href="/sites/seritene/montserrat-semibold-core.woff2" as="font" type="font/woff2" crossOrigin="" />
-      </head>
       <body>{children}</body>
     </html>
   );
