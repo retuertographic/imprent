@@ -16,6 +16,8 @@ Clon editable de https://seritene.com/ (web de un cliente de la agencia) sobre e
 - Next.js 16 (App Router, React 19, TypeScript strict)
 - CSS plano: las hojas de producción del sitio están en `src/app/styles/seritene/` y se importan una a una desde `src/app/layout.tsx`. `base.css` ya contiene Tailwind v4 compilado (clases utilitarias del sitio original); no hay Tailwind en el build.
 - Iconos: `lucide-react`. Diálogos: `@base-ui/react`.
+- Publicación: exportación estática (`output: "export"`) en GitHub Pages vía `.github/workflows/deploy.yml`. Nada de funciones de servidor (API routes, cookies, ISR…).
+- Rutas a recursos de `public/` siempre con `asset()` de `content.ts` (añade `NEXT_PUBLIC_BASE_PATH`); enlaces internos con `next/link`. Fuentes en `src/app/styles/seritene/fonts/` con `url()` relativa.
 
 ## Comandos
 - `npm run dev` — servidor de desarrollo

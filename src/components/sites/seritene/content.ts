@@ -1,7 +1,9 @@
 /** Datos compartidos del sitio Seritene (contacto, enlaces y contenidos de la home). */
 
 export const ORIGIN = "https://seritene.com";
-export const ASSETS = "/sites/seritene";
+/** Prefijo de la web publicada (p. ej. "/imprent" en GitHub Pages). Lo fija el workflow de deploy. */
+export const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+export const ASSETS = `${BASE_PATH}/sites/seritene`;
 
 /** Rutas aún no clonadas: apuntan a la web de producción. */
 export const ext = (path: string) => `${ORIGIN}${path}`;
