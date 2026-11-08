@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { Check, MessageCircle, ShoppingCart } from "lucide-react";
 import { SiteLink } from "../SiteLink";
-import { cartDetails, readCart, whatsappUrl, writeCart } from "./order";
+import { cartDetails, readCart, writeCart } from "../cart/storage";
+import { whatsappUrl } from "./order";
 
 type Props = {
   name: string;

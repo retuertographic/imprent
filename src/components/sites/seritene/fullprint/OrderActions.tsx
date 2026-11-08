@@ -2,7 +2,7 @@
 import { Check, MessageCircle, ShoppingCart, Truck } from "lucide-react";
 import { useState, useSyncExternalStore } from "react";
 import { SiteLink } from "../SiteLink";
-import { CART_LIMIT, cartDetails, readCart, writeCart } from "./cart";
+import { CART_LIMIT, cartDetails, currentProductPath, readCart, writeCart } from "../cart/storage";
 import { Checkbox } from "./controls";
 import { whatsappUrl, withShipping } from "./pricing";
 
@@ -72,7 +72,7 @@ export function OrderActions({ name, message, quantity, subtotal, image, deliver
           {
             id: crypto.randomUUID(),
             name,
-            path: location.pathname,
+            path: currentProductPath(),
             image,
             quantity,
             subtotal,

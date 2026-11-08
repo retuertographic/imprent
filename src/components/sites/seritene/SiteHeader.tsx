@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { BASE_PATH, asset, contact, navCategories, utilityLinks } from "./content";
 import { SiteLink } from "./SiteLink";
+import { CartLink } from "./cart/CartLink";
 
 export function SiteHeader() {
   const pathname = usePathname();
@@ -159,6 +160,7 @@ export function SiteHeader() {
             </button>
           </form>
           <div className="ch-actions">
+            <CartLink />
             <button
               className="ch-icon ch-search-toggle"
               ref={searchToggleRef}
