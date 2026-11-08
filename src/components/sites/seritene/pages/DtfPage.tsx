@@ -1,11 +1,25 @@
 /* Página /dtf-x-metros/: presentación del Estudio DTF (la herramienta es una app externa). */
 import { ArrowDown, ArrowUpRight, Check, Download, Grid3x3, Layers, Maximize2, MousePointer2, Move, MoveHorizontal, Plus, RotateCw, Upload } from "lucide-react";
-import { Breadcrumbs } from "./common";
+import { Breadcrumbs, pad2 } from "./common";
 import { OrderActions } from "./OrderActions";
 
 const STUDIO_URL = "https://seritene-dtf-studio.cesarfr.chatgpt.site";
 const orderMessage =
   "Hola Seritene, quiero consultar un pedido de DTF por metros. Voy a preparar mi plancha en el estudio online. Cantidad y archivos a confirmar.";
+
+const steps = [
+  { icon: Upload, title: "Sube lo que imaginas.", text: "Añade tus PNG, JPG o WebP. Si ya tienes el diseño sin fondo, usa su PNG original.", detail: "TUS ARCHIVOS, EN TU NAVEGADOR" },
+  { icon: Move, title: "Dale su sitio.", text: "Define las medidas en centímetros. Duplica, gira y distribuye tus diseños en una plancha de 57 cm de ancho.", detail: "LARGO CONFIGURABLE · DE 10 A 300 CM" },
+  { icon: Download, title: "Descarga. Y al taller.", text: "Exporta el PNG a 300 ppp y envíanoslo como documento por WhatsApp o correo. Lo revisamos contigo antes de imprimir.", detail: "EL ARCHIVO ORIGINAL. SIN HACER ESPEJO." },
+];
+
+const faqs = [
+  { q: "¿Qué archivos puedo subir?", a: "PNG, JPG o WebP, de hasta 30 MB por imagen y 32 megapíxeles. El PNG transparente es la mejor opción si tu diseño ya está preparado. Las imágenes opacas conservan su fondo; puedes eliminar blancos o negros desde la herramienta de semitonos." },
+  { q: "¿Qué tamaño tiene la plancha?", a: "El ancho es de 57 cm y puedes elegir un largo de 10 a 300 cm. Cada diseño tiene sus propias medidas en centímetros. Puedes duplicarlo, girarlo y distribuir las copias con separación y margen." },
+  { q: "¿El programa mejora la resolución de mis imágenes?", a: "La salida es un PNG a 300 ppp, pero ampliar una imagen pequeña no crea detalle nuevo. El estudio muestra la resolución de origen y avisa cuando es baja. Usa siempre el archivo de mayor calidad que tengas." },
+  { q: "¿Cómo os envío el archivo para imprimir?", a: "Descarga el PNG y adjúntalo como documento original por WhatsApp o correo a Seritene. No envíes una captura ni una imagen comprimida y no hagas espejo. Revisaremos contigo el archivo, el presupuesto y el plazo antes de producir." },
+  { q: "¿Puedo continuar el montaje más tarde?", a: "Sí. En «Guía rápida» encontrarás «Guardar proyecto editable». El archivo incluye tus diseños y sus posiciones; después puedes volver a abrirlo en el estudio. Cargar un archivo en el montador no lo envía automáticamente a Seritene." },
+];
 
 /** Estrella de 12 puntas del sitio. */
 function Star() {
@@ -320,33 +334,17 @@ export function DtfPage() {
           </p>
         </div>
         <div className="dtf-steps">
-          <article>
-            <div className="dtf-step-top">
-              <Upload size={26} />
-              <span>01</span>
-            </div>
-            <h3>Sube lo que imaginas.</h3>
-            <p>Añade tus PNG, JPG o WebP. Si ya tienes el diseño sin fondo, usa su PNG original.</p>
-            <span className="dtf-step-detail">TUS ARCHIVOS, EN TU NAVEGADOR</span>
-          </article>
-          <article>
-            <div className="dtf-step-top">
-              <Move size={26} />
-              <span>02</span>
-            </div>
-            <h3>Dale su sitio.</h3>
-            <p>Define las medidas en centímetros. Duplica, gira y distribuye tus diseños en una plancha de 57 cm de ancho.</p>
-            <span className="dtf-step-detail">LARGO CONFIGURABLE · DE 10 A 300 CM</span>
-          </article>
-          <article>
-            <div className="dtf-step-top">
-              <Download size={26} />
-              <span>03</span>
-            </div>
-            <h3>Descarga. Y al taller.</h3>
-            <p>Exporta el PNG a 300 ppp y envíanoslo como documento por WhatsApp o correo. Lo revisamos contigo antes de imprimir.</p>
-            <span className="dtf-step-detail">EL ARCHIVO ORIGINAL. SIN HACER ESPEJO.</span>
-          </article>
+          {steps.map((step, i) => (
+            <article key={step.title}>
+              <div className="dtf-step-top">
+                <step.icon size={26} />
+                <span>{pad2(i + 1)}</span>
+              </div>
+              <h3>{step.title}</h3>
+              <p>{step.text}</p>
+              <span className="dtf-step-detail">{step.detail}</span>
+            </article>
+          ))}
         </div>
       </section>
       <section className="dtf-tone-section">
@@ -431,51 +429,15 @@ export function DtfPage() {
           <h2>Vamos por partes.</h2>
         </div>
         <div>
-          <details>
-            <summary>
-              ¿Qué archivos puedo subir?
-              <Plus size={18} />
-            </summary>
-            <p>
-              PNG, JPG o WebP, de hasta 30 MB por imagen y 32 megapíxeles. El PNG transparente es la mejor opción si tu diseño ya está preparado. Las imágenes opacas conservan su fondo; puedes eliminar blancos o negros desde la herramienta de semitonos.
-            </p>
-          </details>
-          <details>
-            <summary>
-              ¿Qué tamaño tiene la plancha?
-              <Plus size={18} />
-            </summary>
-            <p>
-              El ancho es de 57 cm y puedes elegir un largo de 10 a 300 cm. Cada diseño tiene sus propias medidas en centímetros. Puedes duplicarlo, girarlo y distribuir las copias con separación y margen.
-            </p>
-          </details>
-          <details>
-            <summary>
-              ¿El programa mejora la resolución de mis imágenes?
-              <Plus size={18} />
-            </summary>
-            <p>
-              La salida es un PNG a 300 ppp, pero ampliar una imagen pequeña no crea detalle nuevo. El estudio muestra la resolución de origen y avisa cuando es baja. Usa siempre el archivo de mayor calidad que tengas.
-            </p>
-          </details>
-          <details>
-            <summary>
-              ¿Cómo os envío el archivo para imprimir?
-              <Plus size={18} />
-            </summary>
-            <p>
-              Descarga el PNG y adjúntalo como documento original por WhatsApp o correo a Seritene. No envíes una captura ni una imagen comprimida y no hagas espejo. Revisaremos contigo el archivo, el presupuesto y el plazo antes de producir.
-            </p>
-          </details>
-          <details>
-            <summary>
-              ¿Puedo continuar el montaje más tarde?
-              <Plus size={18} />
-            </summary>
-            <p>
-              Sí. En «Guía rápida» encontrarás «Guardar proyecto editable». El archivo incluye tus diseños y sus posiciones; después puedes volver a abrirlo en el estudio. Cargar un archivo en el montador no lo envía automáticamente a Seritene.
-            </p>
-          </details>
+          {faqs.map((faq) => (
+            <details key={faq.q}>
+              <summary>
+                {faq.q}
+                <Plus size={18} />
+              </summary>
+              <p>{faq.a}</p>
+            </details>
+          ))}
         </div>
       </section>
       <section className="wrap dtf-final">
