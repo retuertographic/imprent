@@ -1,0 +1,11 @@
+{
+ "query": "gorra niño",
+ "scope": "all",
+ "total": 4,
+ "ids": [
+  "stamina:1670",
+  "stamina:1502",
+  "stamina:9133",
+  "stamina:1309"
+ ]
+}

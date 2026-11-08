@@ -1,0 +1,9 @@
+{
+ "query": "ESTAMBUL",
+ "scope": "all",
+ "total": 2,
+ "ids": [
+  "roly:1031",
+  "roly:1033"
+ ]
+}

@@ -1,0 +1,22 @@
+{
+ "query": "bandera",
+ "scope": "all",
+ "total": 15,
+ "ids": [
+  "flag:gota",
+  "flag:vela",
+  "roly:0324",
+  "stamina:7023",
+  "roly:6640",
+  "page:/soportes-publicitarios/",
+  "stamina:3103",
+  "page:/rotulacion/",
+  "page:/banderas-rollups/",
+  "stamina:3109",
+  "stamina:3024",
+  "stamina:1210",
+  "stamina:1144",
+  "stamina:1055",
+  "stamina:1570"
+ ]
+}

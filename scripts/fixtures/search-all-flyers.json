@@ -1,0 +1,8 @@
+{
+ "query": "flyers",
+ "scope": "all",
+ "total": 1,
+ "ids": [
+  "print:flyers"
+ ]
+}

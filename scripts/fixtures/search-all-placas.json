@@ -1,0 +1,11 @@
+{
+ "query": "placas",
+ "scope": "all",
+ "total": 4,
+ "ids": [
+  "page:/eventos/placas/",
+  "page:/eventos/",
+  "roly:6697",
+  "stamina:3196"
+ ]
+}
