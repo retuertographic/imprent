@@ -14,7 +14,7 @@ import {
   Search,
   X,
 } from "lucide-react";
-import { asset, contact, ext, navCategories, utilityLinks } from "./content";
+import { BASE_PATH, asset, contact, navCategories, utilityLinks } from "./content";
 import { SiteLink } from "./SiteLink";
 
 export function SiteHeader() {
@@ -144,7 +144,7 @@ export function SiteHeader() {
               </div>
             </div>
           </nav>
-          <form className={`ch-search${searchOpen ? " ch-search-open" : ""}`} action={ext("/productos/")} role="search">
+          <form className={`ch-search${searchOpen ? " ch-search-open" : ""}`} action={`${BASE_PATH}/productos/`} role="search">
             <Search size={20} aria-hidden="true" />
             <input
               ref={searchInputRef}

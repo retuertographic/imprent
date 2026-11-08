@@ -3,7 +3,6 @@ import { SiteLink } from "../SiteLink";
 import type { BlogPost } from "./blogPosts";
 import { blogPosts } from "./blogPosts";
 import { Breadcrumbs, PageIntro, pad2 } from "./common";
-import { RevealObserver } from "./RevealObserver";
 
 /** Listado /blog/. */
 export function BlogIndex() {
@@ -31,7 +30,6 @@ export function BlogIndex() {
           </SiteLink>
         ))}
       </section>
-      <RevealObserver />
     </main>
   );
 }

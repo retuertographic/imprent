@@ -3,7 +3,7 @@
 
 import { useEffect, useRef, type CSSProperties } from "react";
 import { Search, Plus } from "lucide-react";
-import { asset, ext } from "./content";
+import { BASE_PATH, asset } from "./content";
 import { SiteLink } from "./SiteLink";
 
 type UnboxProduct = {
@@ -309,7 +309,7 @@ export function UnboxHero() {
               <em>{titles[0][1]}</em>
             </span>
           </h1>
-          <form className="unbox-main-search" role="search" action={ext("/productos/")}>
+          <form className="unbox-main-search" role="search" action={`${BASE_PATH}/productos/`}>
             <label className="sr-only" htmlFor="hero-search">
               Busca lo que necesitas: productos, servicios y apartados
             </label>

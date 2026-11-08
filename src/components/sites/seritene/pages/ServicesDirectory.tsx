@@ -1,7 +1,6 @@
 import { Plus } from "lucide-react";
 import { SiteLink } from "../SiteLink";
 import { Breadcrumbs, PageIntro, pad2 } from "./common";
-import { RevealObserver } from "./RevealObserver";
 
 const directory = [
   {
@@ -87,7 +86,6 @@ export function ServicesDirectory() {
           </SiteLink>
         ))}
       </section>
-      <RevealObserver />
     </main>
   );
 }

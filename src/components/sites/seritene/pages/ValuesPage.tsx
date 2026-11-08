@@ -1,6 +1,5 @@
 import { SiteLink } from "../SiteLink";
 import { Breadcrumbs, PageIntro, pad2 } from "./common";
-import { RevealObserver } from "./RevealObserver";
 
 const values = [
   {
@@ -73,7 +72,6 @@ export function ValuesPage() {
           Conócenos de cerca
         </SiteLink>
       </section>
-      <RevealObserver />
     </main>
   );
 }

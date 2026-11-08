@@ -4,7 +4,6 @@ import { asset } from "../content";
 import { SiteLink } from "../SiteLink";
 import { Breadcrumbs, FaqSection, pad2 } from "./common";
 import { pageMetadata } from "./meta";
-import { RevealObserver } from "./RevealObserver";
 import type { ServicePageData } from "./servicePages";
 import { TechniqueExplorer } from "./TechniqueExplorer";
 
@@ -78,7 +77,6 @@ export function ServicePage({ page }: { page: ServicePageData }) {
           ))}
         </div>
       </section>
-      {page.techniques && <RevealObserver />}
     </main>
   );
 }
