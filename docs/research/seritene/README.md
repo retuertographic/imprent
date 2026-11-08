@@ -24,6 +24,7 @@ Cada página mantiene su `canonical` hacia seritene.com.
 - `scripts/extract-shop-data.mjs` — catálogos de ropa/merchandising y secciones del buscador.
 - `scripts/extract-fullprint.mjs` — modelos, colecciones y precios de Fullprint.
 - `scripts/extract-seritene-soportes-eventos.mjs` — soportes, eventos y medallas.
+- `scripts/extract-search-index.mjs` — índice del buscador (descripciones completas de producción).
 
 Son una foto del sitio en noviembre de 2026: si el cliente cambia precios o productos, hay que volver a ejecutarlos.
 
@@ -70,8 +71,11 @@ logos, Seribot, icono de WhatsApp, fuentes). El favicon (`seritene-symbol.png`) 
 - Carrito (`/carrito/`): clonado con la lógica de producción e icono con contador en la cabecera.
   Mejora propia que no existe en producción: botón «Vaciar carrito» con confirmación
   (`cart/CartView.tsx`, estilos en `src/app/styles/seritene/cart-extras.css`).
-- El buscador local busca en las descripciones cortas del listado: da resultados parecidos pero no
-  idénticos a los de producción (que busca en el servidor).
+- Buscador: índice propio (`public/sites/seritene/shop-data/search-index.json`, 2119 registros, 177 KB
+  comprimido) con la misma lógica de coincidencia y orden que `/api/search` de producción
+  (`shop/searchIndex.ts`). Coincide en 111 de 113 consultas de prueba (`node scripts/check-search.mjs`);
+  las 2 diferencias conocidas están explicadas en el script. Se regenera con
+  `scripts/extract-search-index.mjs` y `scripts/make-search-fixtures.mjs`.
 - `/catalogos/` y `/ropa-laboral/` muestran una foto de la primera página del catálogo.
 - Las páginas `?pagina=N` muestran la página 1 en el HTML estático y cargan la pedida en el navegador.
 
