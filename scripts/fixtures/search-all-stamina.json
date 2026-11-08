@@ -1,0 +1,18 @@
+{
+ "query": "stamina",
+ "scope": "all",
+ "total": 11,
+ "ids": [
+  "event:stamina-2043",
+  "event:stamina-1462",
+  "event:stamina-1963",
+  "event:stamina-1705",
+  "event:stamina-1703",
+  "event:stamina-1708",
+  "event:stamina-1706",
+  "event:stamina-1707",
+  "event:stamina-1704",
+  "page:/catalogos/",
+  "page:/eventos/placas/"
+ ]
+}

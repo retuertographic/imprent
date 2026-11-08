@@ -1,0 +1,23 @@
+{
+ "query": "niño",
+ "scope": "roly",
+ "total": 16,
+ "ids": [
+  "jhk:TSRK190",
+  "roly:6554",
+  "roly:6698",
+  "roly:1087",
+  "roly:0317",
+  "roly:1217",
+  "roly:6690",
+  "roly:6681",
+  "roly:6412",
+  "roly:6413",
+  "roly:8405",
+  "roly:8406",
+  "roly:8417",
+  "roly:8418",
+  "roly:6414",
+  "roly:6415"
+ ]
+}

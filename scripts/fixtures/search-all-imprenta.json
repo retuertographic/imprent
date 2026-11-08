@@ -1,0 +1,17 @@
+{
+ "query": "imprenta",
+ "scope": "all",
+ "total": 10,
+ "ids": [
+  "page:/imprenta/",
+  "banner:lona-impresa",
+  "print:abanicos-de-papel",
+  "print:dipticos",
+  "print:flyers",
+  "print:pulseras-full-color",
+  "print:pulseras-sin-marcaje",
+  "print:tarjetas-de-visita",
+  "print:tripticos",
+  "fullprint:bufandas"
+ ]
+}

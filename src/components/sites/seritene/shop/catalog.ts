@@ -1,10 +1,12 @@
 /**
  * Utilidades del catálogo compartidas por servidor y cliente.
  * Los datos completos viven en public/sites/seritene/shop-data/*.json: el servidor los importa
- * para pintar la primera página y el cliente los descarga solo al paginar o buscar.
+ * para pintar la primera página y el cliente los descarga solo al paginar o buscar
+ * (la búsqueda usa search-index.json, generado por scripts/extract-search-index.mjs).
  */
 import { asset } from "../content";
-import type { CardItem, GroupData, ShopGroup, SitePage } from "./types";
+import { indexFromJson, type CompactIndex, type SearchIndex } from "./searchIndex";
+import type { CardItem, GroupData, ShopGroup } from "./types";
 
 export const PER_PAGE = 50;
 
@@ -54,7 +56,7 @@ export function pageItems(data: GroupData, categoryId: string, page: number): Ca
     .map((key) => ({ key, ...data.products[key] }));
 }
 
-export const shopDataUrl = (file: ShopGroup | "pages") => asset(`/shop-data/${file}.json`);
+export const shopDataUrl = (file: ShopGroup | "search-index") => asset(`/shop-data/${file}.json`);
 
 const cache = new Map<string, Promise<unknown>>();
 function loadJson<T>(url: string): Promise<T> {
@@ -71,4 +73,15 @@ function loadJson<T>(url: string): Promise<T> {
 }
 
 export const loadGroup = (group: ShopGroup) => loadJson<GroupData>(shopDataUrl(group));
-export const loadPages = () => loadJson<SitePage[]>(shopDataUrl("pages"));
+
+let searchIndexPromise: Promise<SearchIndex> | null = null;
+/** Índice del buscador (search-index.json), descargado y preparado una sola vez. */
+export function loadSearchIndex() {
+  if (!searchIndexPromise) {
+    searchIndexPromise = loadJson<CompactIndex>(shopDataUrl("search-index")).then(indexFromJson);
+    searchIndexPromise.catch(() => {
+      searchIndexPromise = null;
+    });
+  }
+  return searchIndexPromise;
+}

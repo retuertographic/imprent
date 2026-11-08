@@ -1,0 +1,12 @@
+{
+ "query": "sin mangas",
+ "scope": "all",
+ "total": 5,
+ "ids": [
+  "roly:9105",
+  "fullprint:camiseta-mamba",
+  "fullprint:freedom",
+  "fullprint:woman-fit",
+  "roly:6709"
+ ]
+}

@@ -1,0 +1,12 @@
+{
+ "query": "photocall",
+ "scope": "all",
+ "total": 5,
+ "ids": [
+  "photocall:photocall-3x3",
+  "photocall:photocall-3x4",
+  "photocall:photocall-3x5",
+  "photocall:photocall-3x6",
+  "page:/soportes-publicitarios/"
+ ]
+}

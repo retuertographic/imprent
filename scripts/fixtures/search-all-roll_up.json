@@ -1,0 +1,12 @@
+{
+ "query": "roll up",
+ "scope": "all",
+ "total": 5,
+ "ids": [
+  "rollup:roll-up-100x200",
+  "rollup:roll-up-120x200",
+  "rollup:roll-up-150x200",
+  "rollup:roll-up-85x200",
+  "page:/soportes-publicitarios/"
+ ]
+}

@@ -1,0 +1,9 @@
+{
+ "query": "tarjetas de visita",
+ "scope": "all",
+ "total": 2,
+ "ids": [
+  "page:/imprenta/",
+  "print:tarjetas-de-visita"
+ ]
+}

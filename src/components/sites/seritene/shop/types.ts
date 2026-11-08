@@ -25,14 +25,5 @@ export type GroupData = {
   products: Record<string, Product>;
 };
 
-/** Apartado o guía del sitio que el buscador muestra antes de los productos. */
-export type SitePage = {
-  path: string;
-  name: string;
-  description: string;
-  label: string;
-  keywords: string;
-};
-
 /** Producto listo para pintar una tarjeta. */
 export type CardItem = Product & { key: string };
