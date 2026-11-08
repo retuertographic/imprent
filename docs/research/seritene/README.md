@@ -67,8 +67,9 @@ logos, Seribot, icono de WhatsApp, fuentes). El favicon (`seritene-symbol.png`) 
 
 ## Diferencias conocidas
 
-- Fase 1: no hay icono de carrito en la cabecera y `/carrito/` no está clonado; "Ver carrito" lleva a
-  seritene.com, que no ve lo añadido aquí (el almacenamiento del navegador es por dominio).
+- Carrito (`/carrito/`): clonado con la lógica de producción e icono con contador en la cabecera.
+  Mejora propia que no existe en producción: botón «Vaciar carrito» con confirmación
+  (`cart/CartView.tsx`, estilos en `src/app/styles/seritene/cart-extras.css`).
 - El buscador local busca en las descripciones cortas del listado: da resultados parecidos pero no
   idénticos a los de producción (que busca en el servidor).
 - `/catalogos/` y `/ropa-laboral/` muestran una foto de la primera página del catálogo.

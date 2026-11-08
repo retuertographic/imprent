@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import "../styles/seritene/cart-extras.css";
 import { CartView } from "@/components/sites/seritene/cart/CartView";
 
 // Igual que producción: sin canonical y fuera de buscadores.

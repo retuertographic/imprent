@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Copy, Download, MessageCircle, ShoppingCart, Trash2 } from "lucide-react";
 import { asset } from "../content";
 import { SiteLink } from "../SiteLink";
@@ -57,10 +57,59 @@ function CartLine({ item, onRemove }: { item: CartItem; onRemove: () => void }) 
   );
 }
 
+/**
+ * «Vaciar carrito» (mejora propia; producción solo permite quitar selecciones una a una).
+ * Pide confirmación en línea para que un clic por error no borre el pedido.
+ */
+function ClearCart({ count, onClear }: { count: number; onClear: () => void }) {
+  const [confirming, setConfirming] = useState(false);
+  const confirmRef = useRef<HTMLButtonElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const wasConfirming = useRef(false);
+
+  useEffect(() => {
+    if (confirming) confirmRef.current?.focus();
+    else if (wasConfirming.current) triggerRef.current?.focus();
+    wasConfirming.current = confirming;
+  }, [confirming]);
+
+  if (!confirming) {
+    return (
+      <div className="cart-clear">
+        <button type="button" ref={triggerRef} onClick={() => setConfirming(true)}>
+          <Trash2 size={15} /> Vaciar carrito
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="cart-clear cart-clear-confirm"
+      role="group"
+      aria-label="Confirmar vaciar carrito"
+      onKeyDown={(event) => {
+        if (event.key === "Escape") setConfirming(false);
+      }}
+    >
+      <p>
+        ¿Quitar {count === 1 ? "la selección" : `las ${count} selecciones`} del carrito?
+      </p>
+      <button type="button" className="cart-clear-yes" ref={confirmRef} onClick={onClear}>
+        <Trash2 size={15} /> Sí, vaciar
+      </button>
+      <button type="button" onClick={() => setConfirming(false)}>
+        Cancelar
+      </button>
+    </div>
+  );
+}
+
 /** Página /carrito/ (portada del componente `CartView` de seritene.com). */
 export function CartView() {
   const { cart, ready, error, update } = useCart();
   const [status, setStatus] = useState("");
+  const [cleared, setCleared] = useState(false);
   const summary = cartSummary(cart);
   const message = cartMessage(cart);
   const isLong = message.length > LONG_MESSAGE;
@@ -125,6 +174,14 @@ export function CartView() {
                   }
                 />
               ))}
+              <ClearCart
+                count={count}
+                onClear={() => {
+                  update((current) => ({ ...current, items: [] }));
+                  setStatus("");
+                  setCleared(true);
+                }}
+              />
             </div>
             <aside className="cart-summary">
               <p className="eyebrow">TU PEDIDO</p>
@@ -197,6 +254,11 @@ export function CartView() {
           </div>
         ) : (
           <section className="cart-empty">
+            {cleared && (
+              <p role="status" className="cart-cleared">
+                Carrito vaciado.
+              </p>
+            )}
             <ShoppingCart size={48} />
             <h2>Tu próxima idea empieza aquí.</h2>
             <p>Añade productos desde sus fichas y reúne todo en un mismo pedido.</p>

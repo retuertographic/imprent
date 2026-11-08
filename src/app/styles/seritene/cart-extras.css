@@ -1,0 +1,72 @@
+/*
+ * Mejoras propias sobre el carrito de seritene.com (no existen en producción).
+ * Reutilizan los tokens y el estilo de los enlaces de cada selección (.cart-item-links).
+ */
+.cart-clear {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px 22px;
+  padding-top: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.cart-clear button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0;
+  color: #8d3021;
+  background: 0 0;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+}
+
+.cart-clear button:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.cart-clear-confirm {
+  justify-content: flex-start;
+  padding: 14px 16px;
+  border: 1px solid #8d302133;
+  border-radius: 14px;
+  background: #fff7f5;
+}
+
+.cart-clear-confirm p {
+  flex: 1 1 220px;
+  margin: 0;
+  color: var(--brand-ink);
+  font-size: 13px;
+}
+
+.cart-clear-confirm .cart-clear-yes {
+  padding: 0 14px;
+  color: #fff;
+  background: #8d3021;
+  border-radius: 999px;
+}
+
+.cart-clear-confirm .cart-clear-yes:hover {
+  text-decoration: none;
+  background: #6f2418;
+}
+
+.cart-cleared {
+  margin: 0 0 12px;
+  color: var(--brand-green);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+@media (max-width: 600px) {
+  .cart-clear button {
+    min-height: 44px;
+  }
+}
