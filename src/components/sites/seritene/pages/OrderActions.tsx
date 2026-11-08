@@ -4,44 +4,7 @@ import { Check, MessageCircle, ShoppingCart } from "lucide-react";
 import { useEffect, useState } from "react";
 import { contact } from "../content";
 import { SiteLink } from "../SiteLink";
-
-/** Mismo almacenamiento que el carrito de seritene.com (`seritene-cart-v1`). */
-const CART_KEY = "seritene-cart-v1";
-const CART_EVENT = "seritene-cart-changed";
-
-type CartItem = {
-  id: string;
-  name: string;
-  path: string;
-  image: string;
-  quantity: number | null;
-  subtotal: number | null;
-  details: string;
-  addedAt: number;
-};
-type Cart = { version: 1; items: CartItem[]; delivery: boolean };
-
-function readCart(): Cart {
-  try {
-    const parsed: unknown = JSON.parse(localStorage.getItem(CART_KEY) || "null");
-    if (parsed && typeof parsed === "object" && "version" in parsed && parsed.version === 1) {
-      const cart = parsed as Partial<Cart>;
-      return { version: 1, items: Array.isArray(cart.items) ? cart.items : [], delivery: cart.delivery === true };
-    }
-  } catch {
-    /* almacenamiento vacío o corrupto */
-  }
-  return { version: 1, items: [], delivery: false };
-}
-
-/** Quita del mensaje las líneas de envío y totales (se recalculan en el carrito). */
-const cartDetails = (message: string) =>
-  message
-    .split("\n")
-    .filter((line) => !/^Sin envío a domicilio\.|^Envío a domicilio:|^Transporte pendiente de confirmar\./.test(line))
-    .map((line) => line.replace(/(?:Total del pedido|Total sin IGIC|Total de medallas sin IGIC|Total):\s*[\d.,\s]+€\.?/gi, "").trim())
-    .filter(Boolean)
-    .join("\n");
+import { type CartItem, cartDetails, currentProductPath, readCart, writeCart } from "../cart/storage";
 
 /** Botones «Solicitar pedido» (WhatsApp) y «Añadir al carrito». */
 export function OrderActions({ name, message }: { name: string; message: string }) {
@@ -59,15 +22,14 @@ export function OrderActions({ name, message }: { name: string; message: string 
       const item: CartItem = {
         id: crypto.randomUUID(),
         name,
-        path: location.pathname,
+        path: currentProductPath(),
         image: "",
         quantity: null,
         subtotal: null,
         details: cartDetails(message),
         addedAt: Date.now(),
       };
-      localStorage.setItem(CART_KEY, JSON.stringify({ ...cart, items: [...cart.items, item] }));
-      window.dispatchEvent(new Event(CART_EVENT));
+      writeCart({ ...cart, items: [...cart.items, item] });
       setAdded(true);
       setError("");
     } catch (e) {

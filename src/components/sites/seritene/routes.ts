@@ -14,6 +14,7 @@ export const LOCAL_ROUTES = new Set<string>([
   "/blog/fullprint-tenerife/",
   "/blog/preparar-pedido-personalizado/",
   "/blog/serigrafia-tenerife/",
+  "/carrito/",
   "/catalogos/",
   "/contacto/",
   "/diseno-grafico/",

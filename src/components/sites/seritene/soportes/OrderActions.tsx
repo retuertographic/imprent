@@ -3,7 +3,8 @@
 import { useState, useSyncExternalStore } from "react";
 import { Check, MessageCircle, ShoppingCart } from "lucide-react";
 import { SiteLink } from "../SiteLink";
-import { MAX_CART_ITEMS, cartDetails, readCart, whatsappUrl, writeCart } from "./order";
+import { CART_LIMIT, cartDetails, currentProductPath, readCart, writeCart } from "../cart/storage";
+import { whatsappUrl } from "./order";
 
 type Props = {
   name: string;
@@ -37,7 +38,7 @@ export function OrderActions({ name, message, quantity = null, subtotal = null, 
   function addToCart() {
     try {
       const cart = readCart();
-      if (cart.items.length >= MAX_CART_ITEMS) {
+      if (cart.items.length >= CART_LIMIT) {
         throw new Error("El carrito admite hasta 50 selecciones. Solicita este pedido antes de añadir más.");
       }
       writeCart({
@@ -48,7 +49,7 @@ export function OrderActions({ name, message, quantity = null, subtotal = null, 
           {
             id: crypto.randomUUID(),
             name,
-            path: location.pathname,
+            path: currentProductPath(),
             image,
             quantity,
             subtotal,
