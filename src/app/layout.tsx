@@ -3,13 +3,15 @@ import type { Metadata } from "next";
 // Se importan por separado para que el plugin de Tailwind no los reprocese.
 import "./styles/seritene/base.css";
 import "./styles/seritene/site-shell.css";
-import "./styles/seritene/home.css";
-import "./styles/seritene/home-projects.css";
-import "./styles/seritene/home-team.css";
+import { SiteFooter } from "@/components/sites/seritene/SiteFooter";
+import { SiteHeader } from "@/components/sites/seritene/SiteHeader";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://seritene.com"),
-  title: "Seritene | Textil personalizado y merchandising en Tenerife",
+  title: {
+    default: "Seritene | Textil personalizado y merchandising en Tenerife",
+    template: "%s | Seritene",
+  },
   description:
     "Ropa personalizada, camisetas fullprint, merchandising e imprenta en Tenerife. Consulta stock y precios según cantidad y marcaje, y solicita tu pedido por WhatsApp.",
 };
@@ -21,7 +23,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <body>{children}</body>
+      <body>
+        <SiteHeader />
+        {children}
+        <SiteFooter />
+      </body>
     </html>
   );
 }

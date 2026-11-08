@@ -4,6 +4,7 @@
 import { useEffect, useRef, type CSSProperties } from "react";
 import { Search, Plus } from "lucide-react";
 import { asset, ext } from "./content";
+import { SiteLink } from "./SiteLink";
 
 type UnboxProduct = {
   name: string;
@@ -326,9 +327,9 @@ export function UnboxHero() {
               <Search size={20} />
             </button>
           </form>
-          <a className="unbox-catalog-shortcut" href={ext("/productos/")}>
+          <SiteLink className="unbox-catalog-shortcut" href={"/productos/"}>
             Prefiero explorar el catálogo
-          </a>
+          </SiteLink>
         </div>
         <div className="unbox-scene">
           <div className="unbox-halo" aria-hidden="true" />
@@ -361,10 +362,10 @@ export function UnboxHero() {
               "--fallback-turn": `${product.desktopTurn}deg`,
             } as CSSProperties;
             return (
-              <a
+              <SiteLink
                 key={product.name}
                 className={`unbox-product unbox-item-${i}`}
-                href={ext(product.href)}
+                href={product.href}
                 aria-label={`Ver ${product.name.toLowerCase()}`}
                 style={style}
               >
@@ -386,7 +387,7 @@ export function UnboxHero() {
                     <Plus size={14} />
                   </span>
                 </span>
-              </a>
+              </SiteLink>
             );
           })}
           <img className="unbox-box unbox-box-front" src={box} srcSet={boxSrcSet} sizes="(max-width:600px) 98vw, 46vw" alt="" aria-hidden="true" width={1254} height={1254} />

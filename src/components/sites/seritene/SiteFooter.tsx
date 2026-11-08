@@ -1,6 +1,8 @@
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
-import { asset, contact, ext, whatsappLinks } from "./content";
+import { asset, contact, whatsappLinks } from "./content";
+import { BrandCta } from "./BrandCta";
+import { SiteLink } from "./SiteLink";
 
 const explore: [string, string][] = [
   ["Ropa personalizada", "/ropa/"],
@@ -26,6 +28,7 @@ const company: [string, string][] = [
 export function SiteFooter() {
   return (
     <>
+      <BrandCta />
       <footer className="brand-footer">
         <div className="wrap footer-grid">
           <div>
@@ -50,17 +53,17 @@ export function SiteFooter() {
           <div>
             <strong>Explora</strong>
             {explore.map(([name, href]) => (
-              <a key={href} href={ext(href)} className={href === "/dtf-x-metros/" ? "dtf-nav-link" : undefined}>
+              <SiteLink key={href} href={href} className={href === "/dtf-x-metros/" ? "dtf-nav-link" : undefined}>
                 {name}
-              </a>
+              </SiteLink>
             ))}
           </div>
           <div>
             <strong>Seritene</strong>
             {company.map(([name, href]) => (
-              <a key={href} href={ext(href)}>
+              <SiteLink key={href} href={href}>
                 {name}
-              </a>
+              </SiteLink>
             ))}
           </div>
           <div>
@@ -76,9 +79,9 @@ export function SiteFooter() {
         <div className="wrap footer-bottom">
           <span>© {new Date().getFullYear()} Seritene</span>
           <div>
-            <a href={ext("/aviso-legal/")}>Aviso legal</a>
-            <a href={ext("/politica-privacidad/")}>Privacidad</a>
-            <a href={ext("/mapa-web/")}>Mapa web</a>
+            <SiteLink href={"/aviso-legal/"}>Aviso legal</SiteLink>
+            <SiteLink href={"/politica-privacidad/"}>Privacidad</SiteLink>
+            <SiteLink href={"/mapa-web/"}>Mapa web</SiteLink>
           </div>
         </div>
       </footer>
@@ -91,15 +94,15 @@ export function SiteFooter() {
       >
         <img src={asset("/whatsapp-white.svg")} width={28} height={28} alt="" aria-hidden="true" />
       </a>
-      <a
+      <SiteLink
         className="seribot-float"
-        href={ext("/encuentra-tu-producto/")}
+        href={"/encuentra-tu-producto/"}
         aria-label="Seribot: abre el asistente para encontrar tu producto"
         title="Encuentra lo que necesitas en cuatro preguntas"
       >
         <img src={asset("/seribot-floating.webp")} alt="" aria-hidden="true" width={88} height={88} />
         <span>¿Te ayudo?</span>
-      </a>
+      </SiteLink>
     </>
   );
 }
