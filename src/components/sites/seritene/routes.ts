@@ -1,3 +1,5 @@
+import { MERCH_PRODUCT_IDS } from "./merch/productIds.generated";
+
 /**
  * Rutas de seritene.com clonadas en esta web (fase 1: todo salvo las fichas /producto/...).
  * Los enlaces a estas rutas son locales; el resto apunta a producción.
@@ -136,4 +138,14 @@ const normalize = (path: string) => {
   return pathname.endsWith("/") ? pathname : pathname + "/";
 };
 
-export const isLocalRoute = (path: string) => path.startsWith("/") && LOCAL_ROUTES.has(normalize(path));
+/** Fichas Stamina clonadas (`/producto/stamina/<modelo>/`); las de Roly y JHK siguen en producción. */
+const isMerchProduct = (pathname: string) => {
+  const m = /^\/producto\/stamina\/(\d{4})\/$/.exec(pathname);
+  return m !== null && MERCH_PRODUCT_IDS.has(m[1]);
+};
+
+export const isLocalRoute = (path: string) => {
+  if (!path.startsWith("/")) return false;
+  const pathname = normalize(path);
+  return LOCAL_ROUTES.has(pathname) || isMerchProduct(pathname);
+};
