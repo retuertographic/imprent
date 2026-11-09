@@ -3,6 +3,10 @@ name: Deploy a GitHub Pages
 on:
   push:
     branches: [main]
+  # Cada noche: refresca tarifas y stock de merchandising y vuelve a publicar.
+  # GitHub usa UTC: 02:17 UTC = 03:17 en Madrid en invierno (CET) y 04:17 en verano (CEST).
+  schedule:
+    - cron: "17 2 * * *"
   workflow_dispatch:
 
 permissions:
@@ -17,7 +21,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 40
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -34,6 +38,14 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      # Tarifas y stock del día desde seritene.com (/api/gor) → public/sites/seritene/shop-data/merch-pricing.json.
+      # Si producción falla, el script conserva el archivo del repositorio y termina bien; el archivo nuevo
+      # no se commitea: solo lo usa esta build.
+      - name: Refresh merchandising prices and stock
+        run: node scripts/refresh-merch-pricing.mjs
+        timeout-minutes: 25
+        continue-on-error: true
 
       - name: Build static site
         run: npm run build

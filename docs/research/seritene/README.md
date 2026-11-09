@@ -13,6 +13,7 @@ La lista exacta está en `src/components/sites/seritene/routes.ts` (`LOCAL_ROUTE
 | Home | `/` | `src/app/page.tsx`, componentes `Home*`, `UnboxHero` |
 | Contenido y blog | equipo, valores, servicios, contacto, catálogos, textil, rotulación, diseño, banderas-rollups, ropa-laboral, DTF, mapa web, legales, cuestionario, `/blog/` + 7 artículos | `src/components/sites/seritene/pages/` |
 | Tienda | `/ropa/*`, `/merchandising/*`, `/productos/` (buscador `?q=`), `/imprenta/*` | `src/components/sites/seritene/shop/` (datos en `public/sites/seritene/shop-data/`) |
+| Fichas de merchandising | `/producto/stamina/<id>/` (1.584 modelos Stamina; Roly y JHK siguen en producción) | `src/app/producto/stamina/[id]/`, `src/components/sites/seritene/merch/` (datos en `merch/data/`, tarifas y stock del día en `public/sites/seritene/shop-data/merch-pricing.json`) |
 | Fullprint | portada, 6 colecciones, 30 modelos | `src/components/sites/seritene/fullprint/` |
 | Soportes y eventos | `/soportes-publicitarios/*`, `/eventos/*`, medallas | `src/components/sites/seritene/soportes/`, `eventos/` |
 
@@ -25,6 +26,8 @@ Cada página mantiene su `canonical` hacia seritene.com.
 - `scripts/extract-fullprint.mjs` — modelos, colecciones y precios de Fullprint.
 - `scripts/extract-seritene-soportes-eventos.mjs` — soportes, eventos y medallas.
 - `scripts/extract-search-index.mjs` — índice del buscador (descripciones completas de producción).
+- `scripts/extract-merch-products.mjs` — fichas Stamina (producto, variantes, JSON-LD, metadatos).
+- `scripts/refresh-merch-pricing.mjs` — tarifas y stock de `/api/gor`; lo ejecuta el deploy cada noche.
 
 Son una foto del sitio en noviembre de 2026: si el cliente cambia precios o productos, hay que volver a ejecutarlos.
 
