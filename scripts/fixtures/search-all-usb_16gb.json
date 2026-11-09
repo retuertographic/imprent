@@ -1,0 +1,9 @@
+{
+ "query": "usb 16gb",
+ "scope": "all",
+ "total": 2,
+ "ids": [
+  "stamina:1858",
+  "stamina:4186"
+ ]
+}

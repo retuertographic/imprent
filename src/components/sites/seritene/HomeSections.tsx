@@ -14,7 +14,8 @@ import {
   ArrowUpRight,
   type LucideIcon,
 } from "lucide-react";
-import { asset, contact, ext, faqs, proofs, reels, services, whatsappLinks } from "./content";
+import { asset, contact, faqs, proofs, reels, services, whatsappLinks } from "./content";
+import { SiteLink } from "./SiteLink";
 
 function InstagramIcon({ size }: { size: number }) {
   return (
@@ -49,9 +50,9 @@ export function ServicesSection() {
           {services.map((service, i) => {
             const src = asset(`/optimized/${service.image}-720.webp`);
             return (
-              <a
+              <SiteLink
                 key={service.name}
-                href={ext(service.href)}
+                href={service.href}
                 className={`edit-service edit-service-${i}`}
                 data-enter
                 data-delay={String((i % 3) * 90)}
@@ -75,7 +76,7 @@ export function ServicesSection() {
                   <Plus size={17} />
                 </div>
                 <p>{service.text}</p>
-              </a>
+              </SiteLink>
             );
           })}
         </div>
@@ -100,10 +101,10 @@ export function BrandSection() {
             <br />a <em>tus manos.</em>
           </h2>
           <div className="edit-actions">
-            <a className="edit-button" href={ext("/productos/")}>
+            <SiteLink className="edit-button" href={"/productos/"}>
               <Search size={18} />
               Elige tu producto
-            </a>
+            </SiteLink>
             <a className="edit-text-link" href={whatsappLinks.idea} target="_blank" rel="noopener noreferrer">
               Tengo una idea
               <MessageCircle size={18} />
@@ -222,7 +223,7 @@ export function AudiencesSection() {
               data-direction={i % 2 === 0 ? "left" : "right"}
               data-delay={String(i * 65)}
             >
-              <a className="audience-studio-card" href={ext(href)}>
+              <SiteLink className="audience-studio-card" href={href}>
                 <span className="audience-symbol">
                   <Icon className="audience-icon" size={34} strokeWidth={1.35} aria-hidden="true" />
                 </span>
@@ -231,7 +232,7 @@ export function AudiencesSection() {
                   <p>{text}</p>
                 </div>
                 <Plus className="audience-plus" size={18} aria-hidden="true" />
-              </a>
+              </SiteLink>
             </div>
           ))}
         </div>
@@ -366,10 +367,10 @@ export function FinalSection() {
           </h2>
         </div>
         <div className="edit-final-actions" data-enter data-delay="80">
-          <a className="edit-button" href={ext("/productos/")}>
+          <SiteLink className="edit-button" href={"/productos/"}>
             <Search size={17} />
             Buscar productos
-          </a>
+          </SiteLink>
           <a className="edit-button edit-button-outline" href={whatsappLinks.idea} target="_blank" rel="noopener noreferrer">
             <MessageCircle size={17} />
             Hablar por WhatsApp

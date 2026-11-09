@@ -1,0 +1,18 @@
+{
+ "query": "taza cristal",
+ "scope": "stamina",
+ "total": 11,
+ "ids": [
+  "stamina:3986",
+  "stamina:1359",
+  "stamina:1848",
+  "stamina:4202",
+  "stamina:3998",
+  "stamina:4148",
+  "stamina:1849",
+  "stamina:4037",
+  "stamina:1171",
+  "stamina:4203",
+  "stamina:1315"
+ ]
+}

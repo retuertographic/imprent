@@ -1,0 +1,27 @@
+{
+ "query": "hoodie",
+ "scope": "all",
+ "total": 20,
+ "ids": [
+  "fullprint:chaqueta-capucha",
+  "jhk:SWUAHOOD",
+  "roly:1087",
+  "jhk:SWULCROP",
+  "jhk:SWRAKNG",
+  "jhk:SWULKNG",
+  "jhk:SWKNGOVER",
+  "fullprint:sudadera-urban",
+  "roly:1102",
+  "roly:1058",
+  "roly:1105",
+  "roly:2204",
+  "roly:1119",
+  "roly:6421",
+  "roly:6702",
+  "roly:1067",
+  "roly:1068",
+  "roly:6425",
+  "roly:1074",
+  "roly:1121"
+ ]
+}

@@ -3,8 +3,9 @@
 
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Asterisk, ChevronLeft, ChevronRight, Pause, Play, Plus } from "lucide-react";
-import { asset, ext, team } from "./content";
+import { asset, team } from "./content";
 import { useCarouselEnvironment } from "./useMotionAllowed";
+import { SiteLink } from "./SiteLink";
 
 const slotClass = (slot: number) =>
   slot === 0 ? "is-front" : slot === 1 ? "is-second" : slot === 2 ? "is-third" : "is-away";
@@ -45,9 +46,9 @@ export function HomeTeam() {
           <br />
           Y alguna que otra buena ocurrencia.
         </p>
-        <a className="brand-button" href={ext("/sobre-nosotros/")}>
+        <SiteLink className="brand-button" href={"/sobre-nosotros/"}>
           Conoce al equipo <Plus size={20} aria-hidden="true" />
-        </a>
+        </SiteLink>
       </div>
       <div
         className="home-team-showcase"
@@ -84,9 +85,9 @@ export function HomeTeam() {
           {team.map((member, index) => {
             const slot = (index - current + team.length) % team.length;
             return (
-              <a
+              <SiteLink
                 key={member.name}
-                href={ext("/sobre-nosotros/")}
+                href={"/sobre-nosotros/"}
                 className={`home-team-slide ${slotClass(slot)}`}
                 tabIndex={slot === 0 ? 0 : -1}
                 aria-hidden={slot !== 0}
@@ -112,7 +113,7 @@ export function HomeTeam() {
                   </div>
                   <Plus size={22} aria-hidden="true" />
                 </div>
-              </a>
+              </SiteLink>
             );
           })}
         </div>

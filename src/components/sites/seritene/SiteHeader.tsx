@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import {
   ArrowUpRight,
@@ -13,9 +14,14 @@ import {
   Search,
   X,
 } from "lucide-react";
-import { asset, contact, ext, navCategories, utilityLinks } from "./content";
+import { BASE_PATH, asset, contact, navCategories, utilityLinks } from "./content";
+import { SiteLink } from "./SiteLink";
+import { CartLink } from "./cart/CartLink";
 
 export function SiteHeader() {
+  const pathname = usePathname();
+  const isCurrent = (href: string) =>
+    href === "/merchandising/" ? pathname.startsWith(href) && !pathname.includes("/medallas-") : pathname.startsWith(href);
   const [moreOpen, setMoreOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [panel, setPanel] = useState<string | null>(null);
@@ -32,6 +38,13 @@ export function SiteHeader() {
     setSearchOpen(false);
     setMoreOpen(false);
   };
+
+  // Al navegar a otra página se cierran menús y buscador (ajuste de estado en render, sin efecto).
+  const [lastPath, setLastPath] = useState(pathname);
+  if (lastPath !== pathname) {
+    setLastPath(pathname);
+    closeAll();
+  }
 
   useEffect(() => {
     document.documentElement.classList.toggle("motion-paused", paused);
@@ -88,6 +101,7 @@ export function SiteHeader() {
                       <button
                         aria-expanded={panel === category.name}
                         aria-controls={`ch-panel-${index}`}
+                        className={isCurrent(category.href) ? "ch-current" : ""}
                         onClick={() => {
                           setPanel(panel === category.name ? null : category.name);
                           setSearchOpen(false);
@@ -100,36 +114,38 @@ export function SiteHeader() {
                       <div className="ch-panel" id={`ch-panel-${index}`} hidden={panel !== category.name}>
                         <div className="ch-panel-heading">
                           <span>EXPLORA {category.name.toUpperCase()}</span>
-                          <a href={ext(category.href)}>
+                          <SiteLink href={category.href}>
                             Ver todo <ArrowUpRight size={16} />
-                          </a>
+                          </SiteLink>
                         </div>
                         <div className="ch-panel-links">
                           {category.links.map((link) => (
-                            <a key={link.href} href={ext(link.href)}>
+                            <SiteLink key={link.href} href={link.href} aria-current={pathname === link.href ? "page" : undefined}>
                               {link.name}
                               <ArrowUpRight size={14} />
-                            </a>
+                            </SiteLink>
                           ))}
                         </div>
                       </div>
                     </>
                   ) : (
-                    <a href={ext(category.href)}>{category.name}</a>
+                    <SiteLink href={category.href} aria-current={isCurrent(category.href) ? "page" : undefined}>
+                      {category.name}
+                    </SiteLink>
                   )}
                 </div>
               ))}
               <div className="ch-mobile-utility">
                 {utilityLinks.map(([name, href]) => (
-                  <a key={href} href={ext(href)}>
+                  <SiteLink key={href} href={href}>
                     {name}
-                  </a>
+                  </SiteLink>
                 ))}
                 <button onClick={() => setPaused(!paused)}>{pauseLabel}</button>
               </div>
             </div>
           </nav>
-          <form className={`ch-search${searchOpen ? " ch-search-open" : ""}`} action={ext("/productos/")} role="search">
+          <form className={`ch-search${searchOpen ? " ch-search-open" : ""}`} action={`${BASE_PATH}/productos/`} role="search">
             <Search size={20} aria-hidden="true" />
             <input
               ref={searchInputRef}
@@ -144,6 +160,7 @@ export function SiteHeader() {
             </button>
           </form>
           <div className="ch-actions">
+            <CartLink />
             <button
               className="ch-icon ch-search-toggle"
               ref={searchToggleRef}
@@ -189,10 +206,10 @@ export function SiteHeader() {
         <div className="ch-more" hidden={!moreOpen}>
           <nav aria-label="Sobre Seritene">
             {utilityLinks.map(([name, href]) => (
-              <a key={href} href={ext(href)}>
+              <SiteLink key={href} href={href}>
                 {name}
                 <ArrowUpRight size={14} />
-              </a>
+              </SiteLink>
             ))}
             <a href={contact.whatsapp} target="_blank" rel="noreferrer">
               WhatsApp
