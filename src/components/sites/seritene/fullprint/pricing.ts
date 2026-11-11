@@ -107,3 +107,23 @@ export function orderMessage(product: FullprintModel, s: Selection, price: Price
     .filter(Boolean)
     .join("\n");
 }
+
+/**
+ * Estado completo de una selección de la ficha: cantidad mínima, precio y mensaje.
+ * Lo usan el configurador y el carrito (al cambiar la cantidad), para que nunca difieran.
+ */
+export function fullprintOrder(product: FullprintModel, s: Selection) {
+  const variant = product.variants.find((v) => v.id === s.variantId) ?? product.variants[0];
+  const minimum = variant.tiers[0]?.min ?? product.variants[0].tiers[0].min;
+  const validQuantity = Number.isSafeInteger(s.quantity) && s.quantity >= minimum;
+  const price = calculatePrice(product, s.variantId, s.quantity, s.extraIds, s.attachmentId, s.fabricId);
+  return {
+    variant,
+    minimum,
+    validQuantity,
+    price,
+    total: withShipping(price?.total, s.delivery),
+    message: orderMessage(product, s, price),
+    subtotal: price?.total ?? null,
+  };
+}

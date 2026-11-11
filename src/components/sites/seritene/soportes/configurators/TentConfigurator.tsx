@@ -4,31 +4,15 @@ import { useState } from "react";
 import { Input } from "../form-controls";
 import { OrderActions } from "../OrderActions";
 import { ProductDelivery } from "../ProductDelivery";
-import { deliveryLine, formatEuro, shippingFor } from "../order";
+import { formatEuro } from "../order";
+import { tentOrder } from "../pricing";
 import type { TentProduct } from "../types";
-
-function tentPrice(product: TentProduct, quantity: number) {
-  if (!Number.isSafeInteger(quantity) || quantity < 1) return null;
-  const total = product.unit * quantity;
-  return Number.isSafeInteger(total) ? { unit: product.unit, total } : null;
-}
 
 export function TentConfigurator({ product }: { product: TentProduct }) {
   const [quantityText, setQuantityText] = useState("1");
   const [delivery, setDelivery] = useState(false);
   const quantity = Number(quantityText);
-  const price = tentPrice(product, quantity);
-  const shipping = shippingFor(price?.total, delivery);
-  const message = [
-    `Hola Seritene, quiero presupuesto para ${product.name}.`,
-    `Cantidad: ${quantity}.`,
-    "Pack completo: estructura de aluminio plegable de perfil hexagonal de 40 mm, techo impreso en poliéster impermeable de 260 g/m² y bolsa de nylon con ruedas.",
-    price && shipping ? `Precio sin IGIC: ${formatEuro(price.unit)} / ud. Total sin IGIC: ${formatEuro(shipping.total)}.` : "",
-    price ? deliveryLine(price.total, delivery) : "",
-    "Quiero confirmar diseño, impuestos y plazo.",
-  ]
-    .filter(Boolean)
-    .join("\n");
+  const { price, shipping, message } = tentOrder(product, quantity, delivery);
 
   return (
     <div className="print-config">
@@ -63,6 +47,7 @@ export function TentConfigurator({ product }: { product: TentProduct }) {
           quantity={quantity}
           subtotal={price.total}
           delivery={delivery}
+          reprice={{ kind: "tent", slug: product.slug, delivery }}
         />
       ) : (
         <button className="brand-button print-request" disabled>

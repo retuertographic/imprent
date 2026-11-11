@@ -6,6 +6,7 @@
  * `/fullprint-examples/x.webp`): se resuelven con `SiteLink` / `asset()` al pintarlas, nunca al guardarlas.
  */
 import { BASE_PATH } from "../content";
+import { isReprice, type Reprice } from "./reprice";
 
 export type CartItem = {
   id: string;
@@ -20,6 +21,11 @@ export type CartItem = {
   details: string;
   addedAt: number;
   expiresAt?: number;
+  /**
+   * Mejora propia (opcional): selección de la ficha para recalcular al cambiar la cantidad en el
+   * carrito (ver `reprice.ts`). Sin él, la cantidad solo se cambia en la ficha.
+   */
+  reprice?: Reprice;
 };
 
 export type Cart = { version: 1; items: CartItem[]; delivery: boolean };
@@ -48,6 +54,14 @@ function isCartItem(value: unknown): value is CartItem {
   );
 }
 
+/** Un `reprice` mal formado se descarta sin perder la selección (pasa a cambiarse en la ficha). */
+function withValidReprice(item: CartItem): CartItem {
+  if (item.reprice === undefined || isReprice(item.reprice)) return item;
+  const copy = { ...item };
+  delete copy.reprice;
+  return copy;
+}
+
 /** Interpreta el JSON guardado; descarta entradas no válidas y se queda con las 50 primeras. */
 export function parseCart(raw: string | null): Cart {
   try {
@@ -55,7 +69,11 @@ export function parseCart(raw: string | null): Cart {
     if (!parsed || typeof parsed !== "object") return EMPTY_CART;
     const cart = parsed as { version?: unknown; items?: unknown; delivery?: unknown };
     if (cart.version !== 1 || !Array.isArray(cart.items)) return EMPTY_CART;
-    return { version: 1, items: cart.items.filter(isCartItem).slice(0, CART_LIMIT), delivery: cart.delivery === true };
+    return {
+      version: 1,
+      items: cart.items.filter(isCartItem).slice(0, CART_LIMIT).map(withValidReprice),
+      delivery: cart.delivery === true,
+    };
   } catch {
     return EMPTY_CART;
   }

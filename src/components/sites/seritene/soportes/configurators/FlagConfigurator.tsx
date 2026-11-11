@@ -6,61 +6,15 @@ import { asset } from "../../content";
 import { Input, NativeSelect, NativeSelectOption } from "../form-controls";
 import { OrderActions } from "../OrderActions";
 import { ProductDelivery } from "../ProductDelivery";
-import { deliveryLine, formatEuro, formatNumber, shippingFor } from "../order";
-import type { FlagProduct, FlagTier } from "../types";
-
-type CatalogArt = { src: string; small: string; width: number; height: number; smallWidth: number };
-
-/** Bases de bandera: recortes de /banderas-bases.png ya exportados a /catalogue (chunk `catalog-image`). */
-const BASES: { id: string; name: string; description: string; art: CatalogArt }[] = [
-  {
-    id: "cruz",
-    name: "Cruz",
-    description: "Incluye flotador para llenar de agua y hacer de peso.",
-    art: { src: "/catalogue/banderas-bases-14.webp", small: "/catalogue/banderas-bases-14-small.webp", width: 299, height: 428, smallWidth: 299 },
-  },
-  {
-    id: "piqueta",
-    name: "Piqueta",
-    description: "Para clavar en un terreno compatible.",
-    art: { src: "/catalogue/banderas-bases-15.webp", small: "/catalogue/banderas-bases-15-small.webp", width: 75, height: 453, smallWidth: 75 },
-  },
-  {
-    id: "pared",
-    name: "Pared",
-    description: "Soporte de fijación a pared.",
-    art: { src: "/catalogue/banderas-bases-16.webp", small: "/catalogue/banderas-bases-16-small.webp", width: 189, height: 321, smallWidth: 189 },
-  },
-  {
-    id: "coche",
-    name: "Coche",
-    description: "Base para colocar bajo una rueda.",
-    art: { src: "/catalogue/banderas-bases-17.webp", small: "/catalogue/banderas-bases-17-small.webp", width: 444, height: 220, smallWidth: 420 },
-  },
-];
+import { formatEuro, formatNumber } from "../order";
+import { FLAG_BASES, flagOrder, flagTiers, type CatalogArt, type FlagPack as Pack } from "../pricing";
+import type { FlagProduct } from "../types";
 
 /** Imagen pequeña de la bandera para el carrito (recortes de /banderas-*.png en producción). */
 const FLAG_CART_IMAGES: Record<string, string> = {
   "/banderas-vela.png": "/catalogue/banderas-vela-12-small.webp",
   "/banderas-gota.png": "/catalogue/banderas-gota-13-small.webp",
 };
-
-type Pack = "complete" | "fabric";
-
-function tiersFor(product: FlagProduct, sizeId: string): FlagTier[] {
-  const size = product.sizes.find((s) => s.id === sizeId);
-  return size ? (size.tiers ?? [{ min: 1, complete: size.complete, fabric: size.fabric }]) : [];
-}
-
-function flagPrice(product: FlagProduct, sizeId: string, pack: Pack, quantity: number) {
-  if (!product.sizes.some((s) => s.id === sizeId) || !Number.isSafeInteger(quantity) || quantity < 1) return null;
-  const tier = tiersFor(product, sizeId)
-    .filter((t) => t.min <= quantity)
-    .at(-1);
-  if (!tier) return null;
-  const unit = pack === "complete" ? tier.complete : tier.fabric;
-  return Number.isSafeInteger(unit * quantity) ? { unit, total: unit * quantity } : null;
-}
 
 function BaseArt({ art, name }: { art: CatalogArt; name: string }) {
   return (
@@ -87,26 +41,9 @@ export function FlagConfigurator({ product }: { product: FlagProduct }) {
   const [pack, setPack] = useState<Pack>("complete");
   const [baseId, setBaseId] = useState("cruz");
   const [quantityText, setQuantityText] = useState("1");
-  const size = product.sizes.find((s) => s.id === sizeId) ?? product.sizes[0];
   const quantity = Number(quantityText);
-  const price = flagPrice(product, sizeId, pack, quantity);
-  const complete = pack === "complete";
-  const tiers = tiersFor(product, sizeId);
-  const base = BASES.find((b) => b.id === baseId) ?? BASES[0];
-  const shipping = shippingFor(price?.total, delivery);
-  const message = [
-    `Hola Seritene, quiero ${product.name}, tamaño ${sizeId}.`,
-    `Cantidad: ${formatNumber(quantity)}.`,
-    `Tela: ${size.width} × ${size.height} cm.`,
-    complete
-      ? `Conjunto completo, base ${base.name} y bolsa de transporte. Altura con soporte aproximada: ${size.mounted} cm.`
-      : "Solo tela, sin soporte, base ni bolsa de transporte.",
-    price && shipping ? `Precio: ${formatEuro(price.unit)} / ud. Total: ${formatEuro(shipping.total)}.` : "",
-    deliveryLine(price?.total, delivery),
-    "Quiero confirmar diseño, impuestos y plazo.",
-  ]
-    .filter(Boolean)
-    .join("\n");
+  const { size, price, complete, base, shipping, message } = flagOrder(product, { sizeId, pack, baseId, quantity, delivery });
+  const tiers = flagTiers(product, sizeId);
 
   return (
     <div className="print-config">
@@ -151,7 +88,7 @@ export function FlagConfigurator({ product }: { product: FlagProduct }) {
         <div className="print-field">
           <label htmlFor="flag-base">Base incluida</label>
           <NativeSelect id="flag-base" value={baseId} onChange={(e) => setBaseId(e.target.value)}>
-            {BASES.map((b) => (
+            {FLAG_BASES.map((b) => (
               <NativeSelectOption key={b.id} value={b.id}>
                 {b.name}
               </NativeSelectOption>
@@ -228,6 +165,7 @@ export function FlagConfigurator({ product }: { product: FlagProduct }) {
           quantity={quantity}
           subtotal={price.total}
           delivery={delivery}
+          reprice={{ kind: "flag", slug: product.slug, sizeId, pack, baseId, delivery }}
         />
       ) : (
         <button className="brand-button print-request" disabled>

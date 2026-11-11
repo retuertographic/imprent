@@ -1,4 +1,6 @@
 /** Productos de imprenta y sus tarifas (mismos datos y cálculo que producción). */
+import { formatCents } from "./catalog";
+import { deliveryLine, deliveryQuote } from "./order";
 
 export type PrintPrice = { quantity: number; total: number };
 
@@ -204,4 +206,62 @@ export function printQuote(product: PrintProduct, quantity: number, variantId: s
   }
   const tier = [...product.tiers].reverse().find((t) => quantity >= t.min);
   return !tier || !Number.isSafeInteger(tier.unit * quantity) ? null : { total: tier.unit * quantity, unit: tier.unit };
+}
+
+const printNumber = new Intl.NumberFormat("es-ES");
+
+/** Cantidades del desplegable de una variante (250 «Consultar presupuesto» si no tiene tarifa para 250). */
+export function printQuantityOptions(variant: PrintVariant) {
+  return [
+    ...(variant.prices.some((p) => p.quantity === PRINT_MINIMUM)
+      ? []
+      : [{ quantity: PRINT_MINIMUM, label: "250 unidades · Consultar presupuesto" }]),
+    ...variant.prices.map((p) => ({
+      quantity: p.quantity,
+      label: `${printNumber.format(p.quantity)} unidades · ${formatCents(p.total)}`,
+    })),
+  ];
+}
+
+export type PrintSelection = { quantity: number; variantId: string; design: string; customFormat: string; delivery: boolean };
+
+/**
+ * Estado completo de una selección de imprenta (precio, si se puede pedir y mensaje de WhatsApp).
+ * Lo usan `PrintConfigurator` y el carrito al cambiar la cantidad.
+ */
+export function printOrder(product: PrintProduct, s: PrintSelection) {
+  const variant = product.variants.find((v) => v.id === s.variantId);
+  const quote = printQuote(product, s.quantity, s.variantId);
+  const custom = !product.variants.length && !product.tiers.length;
+  const validQuantity = Number.isSafeInteger(s.quantity) && s.quantity >= PRINT_MINIMUM;
+  const plainBracelets = product.slug === "pulseras-sin-marcaje";
+  const minimum = product.tiers[0]?.min ?? PRINT_MINIMUM;
+  const designLine = s.design === "ready" ? "Aporto mi diseño listo para imprimir" : "Necesito ayuda con el diseño";
+  const withDelivery = deliveryQuote(quote?.total, s.delivery);
+  const message = [
+    `Hola Seritene, me interesan ${product.name}.`,
+    `Cantidad: ${printNumber.format(s.quantity)} unidades.`,
+    variant
+      ? `Opciones: ${variant.label}.`
+      : custom
+        ? `Formato: ${s.customFormat.trim() || "Necesito asesoramiento"}.`
+        : product.specs.join(" · "),
+    quote && withDelivery ? `Total del pedido: ${formatCents(withDelivery.total)}.` : "Solicito presupuesto.",
+    plainBracelets ? "Sin personalización. Color a confirmar." : `${designLine}.`,
+    deliveryLine(quote?.total, s.delivery),
+    "Quiero confirmar impuestos y plazo.",
+  ].join("\n");
+  const canOrder = validQuantity && (custom || !!quote || (!!variant && s.quantity === PRINT_MINIMUM));
+  return {
+    variant,
+    quote,
+    custom,
+    validQuantity,
+    plainBracelets,
+    minimum,
+    withDelivery,
+    message,
+    canOrder,
+    subtotal: quote?.total ?? null,
+  };
 }

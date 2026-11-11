@@ -14,6 +14,8 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Copias de trabajo temporales de agentes
     ".claude/**",
+    // App del Estudio DTF copiada tal cual del cliente (ver docs/research/seritene/README.md)
+    "public/estudio-dtf/**",
   ]),
 ]);
 

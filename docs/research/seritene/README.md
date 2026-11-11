@@ -59,6 +59,28 @@ Todo en `public/sites/seritene/` con la misma ruta relativa que en el origen
 (salvo las fuentes; `/optimized/*.webp`, `/team/*.webp`, `/trabajos/proyecto-XX-{thumb,full}.webp`, `/reels/*.jpg`,
 logos, Seribot, icono de WhatsApp, fuentes). El favicon (`seritene-symbol.png`) está en `src/app/icon.png`.
 
+## Estudio DTF (`/estudio-dtf/`)
+
+App estática hecha para Seritene («Estudio DTF · Seritene»: semitonos, montaje en plancha de 57 cm,
+PNG transparente a 300 ppp y envío por WhatsApp/email). Origen: https://seritene-dtf-studio.cesarfr.chatgpt.site/.
+
+- Copia en `public/estudio-dtf/` (13 archivos, ~133 KB: `index.html`, `style.css`, `app.mjs`, 5 módulos, 4 workers
+  y el logo), servida tal cual (solo con finales de línea LF): no pasa por el layout de Next. Todas sus URL son relativas, así que funciona
+  con y sin `basePath` (`/imprent/estudio-dtf/` en GitHub Pages).
+- `DtfPage.tsx` la abre en pestaña nueva con `${BASE_PATH}/estudio-dtf/index.html` (`index.html` explícito
+  porque `next dev` no sirve el `index.html` de una carpeta de `public/`).
+- Únicos cambios respecto al original, en `index.html`: logo y «Volver a Seritene» → `../` (home del clon),
+  «Privacidad» → `../politica-privacidad/` (siguen abriendo en pestaña nueva, como en el original, para no
+  perder la plancha en curso), y se quita el `<script>` que inyecta Cloudflare (`/cdn-cgi/…`).
+- Siguen fuera, igual que en el original: Google Fonts (DM Sans, Manrope) y, solo al pulsar «Eliminar fondo»,
+  Transformers.js desde jsDelivr y el modelo BEN2 (219 MB) desde Hugging Face. WhatsApp y email sin cambios.
+- Actualizar si el cliente cambia la app: `node scripts/mirror-dtf-studio.mjs` (vuelve a descargar todo
+  siguiendo imports, workers y recursos, y reaplica los cambios de arriba; avisa si alguno ya no encaja).
+  `--check` solo informa de qué ha cambiado.
+- Verificado con Playwright a 1440×900 y 390×844 contra el original: capturas idénticas, mismos textos en
+  cada paso (guía, subida PNG/JPG, copias, anidado, avisos de resolución/solape/fondo, semitonos) y PNG
+  exportados idénticos byte a byte (6732×11811 px, 300 ppp, RGBA con transparencia).
+
 ## Verificación
 
 - Home: altura idéntica a la fuente: 7061 px (1440×900), 8683 px (390×844), 7421 px (1920×1080).
@@ -74,6 +96,14 @@ logos, Seribot, icono de WhatsApp, fuentes). El favicon (`seritene-symbol.png`) 
 - Carrito (`/carrito/`): clonado con la lógica de producción e icono con contador en la cabecera.
   Mejora propia que no existe en producción: botón «Vaciar carrito» con confirmación
   (`cart/CartView.tsx`, estilos en `src/app/styles/seritene/cart-extras.css`).
+  Segunda mejora propia: la cantidad de cada selección se cambia en el propio carrito (`cart/QuantityEditor.tsx`).
+  Al añadir, la ficha guarda en el campo opcional `reprice` (formato `seritene-cart-v1` intacto) la selección mínima
+  para recalcular; `cart/repricers.ts` llama a las mismas funciones puras que la ficha (`fullprintOrder`, `printOrder`,
+  `rollupOrder`/`flagOrder`/`photocallOrder`/`tentOrder`, `areaOrder`, `merchOrder`) y regenera precio, «Ver selección»
+  y mensaje de WhatsApp como si se hubiera añadido con esa cantidad, respetando mínimos, múltiplos de embalaje, máximos,
+  las cantidades fijas de imprenta (desplegable) y los avisos de stock. Las selecciones sin `reprice` (añadidas antes)
+  muestran la cantidad fija con «Cambiar en la ficha»; las que no tienen cantidad en la ficha (DTF por metros, fichas
+  estáticas de eventos) siguen «a confirmar». Comprobación: `node scripts/check-cart-reprice.mjs`.
 - Buscador: índice propio (`public/sites/seritene/shop-data/search-index.json`, 2119 registros, 177 KB
   comprimido) con la misma lógica de coincidencia y orden que `/api/search` de producción
   (`shop/searchIndex.ts`). Coincide en 111 de 113 consultas de prueba (`node scripts/check-search.mjs`);

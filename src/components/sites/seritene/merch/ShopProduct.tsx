@@ -7,18 +7,9 @@ import { SiteLink } from "../SiteLink";
 import { OrderActions } from "../soportes/OrderActions";
 import { ProductDelivery } from "../soportes/ProductDelivery";
 import { Input, NativeSelect, NativeSelectOption } from "../soportes/form-controls";
-import { deliveryLine, shippingFor } from "../soportes/order";
 import { loadModelPricing, type ModelPricing } from "./loadPricing";
-import {
-  MARK_SIZES,
-  choiceMarks,
-  formatEuro,
-  markingOptions,
-  productSummary,
-  quoteOrder,
-  type Marking,
-  type OrderQuote,
-} from "./pricing";
+import { merchOrder, OVER_STOCK, stockStatus, withModelPricing } from "./order";
+import { MARK_SIZES, choiceMarks, markingOptions, productSummary, type Marking } from "./pricing";
 import type { MerchProduct, MerchVariant } from "./types";
 
 type Props = {
@@ -37,7 +28,6 @@ type Selection = { id: number; sku: string; quantity: string };
  * merch-pricing.json, que el workflow de deploy refresca cada noche.
  */
 export function ShopProduct({ model, product, warehouse, priceNotice = "" }: Props) {
-  const brand = "stamina";
   const [stock, setStock] = useState<Record<string, number>>({});
   const [overrides, setOverrides] = useState<ModelPricing["pricing"]>({});
   const [pricingLoading, setPricingLoading] = useState(true);
@@ -57,10 +47,7 @@ export function ShopProduct({ model, product, warehouse, priceNotice = "" }: Pro
     };
   }, [model]);
 
-  const p: MerchProduct = {
-    ...product,
-    variants: product.variants.map((v) => ({ ...v, ...overrides[v.sku], stock: stock[v.sku] ?? null })),
-  };
+  const p: MerchProduct = withModelPricing(product, { pricing: overrides, stock });
 
   const [delivery, setDelivery] = useState(false);
   const options = markingOptions(p);
@@ -84,47 +71,17 @@ export function ShopProduct({ model, product, warehouse, priceNotice = "" }: Pro
   const [notes, setNotes] = useState("");
 
   const current = p.variants.find((v) => v.sku === rows[0]?.sku);
-  let quote: OrderQuote | null = null;
-  let quantityError = "";
-  try {
-    quote = quoteOrder(
-      p,
-      rows.map((r) => ({ sku: r.sku, quantity: Number(r.quantity) })),
-      marks,
-    );
-  } catch {
-    quantityError = "Introduce cantidades enteras: entre 1 y 5.000 unidades en total.";
-  }
-
   const updateRow = (id: number, patch: Partial<Selection>) =>
     setRows((list) => list.map((r) => (r.id === id ? { ...r, ...patch } : r)));
-  const money = (cents: number | null | undefined) => (cents == null ? "A confirmar" : formatEuro(cents));
-  const subtotal = askLogo || pricingLoading ? null : (quote?.totalCents ?? null);
-  const shipping = shippingFor(subtotal, delivery);
-  const units = subtotal !== null && quote ? quote.lines.map((l) => (l.unitCents as number) + (quote.markingCents as number) / quote.quantity) : [];
-  const minUnit = units.length ? Math.min(...units) : null;
-  const maxUnit = units.length ? Math.max(...units) : null;
-  const varies = minUnit !== maxUnit;
-  const unitText = varies ? `${money(minUnit)} – ${money(maxUnit)}` : money(minUnit);
-
-  const message = [
-    `Hola, quiero presupuesto de ${p.name} (${brand.toUpperCase()} · ${p.code}).`,
-    ...rows.map((r) => {
-      const v = p.variants.find((x) => x.sku === r.sku);
-      return `${r.quantity} uds. · ${v?.color} · ${v?.size || "Única"} · SKU ${r.sku}`;
-    }),
-    ...marks.map((m) => `Marcaje: ${m.position}, ${m.technique}, ${m.size}, mismo diseño en todas las unidades.`),
-    ...(marks.length ? [`Total marcajes: ${money(quote?.markingCents)}.`] : []),
-    ...(quote?.markingDiscount ? [`Descuento por varios marcajes textiles: ${quote.markingDiscount} %.`] : []),
-    ...(quote?.issues || []),
-    ...(marks.length
-      ? []
-      : [askLogo ? "Solicito asesoramiento para personalizar este artículo. Marcaje pendiente de presupuesto." : "Sin marcaje."]),
-    `Precio unitario${varies ? " (según talla/color)" : ""}: ${unitText}. Total del pedido: ${money(shipping?.total)}.`,
-    deliveryLine(subtotal, delivery),
-    "Pendiente de confirmar disponibilidad, compatibilidad del marcaje, impuestos y diseño.",
-    ...(notes.trim() ? [`Notas: ${notes.trim()}`] : []),
-  ].join("\n");
+  const { brand, quote, quantityError, money, subtotal, shipping, varies, unitText, message } = merchOrder({
+    product: p,
+    rows,
+    marks,
+    askLogo,
+    notes,
+    delivery,
+    pricingLoading,
+  });
 
   const selectColor = (rowId: number, color: string, from: MerchVariant | undefined) => {
     const v = p.variants.find((x) => x.color === color && x.size === from?.size) || p.variants.find((x) => x.color === color);
@@ -228,10 +185,8 @@ export function ShopProduct({ model, product, warehouse, priceNotice = "" }: Pro
                 </button>
               )}
               {rows.map((row, index) => {
-                const v = p.variants.find((x) => x.sku === row.sku);
+                const { variant: v, over } = stockStatus(p, rows, row.sku);
                 const formats = p.variants.filter((x) => x.color === v?.color);
-                const total = rows.filter((r) => r.sku === row.sku).reduce((sum, r) => sum + Number(r.quantity), 0);
-                const over = v?.stock != null && total > v.stock;
                 return (
                   <div className="shop-variant-row" key={row.id}>
                     <div className="shop-variant-fields">
@@ -293,7 +248,7 @@ export function ShopProduct({ model, product, warehouse, priceNotice = "" }: Pro
                     </div>
                     <p className={over ? "shop-stock-warning" : "shop-stock"}>
                       {`${warehouse === "2040" ? "Stock Canarias" : "Stock proveedor"}: ${v?.stock == null ? "Consultar disponibilidad" : `${v.stock} uds.`}`}
-                      {over ? " · Cantidad superior al stock: consultar reposición." : ""}
+                      {over ? ` · ${OVER_STOCK}` : ""}
                     </p>
                   </div>
                 );
@@ -498,6 +453,20 @@ export function ShopProduct({ model, product, warehouse, priceNotice = "" }: Pro
                   subtotal={subtotal}
                   image={current?.image || p.image}
                   delivery={delivery}
+                  reprice={{
+                    kind: "merch",
+                    model,
+                    code: p.code,
+                    name: p.name,
+                    variants: product.variants
+                      .filter((v) => rows.some((r) => r.sku === v.sku))
+                      .map(({ sku, color, size, packaging, tariff }) => ({ sku, color, size, packaging, tariff })),
+                    rows: rows.map((r) => ({ sku: r.sku, quantity: Number(r.quantity) })),
+                    marks,
+                    askLogo,
+                    notes,
+                    delivery,
+                  }}
                 />
               ) : (
                 <button className="brand-button" disabled>

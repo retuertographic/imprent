@@ -4,9 +4,8 @@ import { useState } from "react";
 import { Check, ChevronDown } from "lucide-react";
 import { formatCents } from "./catalog";
 import { NativeOption, NativeSelect, ProductDelivery, TextInput } from "./FormControls";
-import { deliveryLine, deliveryQuote } from "./order";
 import { OrderActions } from "./OrderActions";
-import { flyerFormats, PRINT_MINIMUM, printQuote, type PrintProduct } from "./printData";
+import { flyerFormats, PRINT_MINIMUM, printOrder, printQuantityOptions, type PrintProduct } from "./printData";
 
 const number = new Intl.NumberFormat("es-ES");
 const fmt = (n: number) => number.format(n);
@@ -19,13 +18,14 @@ export function PrintConfigurator({ product }: { product: PrintProduct }) {
   const [design, setDesign] = useState("ready");
   const [customFormat, setCustomFormat] = useState("");
 
-  const variant = product.variants.find((v) => v.id === variantId);
   const quantity = Number(quantityText);
-  const quote = printQuote(product, quantity, variantId);
-  const custom = !product.variants.length && !product.tiers.length;
-  const validQuantity = Number.isSafeInteger(quantity) && quantity >= PRINT_MINIMUM;
-  const plainBracelets = product.slug === "pulseras-sin-marcaje";
-  const minimum = product.tiers[0]?.min ?? PRINT_MINIMUM;
+  const { variant, quote, custom, plainBracelets, minimum, withDelivery, message, canOrder } = printOrder(product, {
+    quantity,
+    variantId,
+    design,
+    customFormat,
+    delivery,
+  });
 
   const selectVariant = (id: string) => {
     const next = product.variants.find((v) => v.id === id);
@@ -35,23 +35,6 @@ export function PrintConfigurator({ product }: { product: PrintProduct }) {
       setQuantityText(String(next.prices[0].quantity));
     }
   };
-
-  const designLine = design === "ready" ? "Aporto mi diseño listo para imprimir" : "Necesito ayuda con el diseño";
-  const withDelivery = deliveryQuote(quote?.total, delivery);
-  const message = [
-    `Hola Seritene, me interesan ${product.name}.`,
-    `Cantidad: ${fmt(quantity)} unidades.`,
-    variant
-      ? `Opciones: ${variant.label}.`
-      : custom
-        ? `Formato: ${customFormat.trim() || "Necesito asesoramiento"}.`
-        : product.specs.join(" · "),
-    quote && withDelivery ? `Total del pedido: ${formatCents(withDelivery.total)}.` : "Solicito presupuesto.",
-    plainBracelets ? "Sin personalización. Color a confirmar." : `${designLine}.`,
-    deliveryLine(quote?.total, delivery),
-    "Quiero confirmar impuestos y plazo.",
-  ].join("\n");
-  const canOrder = validQuantity && (custom || !!quote || (!!variant && quantity === PRINT_MINIMUM));
 
   return (
     <div className="print-config">
@@ -130,12 +113,9 @@ export function PrintConfigurator({ product }: { product: PrintProduct }) {
         <label htmlFor="print-quantity">Cantidad</label>
         {variant ? (
           <NativeSelect id="print-quantity" value={quantityText} onChange={(e) => setQuantityText(e.target.value)}>
-            {!variant.prices.some((p) => p.quantity === PRINT_MINIMUM) && (
-              <NativeOption value={PRINT_MINIMUM}>250 unidades · Consultar presupuesto</NativeOption>
-            )}
-            {variant.prices.map((p) => (
-              <NativeOption key={p.quantity} value={p.quantity}>
-                {fmt(p.quantity)} unidades · {formatCents(p.total)}
+            {printQuantityOptions(variant).map((o) => (
+              <NativeOption key={o.quantity} value={o.quantity}>
+                {o.label}
               </NativeOption>
             ))}
           </NativeSelect>
@@ -245,6 +225,7 @@ export function PrintConfigurator({ product }: { product: PrintProduct }) {
           delivery={delivery}
           image={product.art.small || product.art.src}
           path={`/imprenta/${product.slug}/`}
+          reprice={{ kind: "print", slug: product.slug, variantId, design, customFormat, delivery }}
         />
       ) : (
         <button type="button" className="brand-button print-request" disabled>
