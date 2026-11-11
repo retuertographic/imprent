@@ -21,8 +21,15 @@ Las 1.584 fichas `/producto/stamina/<id>/` muestran precio y stock de
 El workflow de deploy, además de con cada push, se ejecuta **cada noche a las 02:17 UTC**
 (03:17 en Madrid en invierno, 04:17 en verano) y antes de compilar ejecuta
 `node scripts/refresh-merch-pricing.mjs`, que vuelve a descargar tarifas y stock (unos minutos).
-El archivo nuevo solo se usa en esa build; no se commitea. Si seritene.com falla, el script avisa
-(`::warning::` en el resumen del workflow), conserva el archivo del repositorio y la web se publica igual.
+El archivo nuevo solo se usa en esa build; no se commitea. Para que nunca se publiquen precios más
+antiguos que los que ya había:
+- El script parte de la copia **ya publicada** en GitHub Pages si es más reciente que la del repositorio.
+- Tiene un tiempo máximo (24 min en el workflow): si producción va lenta, deja de pedir y guarda lo
+  obtenido; el resto de modelos conserva sus datos anteriores.
+- Si seritene.com no responde, avisa (`::warning::` en el resumen del workflow), conserva el archivo
+  de partida y la web se publica igual.
+
+GitHub no garantiza la hora de las tareas programadas: la de las 02:17 UTC puede arrancar horas más tarde.
 
 - Refrescar y publicar a mano: **Actions → Deploy a GitHub Pages → Run workflow** (rama `main`).
 - En local: `node scripts/refresh-merch-pricing.mjs` (opcional `--only 1000,1001`). Commitea el
