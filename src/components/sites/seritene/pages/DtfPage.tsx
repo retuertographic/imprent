@@ -1,9 +1,11 @@
-/* Página /dtf-x-metros/: presentación del Estudio DTF (la herramienta es una app externa). */
+/* Página /dtf-x-metros/: presentación del Estudio DTF (la herramienta es una app estática copiada en public/estudio-dtf/). */
 import { ArrowDown, ArrowUpRight, Check, Download, Grid3x3, Layers, Maximize2, MousePointer2, Move, MoveHorizontal, Plus, RotateCw, Upload } from "lucide-react";
+import { BASE_PATH } from "../content";
 import { Breadcrumbs, pad2 } from "./common";
 import { OrderActions } from "./OrderActions";
 
-const STUDIO_URL = "https://seritene-dtf-studio.cesarfr.chatgpt.site";
+/** Copia local del estudio (scripts/mirror-dtf-studio.mjs). Con index.html explícito para que abra también en `next dev`. */
+const STUDIO_URL = `${BASE_PATH}/estudio-dtf/index.html`;
 const orderMessage =
   "Hola Seritene, quiero consultar un pedido de DTF por metros. Voy a preparar mi plancha en el estudio online. Cantidad y archivos a confirmar.";
 

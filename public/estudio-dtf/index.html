@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#20261e">
+  <title>Estudio DTF · Seritene</title>
+  <meta name="description" content="Prepara semitonos y monta tu plancha DTF de 57 cm. Medidas reales, diseños a tu manera y PNG transparente a 300 ppp.">
+  <link rel="icon" href="./seritene-logo.webp"><link rel="stylesheet" href="./style.css">
+</head>
+<body>
+<header class="header">
+ <a class="brand" href="../" target="_blank" rel="noopener"><img src="./seritene-logo.webp" alt="Seritene" width="118" height="48"></a>
+ <span class="header-divider"></span><span class="studio-label">ESTUDIO <b>DTF</b><span class="beta">ONLINE</span></span>
+ <nav><button class="text-btn" id="helpOpen"><span data-icon="help"></span>Guía rápida</button><a class="back-link" href="../" target="_blank" rel="noopener">Volver a Seritene <span data-icon="arrow-up-right"></span></a></nav>
+</header>
+<main>
+ <section class="intro">
+  <div><div class="eyebrow"><span class="green-dot"></span>DE TU PANTALLA A LA PRENDA</div><h1>Grandes ideas.<br><span>Cero fondo.</span></h1><p>Prepara tu diseño, monta tu plancha y déjanos la impresión.</p></div>
+  <div class="intro-right"><div class="spec"><strong>57<span>cm</span></strong><span>DE ANCHO.<br>INFINITAS POSIBILIDADES.</span><div class="spec-line"></div><span class="spec-foot">PNG TRANSPARENTE <b>↗</b> 300 PPP</span></div></div>
+ </section>
+ <div class="workspace-tabs" role="tablist" aria-label="Herramientas DTF">
+   <button id="sheetTab" class="active" role="tab" aria-selected="true" aria-controls="sheetPanel"><span data-icon="layout"></span>Montar plancha<span class="tab-detail">57 cm</span></button>
+   <button id="toneTab" role="tab" aria-selected="false" aria-controls="tonePanel"><span class="dots-icon">⠿</span>Crear semitono<span class="tab-detail">Menos tinta, más tacto</span></button>
+   <span class="local-note"><span data-icon="shield"></span>Tus archivos se procesan en tu navegador</span>
+ </div>
+ <section id="sheetPanel" role="tabpanel" aria-labelledby="sheetTab" class="workspace">
+  <aside class="sidebar">
+   <div class="panel-section">
+    <div class="section-title"><span class="step">01</span><h2>Tus diseños</h2><span id="fileCount" class="counter">0</span></div>
+    <button id="uploadSheet" class="upload-zone"><span class="upload-icon" data-icon="upload"></span><b>Sube o arrastra tus archivos</b><span>PNG, JPG o WebP · hasta 30 MB</span><small>PNG transparente recomendado</small></button>
+    <input id="sheetFiles" type="file" accept="image/png,image/jpeg,image/webp" multiple hidden>
+    <div id="assetList" class="asset-list"></div>
+    <button class="example-btn" id="sheetDemo">¿Quieres probar? Cargar un ejemplo <span>↗</span></button>
+   </div>
+   <div class="panel-section" id="selectionPanel">
+    <div class="section-title"><span class="step">02</span><h2>Ajusta tu diseño</h2></div>
+    <p id="noSelection" class="muted">Selecciona un diseño en la plancha para cambiar su tamaño y posición.</p>
+    <div id="selectionControls" hidden>
+      <div class="selection-name" id="selectionName"></div>
+      <div class="two-fields"><label>Ancho del diseño<div class="input-unit"><input id="itemWidth" type="number" min=".1" max="57" step=".1" aria-label="Ancho del diseño en centímetros"><span>cm</span></div></label><label>Alto del diseño<div class="input-unit"><input id="itemHeight" type="number" min=".1" max="300" step=".1" aria-label="Alto del diseño en centímetros"><span>cm</span></div></label></div>
+      <label class="check-row"><input id="lockRatio" type="checkbox" checked>Mantener proporciones</label>
+      <div class="two-fields compact"><label>Posición X<div class="input-unit"><input id="itemX" type="number" min="0" max="57" step=".1" aria-label="Posición horizontal"><span>cm</span></div></label><label>Posición Y<div class="input-unit"><input id="itemY" type="number" min="0" max="300" step=".1" aria-label="Posición vertical"><span>cm</span></div></label></div>
+      <div class="copies-row"><label for="copies">Copias a añadir</label><input id="copies" type="number" min="1" max="100" value="1"><button id="addCopies" class="secondary">Añadir</button></div>
+      <div id="quality" class="quality" role="status"></div>
+      <p id="backgroundInfo" class="micro"></p>
+      <div class="design-actions">
+       <button id="rotateInspector" class="secondary full"><span data-icon="rotate"></span>Girar 90°</button>
+       <button id="removeBackground" class="secondary full"><span data-icon="sparkles"></span>Eliminar fondo <small>GRATIS</small></button>
+      </div>
+      <p class="micro">Sin créditos. Revisa el recorte antes de aplicarlo.</p>
+      <button id="sendToTone" class="text-btn green full">⠿ Preparar en semitonos ↗</button>
+    </div>
+   </div>
+   <div class="panel-section">
+    <div class="section-title"><span class="step">03</span><h2>Tu plancha</h2></div>
+    <div class="two-fields"><label>Ancho <div class="input-unit disabled"><input aria-label="Ancho de plancha en centímetros" value="57" readonly><span>cm <span data-icon="lock"></span></span></div></label><label>Largo <div class="input-unit"><input id="sheetLength" aria-label="Largo de plancha en centímetros" type="number" min="10" max="300" step="1" value="100"><span>cm</span></div></label></div>
+    <div class="presets" aria-label="Largos de plancha"><button data-length="50">50 cm</button><button data-length="100" class="chosen">100 cm</button><button data-length="150">150 cm</button><button data-length="200">200 cm</button></div>
+    <div class="two-fields compact"><label>Separación <div class="input-unit"><input id="gap" aria-label="Separación entre diseños en centímetros" type="number" min=".5" max="5" step=".1" value=".5"><span>cm</span></div></label><label>Margen exterior <div class="input-unit"><input id="margin" aria-label="Margen exterior en centímetros" type="number" min=".5" max="5" step=".1" value=".5"><span>cm</span></div></label></div>
+    <p class="micro">Mínimo 0,5 cm entre diseños y en el borde. Puedes aumentar estos márgenes.</p>
+   </div>
+  </aside>
+  <div class="editor">
+   <div class="editor-toolbar">
+    <div class="toolbar-group"><span class="canvas-label">MI PLANCHA</span><span class="dot-separator"></span><span id="canvasSize">57 × 100 cm</span></div>
+    <div class="toolbar-group tools">
+     <button id="undo" class="icon-btn" title="Deshacer (Ctrl+Z)" aria-label="Deshacer"><span data-icon="undo"></span></button>
+     <button id="redo" class="icon-btn" title="Rehacer (Ctrl+Mayús+Z)" aria-label="Rehacer"><span data-icon="redo"></span></button><span class="vertical-line"></span>
+     <button id="duplicate" class="icon-btn" title="Duplicar" aria-label="Duplicar diseño"><span data-icon="copy"></span></button>
+     <button id="rotate" class="icon-btn rotate-pill" title="Girar 90°" aria-label="Girar diseño 90 grados"><span data-icon="rotate"></span><span>Girar 90°</span></button>
+     <button id="remove" class="icon-btn danger" title="Eliminar diseño" aria-label="Eliminar diseño"><span data-icon="trash"></span></button>
+    </div>
+   </div>
+   <div class="nesting-bar">
+    <div><strong>Más diseños. Menos espacio.</strong><p id="nestingHint">Anidado con giros · mínimo 0,5 cm para el corte</p></div>
+    <button id="autoPack" class="primary"><span data-icon="sparkles"></span><span id="nestingButtonLabel">Distribuir automáticamente</span></button>
+    <button id="cancelNesting" class="text-btn" hidden>Cancelar</button>
+    <p id="nestingStatus" role="status" hidden></p>
+   </div>
+   <div class="viewport" id="sheetViewport">
+    <div class="sheet-wrap" id="sheetWrap">
+      <div class="top-ruler" id="topRuler"></div><div class="left-ruler" id="leftRuler"></div>
+      <canvas id="sheetCanvas" tabindex="0" aria-label="Plancha DTF. Selecciona y arrastra los diseños. Usa las flechas para moverlos." role="img"></canvas>
+      <div id="emptyCanvas" class="empty-canvas"><div class="empty-art" aria-hidden="true"><span class="art-dot"></span><span class="art-star">✳</span><span class="art-text">TU<br>IDEA.</span><span class="art-tag">HECHA PARA DESTACAR</span></div><h3>Un espacio para tus ideas.</h3><p>Sube tus diseños y colócalos aquí.<br>Nosotros ponemos el oficio.</p><button id="emptyUpload" class="primary"><span data-icon="plus"></span>Añadir mi primer diseño</button></div>
+    </div>
+   </div>
+   <div class="viewbar"><div class="toolbar-group"><span>Vista</span><button class="swatch checker active" data-sheet-bg="checker" aria-label="Fondo transparente"></button><button class="swatch white" data-sheet-bg="white" aria-label="Fondo blanco"></button><button class="swatch black" data-sheet-bg="black" aria-label="Fondo negro"></button><span class="small-note">El fondo de vista no se exporta</span></div><div class="toolbar-group"><button id="zoomOut" class="icon-btn" aria-label="Alejar plancha">−</button><span id="zoomValue">100%</span><button id="zoomIn" class="icon-btn" aria-label="Acercar plancha">+</button><button id="zoomFit" class="text-btn">Ajustar</button></div></div>
+   <div class="export-bar"><div><strong id="summaryCount">0 diseños en tu plancha</strong><p id="summaryPixels">6.732 × 11.811 px · 300 ppp · Fondo transparente</p><p id="sheetWarning" class="warning-text" hidden></p></div><button id="exportSheet" class="primary export-button" disabled><span data-icon="download"></span>Exportar plancha <span>↗</span></button></div>
+  </div>
+ </section>
+ <section id="tonePanel" role="tabpanel" aria-labelledby="toneTab" class="workspace" hidden>
+  <aside class="sidebar">
+   <div class="panel-section"><div class="section-title"><span class="step">01</span><h2>Elige tu imagen</h2></div>
+    <button id="uploadTone" class="upload-zone"><span class="upload-icon" data-icon="upload"></span><b>Sube o arrastra una imagen</b><span>PNG, JPG o WebP · hasta 30 MB</span></button><input id="toneFile" type="file" accept="image/png,image/jpeg,image/webp" hidden>
+    <button id="toneDemo" class="example-btn">Probar con una imagen de ejemplo ↗</button><p id="toneFileInfo" class="micro"></p>
+   </div>
+   <div class="panel-section"><div class="section-title"><span class="step">02</span><h2>Prepara el semitono</h2></div>
+    <label class="field-label" for="garment">Color que quieres eliminar</label><select id="garment"><option value="dark">Negros · para prenda oscura</option><option value="light">Blancos · para prenda clara</option><option value="alpha">Solo tramar transparencias</option></select>
+    <p class="micro" id="garmentHint">Elige el tipo de prenda. La limpieza también afecta a blancos o negros dentro del dibujo.</p>
+    <label>Ancho de impresión<div class="input-unit"><input id="toneWidth" type="number" value="20" min="1" max="57" step=".1"><span>cm</span></div></label><p id="toneDimensions" class="micro">300 ppp · tamaño proporcional</p>
+    <div class="segmented tone-prepare-modes" role="group" aria-label="Preparación del semitono"><button data-tone-prepare="auto" class="active" aria-pressed="true">Automático</button><button data-tone-prepare="manual" aria-pressed="false">Manual</button></div>
+    <p class="micro" id="toneModeHint">Ajustamos la trama al tipo de prenda y la resolución. Los colores originales se conservan.</p>
+    <div class="range-label"><label for="threshold">Umbral</label><div class="percent-input"><input id="thresholdManual" type="number" min="0" max="100" step="1" value="50" aria-label="Umbral en porcentaje"><span>%</span></div></div><input id="threshold" type="range" min="0" max="100" value="50"><div class="range-ends"><span>Más tinta</span><span>Más huecos</span></div>
+    <label class="field-label">Detalle de la trama</label><div class="presets lpi-options"><button data-lpi="25">25</button><button data-lpi="30">30</button><button data-lpi="35">35</button><button data-lpi="40" class="chosen">40</button><button data-lpi="45">45</button></div><p class="micro">Líneas por pulgada (LPI). Menor valor, punto mayor.</p>
+    <details><summary>Ajustes avanzados</summary>
+     <div class="range-label"><label for="toneTolerance">Limpieza del color</label><output id="toneToleranceValue">0</output></div><input id="toneTolerance" type="range" min="-50" max="50" value="0"><div class="range-ends"><span>Recuperar detalle</span><span>Limpiar más</span></div>
+     <div id="toneHolesControl" hidden><div class="range-label"><label for="toneHoles">Reducir huecos en prenda clara</label><output id="toneHolesValue">0%</output></div><input id="toneHoles" type="range" min="0" max="100" value="0"></div>
+     <div class="two-fields compact"><label>Ángulo<select id="toneAngle"><option>0</option><option selected>22.5</option><option>45</option><option>90</option></select></label><label>Forma<select id="toneShape"><option value="circle">Redonda</option><option value="square">Cuadrada</option><option value="line">Líneas</option></select></label></div>
+     <div class="range-label"><label for="toneBrightness">Brillo de imagen</label><output id="toneBrightnessValue">0</output></div><input id="toneBrightness" type="range" min="-100" max="100" value="0">
+     <div class="range-label"><label for="toneContrast">Contraste de imagen</label><output id="toneContrastValue">0</output></div><input id="toneContrast" type="range" min="-100" max="100" value="0">
+     <p class="micro">Brillo y contraste cambian el color del diseño. En 0 conservan el original.</p><button id="resetTone" class="text-btn">Restablecer ajustes</button>
+    </details>
+    <button id="processTone" class="primary full" disabled><span class="dots-icon">⠿</span>Preparar automáticamente</button>
+   </div>
+   <div class="panel-section"><div class="section-title"><span class="step">03</span><h2>Llévalo a impresión</h2></div><button id="toneToSheet" class="secondary full" disabled><span data-icon="plus"></span>Añadir a mi plancha</button><button id="downloadTone" class="text-btn full" disabled><span data-icon="download"></span>Descargar PNG transparente</button></div>
+  </aside>
+  <div class="editor tone-editor">
+   <div class="editor-toolbar"><div class="toolbar-group"><span class="canvas-label">VISTA PREVIA</span></div><div class="segmented"><button data-tone-view="original">Original</button><button data-tone-view="compare">Comparar</button><button data-tone-view="result" class="active">Semitono</button></div></div>
+   <div class="tone-display-options"><span id="toneViewHint">Vista suave · imagen completa</span><div class="segmented" role="group" aria-label="Calidad de vista previa"><button data-tone-quality="fit" class="active" aria-pressed="true">Vista suave</button><button data-tone-quality="1" aria-pressed="false">Puntos reales · 100%</button></div></div>
+   <div class="tone-viewport checker" id="toneViewport" tabindex="0" aria-label="Vista del diseño. En puntos reales, desplázate para explorar la imagen."><div id="toneEmpty" class="tone-empty"><span class="halftone-orb"></span><h3>Menos tinta.<br>Más libertad.</h3><p>Transforma las masas de color en puntos<br>y deja que la prenda respire.</p></div><div id="toneStage" class="tone-stage" hidden><canvas id="toneCanvas" aria-label="Vista previa de la imagen y semitono"></canvas></div></div>
+   <div class="tone-compare-control" id="toneCompareControl" hidden><label for="toneCompare">Comparación</label><input id="toneCompare" type="range" min="0" max="100" value="50" aria-label="División entre original y semitono"><span>Original ↔ Semitono</span></div>
+   <div class="viewbar"><div class="toolbar-group"><span>Fondo de vista</span><button class="swatch checker active" data-tone-bg="checker" aria-label="Ver semitono sin fondo" aria-pressed="true"></button><button class="swatch white" data-tone-bg="white" aria-label="Ver semitono sobre blanco" aria-pressed="false"></button><button class="swatch black" data-tone-bg="black" aria-label="Ver semitono sobre negro" aria-pressed="false"></button><span class="small-note" id="toneBgLabel">Sin fondo</span></div><div class="toolbar-group"><label for="toneZoom">Zoom</label><select id="toneZoom"><option value="fit">Ajustar · vista suave</option><option value="1">100% · puntos reales</option><option value="2">200% · puntos reales</option></select></div></div>
+   <p class="tone-preview-note">La vista suave facilita ver el conjunto. Usa «Puntos reales» para revisar la trama. El PNG conserva sus puntos y su transparencia originales.</p>
+   <div class="tone-footer"><span data-icon="info"></span><p id="toneStatus">Los huecos de la trama serán transparentes. La vista de prenda no aparece en tu PNG.</p></div>
+  </div>
+ </section>
+ <div class="bottom-notes"><span><span data-icon="check-circle"></span>Medidas reales en centímetros</span><span><span data-icon="check-circle"></span>PNG con transparencia a 300 ppp</span><span><span data-icon="check-circle"></span>Sin instalación. Sin complicaciones.</span></div>
+ <section class="handoff"><div><div class="eyebrow">DEL ARCHIVO AL TALLER</div><h2>Lo diseñas tú.<br>Lo hacemos realidad.</h2><p>Descarga tu PNG y envíanoslo como archivo original.<br>Revisaremos contigo el diseño antes de producir.</p></div><div class="handoff-actions"><a class="secondary" href="https://wa.me/34641782535?text=Hola%20Seritene%2C%20he%20preparado%20una%20plancha%20DTF%20y%20quiero%20enviaros%20el%20PNG%20original." target="_blank" rel="noopener"><span data-icon="message"></span>Hablar con Seritene ↗</a><span>Adjunta el PNG como documento en WhatsApp.<br>También puedes enviarlo a <a href="mailto:info@seritene.com">info@seritene.com</a>.</span></div></section>
+ <footer><span>SERITENE® <span class="muted">· FÁBRICA DE IDEAS</span></span><span>Hecho para crear. Desde Tenerife.</span><a href="../politica-privacidad/" target="_blank" rel="noopener">Privacidad</a></footer>
+</main>
+<dialog id="backgroundDialog" aria-labelledby="backgroundTitle">
+ <button id="backgroundClose" class="dialog-close" aria-label="Cerrar eliminación de fondo">×</button>
+ <div class="eyebrow"><span class="green-dot"></span>TU DISEÑO, SIN FONDO</div>
+ <h2 id="backgroundTitle">Quédate con lo importante.</h2>
+ <p class="background-description">Recorte automático y gratuito, en tu dispositivo. La primera vez se descarga la herramienta (219 MB); después puede reutilizarse desde la caché del navegador.</p>
+ <div class="background-comparison">
+  <figure><figcaption>ANTES <span>Tu original</span></figcaption><div class="checker"><canvas id="backgroundBefore"></canvas></div></figure>
+  <figure><figcaption>DESPUÉS <span>Fondo transparente</span></figcaption><div class="checker"><canvas id="backgroundAfter"></canvas><span id="backgroundPlaceholder">Aquí verás el recorte</span></div></figure>
+ </div>
+ <div id="backgroundProgress" hidden role="status"><progress max="100"></progress><p id="backgroundStatus"></p></div>
+ <p id="backgroundError" class="issue error" role="alert" hidden></p>
+ <p id="backgroundReview" class="micro" hidden>Revisa letras, bordes y detalles. Se aplica solo al diseño seleccionado; conserva su tamaño y posición. Puedes recuperar el original con «Deshacer».</p>
+ <div class="background-actions"><button id="backgroundCancel" class="text-btn">Cancelar</button><button id="backgroundStart" class="primary"><span data-icon="sparkles"></span>Eliminar fondo gratis</button><button id="backgroundApply" class="primary" hidden><span data-icon="check-circle"></span>Usar este recorte</button></div>
+</dialog>
+<div id="toast" class="toast" role="status" hidden></div>
+<dialog id="helpDialog"><button class="dialog-close" aria-label="Cerrar guía" data-close="helpDialog">×</button><div class="eyebrow">TU IDEA, PASO A PASO</div><h2>De archivo a plancha.</h2><ol class="guide"><li><b>Sube tus diseños.</b> Usa PNG transparente. Los JPG y las imágenes opacas conservan su fondo; usa «Eliminar fondo» en el paso 02 y revisa el recorte antes de aplicarlo. También puedes eliminar blancos o negros con Semitonos.</li><li><b>Dales su tamaño real.</b> Selecciona cada diseño e indica sus centímetros. Vigila el aviso de resolución: ampliar no crea detalle.</li><li><b>Aprovecha los 57 cm.</b> Añade copias, gira y distribuye. Puedes arrastrar diseños o moverlos con las flechas (Mayús: pasos de 1 cm).</li><li><b>Exporta y envía.</b> Descarga a 300 ppp. No se exportan reglas, selección ni fondo de vista. Envía el PNG original como documento a Seritene, sin hacer espejo.</li></ol><p class="micro">Los archivos se trabajan localmente y no se envían al cargar. Guarda tu proyecto para continuar después; incluye los diseños y sus posiciones.</p><button id="saveProject" class="secondary">Guardar proyecto editable</button> <button id="loadProject" class="text-btn">Abrir proyecto</button><input id="projectFile" type="file" accept=".seritene,application/json" hidden></dialog>
+<dialog id="exportDialog"><button class="dialog-close" aria-label="Cerrar exportación" data-close="exportDialog">×</button><div class="eyebrow">ÚLTIMO VISTAZO</div><h2>Tu plancha, lista.</h2><div id="exportSummary" class="export-summary"></div><div id="exportIssues"></div><p class="micro">El PNG conserva el ancho de 57 cm, el largo elegido y la resolución de 300 ppp. La transparencia de cada diseño se conserva.</p><label class="field-label" for="jobName">Nombre del archivo</label><input id="jobName" type="text" maxlength="80" value="mi-plancha-seritene"><button id="confirmExport" class="primary full"><span data-icon="download"></span>Descargar PNG</button><div id="exportProgress" role="status" hidden><progress max="100" value="0"></progress><p>Preparando el PNG…</p></div><div id="exportDone" hidden><p class="success-text">✓ PNG generado. Si la descarga no empieza, pulsa de nuevo.</p><a id="downloadAgain" class="secondary" download>Guardar PNG</a><a class="text-btn" id="whatsappExport" target="_blank" rel="noopener">Abrir WhatsApp ↗</a><p class="micro">Adjunta manualmente el PNG como documento. Este botón no envía el archivo.</p></div></dialog>
+<script type="module" src="./app.mjs"></script>
+</body></html>
