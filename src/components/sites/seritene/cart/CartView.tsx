@@ -13,14 +13,23 @@ import {
   hasExpiredFiles,
   whatsappUrl,
 } from "./order";
-import { type CartItem, withoutBasePath } from "./storage";
+import { QuantityEditor } from "./QuantityEditor";
+import { quantityText, type RepriceUpdate } from "./repricers";
+import { type Cart, type CartItem, withoutBasePath } from "./storage";
 import { useCart } from "./useCart";
 
 /** Las imágenes guardadas son rutas de la web original (`/catalogue/…`): aquí se sirven desde `public/sites/seritene`. */
 const itemImage = (src: string) => (src.startsWith("/") ? asset(src) : src);
 
-/** Una selección del carrito, con enlace a su ficha y botón «Quitar». */
-function CartLine({ item, onRemove }: { item: CartItem; onRemove: () => void }) {
+type LineProps = {
+  item: CartItem;
+  onRemove: () => void;
+  onQuantity: (update: RepriceUpdate) => void;
+  onAnnounce: (text: string) => void;
+};
+
+/** Una selección del carrito, con enlace a su ficha, cantidad editable (si se puede) y botón «Quitar». */
+function CartLine({ item, onRemove, onQuantity, onAnnounce }: LineProps) {
   const productPath = withoutBasePath(item.path);
   return (
     <article className="cart-item">
@@ -36,11 +45,7 @@ function CartLine({ item, onRemove }: { item: CartItem; onRemove: () => void }) 
         <SiteLink href={productPath}>
           <h2>{item.name}</h2>
         </SiteLink>
-        <p>
-          {item.quantity === null
-            ? "Cantidad y opciones a confirmar"
-            : `${item.quantity} ${item.quantity === 1 ? "unidad" : "unidades"}`}
-        </p>
+        <QuantityEditor item={item} onApply={onQuantity} onAnnounce={onAnnounce} />
         <strong>{item.subtotal === null ? "A consultar" : formatEuro(item.subtotal)}</strong>
         <details>
           <summary>Ver selección</summary>
@@ -110,6 +115,7 @@ export function CartView() {
   const { cart, ready, error, update } = useCart();
   const [status, setStatus] = useState("");
   const [cleared, setCleared] = useState(false);
+  const [announcement, setAnnouncement] = useState("");
   const summary = cartSummary(cart);
   const message = cartMessage(cart);
   const isLong = message.length > LONG_MESSAGE;
@@ -137,6 +143,21 @@ export function CartView() {
 
   const count = cart.items.length;
 
+  /** Aplica una nueva cantidad (recalculada como en la ficha) y anuncia el subtotal y el total. */
+  function changeQuantity(item: CartItem, change: RepriceUpdate) {
+    let next: Cart | null = null;
+    update((current) => {
+      next = { ...current, items: current.items.map((i) => (i.id === item.id ? { ...i, ...change } : i)) };
+      return next;
+    });
+    if (!next) return;
+    const totals = cartSummary(next);
+    setAnnouncement(
+      `${item.name}: ${quantityText(change.quantity)}. Subtotal: ${change.subtotal === null ? "a consultar" : formatEuro(change.subtotal)}. ` +
+        `Total orientativo: ${totals.total === null ? "a confirmar" : formatEuro(totals.total)}.`,
+    );
+  }
+
   return (
     <main id="contenido" className="brand-main cart-page">
       <div className="wrap">
@@ -160,6 +181,9 @@ export function CartView() {
             {error}
           </p>
         )}
+        <p className="sr-only" aria-live="polite" aria-atomic="true">
+          {announcement}
+        </p>
         {!ready ? (
           <p role="status">Cargando tu carrito…</p>
         ) : count ? (
@@ -169,6 +193,8 @@ export function CartView() {
                 <CartLine
                   key={item.id}
                   item={item}
+                  onQuantity={(change) => changeQuantity(item, change)}
+                  onAnnounce={setAnnouncement}
                   onRemove={() =>
                     update((current) => ({ ...current, items: current.items.filter((i) => i.id !== item.id) }))
                   }

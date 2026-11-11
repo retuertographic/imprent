@@ -186,7 +186,7 @@ export type OrderQuote = ReturnType<typeof orderTotals> & { issues: string[] };
 
 /** Cálculo completo del pedido; lanza RangeError si las cantidades no son válidas. */
 export function quoteOrder<T extends Marking>(
-  product: MerchProduct,
+  product: Pick<MerchProduct, "variants">,
   selections: { sku: string; quantity: number }[],
   marks: T[],
 ): OrderQuote {

@@ -4,32 +4,15 @@ import { useState } from "react";
 import { Input } from "../form-controls";
 import { OrderActions } from "../OrderActions";
 import { ProductDelivery } from "../ProductDelivery";
-import { deliveryLine, formatEuro, shippingFor } from "../order";
+import { formatEuro } from "../order";
+import { photocallOrder } from "../pricing";
 import type { PhotocallProduct } from "../types";
-
-function photocallPrice(product: PhotocallProduct, quantity: number) {
-  if (product.unit === null || !Number.isSafeInteger(quantity) || quantity < 1) return null;
-  const total = product.unit * quantity;
-  return Number.isSafeInteger(total) ? { unit: product.unit, total } : null;
-}
 
 export function PhotocallConfigurator({ product }: { product: PhotocallProduct }) {
   const [quantityText, setQuantityText] = useState("1");
   const [delivery, setDelivery] = useState(false);
   const quantity = Number(quantityText);
-  const valid = Number.isSafeInteger(quantity) && quantity > 0 && (product.unit === null || !!photocallPrice(product, quantity));
-  const price = photocallPrice(product, quantity);
-  const shipping = shippingFor(price?.total, delivery);
-  const message = [
-    `Hola Seritene, quiero presupuesto para ${product.name} (${product.size}), ${product.width} × ${product.height} cm.`,
-    `Cantidad: ${quantity}.`,
-    "Pack completo: estructura de aluminio plegable, impresión en poliéster textil de 210 g/m² y bolsa de nylon.",
-    price && shipping
-      ? `Precio sin IGIC: ${formatEuro(price.unit)} / ud. Total sin IGIC: ${formatEuro(shipping.total)}.`
-      : "Precio pendiente de presupuesto.",
-    price ? deliveryLine(price.total, delivery) : "Quiero confirmar precio y transporte.",
-    "Quiero confirmar diseño, impuestos y plazo.",
-  ].join("\n");
+  const { price, shipping, message, valid } = photocallOrder(product, quantity, delivery);
 
   return (
     <div className="print-config">
@@ -65,6 +48,7 @@ export function PhotocallConfigurator({ product }: { product: PhotocallProduct }
           quantity={quantity}
           subtotal={price?.total}
           delivery={delivery}
+          reprice={{ kind: "photocall", slug: product.slug, delivery }}
         />
       ) : (
         <button className="brand-button print-request" disabled>

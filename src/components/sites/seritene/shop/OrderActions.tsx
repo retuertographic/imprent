@@ -5,6 +5,7 @@ import { Check, MessageCircle, ShoppingCart } from "lucide-react";
 import { SiteLink } from "../SiteLink";
 import { cartDetails, readCart, writeCart } from "../cart/storage";
 import { whatsappUrl } from "./order";
+import type { Reprice } from "../cart/reprice";
 
 type Props = {
   name: string;
@@ -18,10 +19,12 @@ type Props = {
   path: string;
   /** Icono de WhatsApp en el botón principal (las fichas estáticas no lo llevan). */
   icons?: boolean;
+  /** Selección para recalcular en el carrito al cambiar la cantidad (mejora propia). */
+  reprice?: Reprice;
 };
 
 /** Botones «Solicitar pedido» (WhatsApp) y «Añadir al carrito». */
-export function OrderActions({ name, message, quantity = null, subtotal = null, image = "", delivery = false, path, icons = true }: Props) {
+export function OrderActions({ name, message, quantity = null, subtotal = null, image = "", delivery = false, path, icons = true, reprice }: Props) {
   const [added, setAdded] = useState("");
   const [error, setError] = useState("");
   const [ready, setReady] = useState(false);
@@ -41,7 +44,7 @@ export function OrderActions({ name, message, quantity = null, subtotal = null, 
         delivery: cart.delivery || delivery,
         items: [
           ...cart.items,
-          { id: crypto.randomUUID(), name, path, image, quantity, subtotal, details: cartDetails(message), addedAt: Date.now() },
+          { id: crypto.randomUUID(), name, path, image, quantity, subtotal, details: cartDetails(message), addedAt: Date.now(), reprice },
         ],
       });
       setAdded(signature);

@@ -74,6 +74,14 @@ logos, Seribot, icono de WhatsApp, fuentes). El favicon (`seritene-symbol.png`) 
 - Carrito (`/carrito/`): clonado con la lógica de producción e icono con contador en la cabecera.
   Mejora propia que no existe en producción: botón «Vaciar carrito» con confirmación
   (`cart/CartView.tsx`, estilos en `src/app/styles/seritene/cart-extras.css`).
+  Segunda mejora propia: la cantidad de cada selección se cambia en el propio carrito (`cart/QuantityEditor.tsx`).
+  Al añadir, la ficha guarda en el campo opcional `reprice` (formato `seritene-cart-v1` intacto) la selección mínima
+  para recalcular; `cart/repricers.ts` llama a las mismas funciones puras que la ficha (`fullprintOrder`, `printOrder`,
+  `rollupOrder`/`flagOrder`/`photocallOrder`/`tentOrder`, `areaOrder`, `merchOrder`) y regenera precio, «Ver selección»
+  y mensaje de WhatsApp como si se hubiera añadido con esa cantidad, respetando mínimos, múltiplos de embalaje, máximos,
+  las cantidades fijas de imprenta (desplegable) y los avisos de stock. Las selecciones sin `reprice` (añadidas antes)
+  muestran la cantidad fija con «Cambiar en la ficha»; las que no tienen cantidad en la ficha (DTF por metros, fichas
+  estáticas de eventos) siguen «a confirmar». Comprobación: `node scripts/check-cart-reprice.mjs`.
 - Buscador: índice propio (`public/sites/seritene/shop-data/search-index.json`, 2119 registros, 177 KB
   comprimido) con la misma lógica de coincidencia y orden que `/api/search` de producción
   (`shop/searchIndex.ts`). Coincide en 111 de 113 consultas de prueba (`node scripts/check-search.mjs`);
