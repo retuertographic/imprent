@@ -13,12 +13,20 @@
  * seis modelos»). Con stock, un solo modelo sin datos deja todo el lote en `available: false`, así
  * que esos lotes se repiten modelo a modelo.
  *
- * A prueba de fallos: si producción no responde o falla más del 20 % de los modelos, se conserva
- * el archivo anterior y el script termina con código 0 y un aviso, para que el deploy siga con los
- * últimos datos buenos. Los modelos sueltos que fallen conservan sus datos anteriores.
+ * A prueba de fallos:
+ * - Si producción no responde al primer lote (o falla más del 20 % y no hay archivo anterior), se
+ *   conserva el archivo anterior y el script termina con código 0 y un aviso, para que el deploy
+ *   siga con los últimos datos buenos.
+ * - Los modelos que fallen, o que no se lleguen a pedir porque se agota el tiempo, conservan sus
+ *   datos anteriores (quedan en `stale`).
+ * - Con SEED_URL (la copia publicada en GitHub Pages), se parte de esa copia si es más reciente
+ *   que la del repositorio: un deploy nunca publica precios más antiguos que los que ya había.
+ * - REFRESH_BUDGET_MS (por defecto 22 min) limita la duración: al agotarse deja de pedir y guarda
+ *   lo obtenido mezclado con lo anterior, antes de que GitHub Actions corte el paso.
  *
  * Uso: node scripts/refresh-merch-pricing.mjs [--only 1000,1001]
  *   SERITENE_ORIGIN=https://… cambia el servidor (p. ej. para simular una caída).
+ *   SEED_URL=https://…/merch-pricing.json  REFRESH_BUDGET_MS=1440000
  */
 import { existsSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -29,10 +37,12 @@ const DATA = join(ROOT, "public/sites/seritene/shop-data");
 const OUT = join(DATA, "merch-pricing.json");
 const ORIGIN = (process.env.SERITENE_ORIGIN || "https://seritene.com").replace(/\/$/, "");
 const BATCH = 6;
-const CONCURRENCY = 3;
+const CONCURRENCY = 4;
 const TIMEOUT = 30_000;
 const RETRIES = 3;
 const MAX_FAILED_SHARE = 0.2;
+const BUDGET_MS = Number(process.env.REFRESH_BUDGET_MS) || 22 * 60_000;
+const SEED_URL = process.env.SEED_URL;
 
 const args = process.argv.slice(2);
 const only = args.includes("--only") ? args[args.indexOf("--only") + 1].split(",") : null;
@@ -41,7 +51,36 @@ const models = only ?? JSON.parse(readFileSync(join(DATA, "merchandising.json"),
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const modelOf = (code) => String(code).match(/\d{4}/)?.[0];
 const started = Date.now();
+const deadline = started + BUDGET_MS;
+const outOfTime = () => Date.now() > deadline;
 let requests = 0;
+const warn = (msg) => console.log(process.env.GITHUB_ACTIONS ? `::warning::${msg}` : `AVISO: ${msg}`);
+
+const readJson = (file) => {
+  try {
+    return existsSync(file) ? JSON.parse(readFileSync(file, "utf8")) : null;
+  } catch {
+    return null;
+  }
+};
+const isPricingFile = (d) => d?.version === 1 && typeof d.fetchedAt === "string" && d.pricing && d.stock;
+
+// Punto de partida: la copia publicada si es más reciente que la del repositorio.
+if (SEED_URL && !only) {
+  try {
+    const res = await fetch(SEED_URL, { signal: AbortSignal.timeout(TIMEOUT) });
+    const seed = res.ok ? await res.json() : null;
+    const local = readJson(OUT);
+    if (isPricingFile(seed) && (!isPricingFile(local) || Date.parse(seed.fetchedAt) > Date.parse(local.fetchedAt))) {
+      writeFileSync(OUT, JSON.stringify(seed) + "\n");
+      console.log(`Partiendo de la copia publicada (${seed.fetchedAt}), más reciente que la del repositorio.`);
+    } else {
+      console.log(`Se mantiene la copia del repositorio (${local?.fetchedAt ?? "sin archivo"}).`);
+    }
+  } catch (e) {
+    warn(`No se pudo leer la copia publicada (${e.message}); se parte de la del repositorio.`);
+  }
+}
 
 /** GET /api/gor con reintentos; devuelve el JSON o lanza. */
 async function gor(action, list) {
@@ -71,7 +110,7 @@ async function pool(tasks) {
   let next = 0;
   await Promise.all(
     Array.from({ length: CONCURRENCY }, async () => {
-      while (next < tasks.length) {
+      while (next < tasks.length && !outOfTime()) {
         await tasks[next++]();
         await sleep(100 + Math.random() * 200);
       }
@@ -87,6 +126,8 @@ const pricing = new Map();
 /** Modelo → { sku: unidades } (solo modelos con stock disponible). */
 const stock = new Map();
 const failed = { pricing: new Set(), stock: new Set() };
+/** Modelos cuyo stock ya se ha pedido (con o sin unidades disponibles). */
+const stockDone = new Set();
 const errors = [];
 
 function storePricing(list, json) {
@@ -102,6 +143,10 @@ function storePricing(list, json) {
 }
 
 async function pricingTask(list) {
+  if (outOfTime()) {
+    for (const m of list) failed.pricing.add(m);
+    return;
+  }
   try {
     storePricing(list, await gor("pricing", list));
   } catch (e) {
@@ -115,9 +160,14 @@ async function pricingTask(list) {
 }
 
 async function stockTask(list) {
+  if (outOfTime()) {
+    for (const m of list) failed.stock.add(m);
+    return;
+  }
   try {
     const json = await gor("stock", list);
     if (json.available && json.stocks) {
+      for (const m of list) stockDone.add(m);
       for (const m of list) stock.set(m, {});
       for (const [sku, n] of Object.entries(json.stocks)) {
         const m = modelOf(sku);
@@ -126,6 +176,8 @@ async function stockTask(list) {
     } else if (list.length > 1) {
       // Un modelo sin stock invalida el lote: se pide cada uno por separado.
       for (const m of list) await stockTask([m]);
+    } else {
+      stockDone.add(list[0]);
     }
     // Un solo modelo sin stock disponible: «Consultar disponibilidad», como en producción.
   } catch (e) {
@@ -143,14 +195,28 @@ console.log(`Refrescando tarifas y stock de ${models.length} modelos en ${ORIGIN
 await pricingTask(batches[0]);
 const firstFailed = batches[0].every((m) => failed.pricing.has(m));
 if (!firstFailed) {
-  await pool([...batches.slice(1).map((b) => () => pricingTask(b)), ...batches.map((b) => () => stockTask(b))]);
+  // Tarifa y stock de cada lote seguidos: si se agota el tiempo, lo descargado queda completo.
+  await pool([
+    () => stockTask(batches[0]),
+    ...batches.slice(1).flatMap((b) => [() => pricingTask(b), () => stockTask(b)]),
+  ]);
 }
+
+// Lo que no se llegó a pedir por falta de tiempo cuenta como fallido (conserva sus datos anteriores).
+const timedOut = outOfTime();
+if (!firstFailed) {
+  for (const m of models) {
+    if (!pricing.has(m) && !failed.pricing.has(m)) failed.pricing.add(m);
+    if (!stockDone.has(m) && !failed.stock.has(m)) failed.stock.add(m);
+  }
+}
+if (timedOut) warn(`Tiempo agotado (${Math.round(BUDGET_MS / 60000)} min): los modelos pendientes conservan sus datos anteriores.`);
 
 const seconds = Math.round((Date.now() - started) / 1000);
 const failedShare = Math.max(failed.pricing.size, failed.stock.size) / models.length;
-const warn = (msg) => console.log(process.env.GITHUB_ACTIONS ? `::warning::${msg}` : `AVISO: ${msg}`);
+const previousFile = readJson(OUT);
 
-if (firstFailed || failedShare > MAX_FAILED_SHARE) {
+if (firstFailed || (failedShare > MAX_FAILED_SHARE && !isPricingFile(previousFile))) {
   warn(
     `No se han podido refrescar las tarifas (${failed.pricing.size} modelos sin tarifa, ${failed.stock.size} sin stock; ` +
       `${errors[0] ?? "sin respuesta"}). Se conserva ${existsSync(OUT) ? "el archivo anterior" : "la web sin archivo de tarifas"}.`,
@@ -159,12 +225,7 @@ if (firstFailed || failedShare > MAX_FAILED_SHARE) {
 }
 
 // Modelos sueltos que han fallado: se conservan sus datos anteriores.
-let previous = null;
-try {
-  previous = existsSync(OUT) ? JSON.parse(readFileSync(OUT, "utf8")) : null;
-} catch {
-  previous = null;
-}
+const previous = isPricingFile(previousFile) ? previousFile : null;
 const stale = new Set();
 if (previous) {
   for (const m of failed.pricing) {

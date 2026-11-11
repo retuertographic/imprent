@@ -21,7 +21,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 55
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -44,7 +44,12 @@ jobs:
       # no se commitea: solo lo usa esta build.
       - name: Refresh merchandising prices and stock
         run: node scripts/refresh-merch-pricing.mjs
-        timeout-minutes: 25
+        env:
+          # Parte de los precios ya publicados si son más recientes que los del repositorio.
+          SEED_URL: ${{ steps.pages.outputs.base_url }}/sites/seritene/shop-data/merch-pricing.json
+          # El script guarda lo obtenido antes de que se agote el tiempo del paso.
+          REFRESH_BUDGET_MS: "1440000"
+        timeout-minutes: 30
         continue-on-error: true
 
       - name: Build static site
