@@ -4,19 +4,9 @@ import { useState } from "react";
 import { Input } from "../form-controls";
 import { OrderActions } from "../OrderActions";
 import { ProductDelivery } from "../ProductDelivery";
-import { deliveryLine, formatEuro, shippingFor } from "../order";
+import { formatEuro } from "../order";
+import { ROLLUP_TIERS as TIERS, rollupOrder } from "../pricing";
 import type { RollupProduct } from "../types";
-
-/** Tramos de cantidad: 1, 2, 3–4, 5–9 y 10+ (5 % de descuento por tramo). */
-const TIERS = [1, 2, 3, 5, 10];
-
-function rollupPrice(product: RollupProduct, quantity: number) {
-  if (!Number.isSafeInteger(quantity) || quantity < 1) return null;
-  const tier = TIERS.findLastIndex((min) => quantity >= min);
-  const unit = product.prices[tier];
-  const total = unit * quantity;
-  return Number.isSafeInteger(total) ? { unit, total } : null;
-}
 
 const tierLabel = (min: number, next: number | undefined) =>
   next ? (next === min + 1 ? min : `${min}–${next - 1}`) : `${min}+`;
@@ -25,18 +15,7 @@ export function RollupConfigurator({ product }: { product: RollupProduct }) {
   const [quantityText, setQuantityText] = useState("1");
   const [delivery, setDelivery] = useState(false);
   const quantity = Number(quantityText);
-  const price = rollupPrice(product, quantity);
-  const shipping = shippingFor(price?.total, delivery);
-  const message = [
-    `Hola Seritene, quiero ${product.name}.`,
-    `Cantidad: ${quantity}.`,
-    "Aluminio enrollable, tejido Oxford 200 g/m² sublimado a todo color y bolsa de transporte.",
-    price && shipping ? `Precio sin IGIC: ${formatEuro(price.unit)} / ud. Total sin IGIC: ${formatEuro(shipping.total)}.` : "",
-    deliveryLine(price?.total, delivery),
-    "Quiero confirmar diseño, impuestos y plazo.",
-  ]
-    .filter(Boolean)
-    .join("\n");
+  const { price, shipping, message } = rollupOrder(product, quantity, delivery);
 
   return (
     <div className="print-config">
@@ -102,6 +81,7 @@ export function RollupConfigurator({ product }: { product: RollupProduct }) {
           quantity={quantity}
           subtotal={price.total}
           delivery={delivery}
+          reprice={{ kind: "rollup", slug: product.slug, delivery }}
         />
       ) : (
         <button className="brand-button print-request" disabled>

@@ -5,6 +5,7 @@ import { Check, MessageCircle, ShoppingCart } from "lucide-react";
 import { SiteLink } from "../SiteLink";
 import { CART_LIMIT, cartDetails, currentProductPath, readCart, writeCart } from "../cart/storage";
 import { whatsappUrl } from "./order";
+import type { Reprice } from "../cart/reprice";
 
 type Props = {
   name: string;
@@ -16,12 +17,14 @@ type Props = {
   image?: string;
   delivery?: boolean;
   expiresAt?: number;
+  /** Selección para recalcular en el carrito al cambiar la cantidad (mejora propia). */
+  reprice?: Reprice;
 };
 
 const noopSubscribe = () => () => {};
 
 /** «Solicitar pedido» por WhatsApp y «Añadir al carrito» (localStorage). */
-export function OrderActions({ name, message, quantity = null, subtotal = null, image = "", delivery = false, expiresAt }: Props) {
+export function OrderActions({ name, message, quantity = null, subtotal = null, image = "", delivery = false, expiresAt, reprice }: Props) {
   const [addedKey, setAddedKey] = useState("");
   const [error, setError] = useState("");
   const key = JSON.stringify([message, subtotal]);
@@ -56,6 +59,7 @@ export function OrderActions({ name, message, quantity = null, subtotal = null, 
             details: cartDetails(message),
             addedAt: Date.now(),
             expiresAt,
+            reprice,
           },
         ],
       });

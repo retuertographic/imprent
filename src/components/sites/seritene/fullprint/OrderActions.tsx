@@ -5,6 +5,7 @@ import { SiteLink } from "../SiteLink";
 import { CART_LIMIT, cartDetails, currentProductPath, readCart, writeCart } from "../cart/storage";
 import { Checkbox } from "./controls";
 import { whatsappUrl, withShipping } from "./pricing";
+import type { Reprice } from "../cart/reprice";
 
 const noopSubscribe = () => () => {};
 
@@ -41,10 +42,12 @@ type OrderProps = {
   subtotal: number | null;
   image: string;
   delivery: boolean;
+  /** Selección para recalcular en el carrito al cambiar la cantidad (mejora propia). */
+  reprice?: Reprice;
 };
 
 /** «Solicitar pedido» por WhatsApp y «Añadir al carrito». */
-export function OrderActions({ name, message, quantity, subtotal, image, delivery }: OrderProps) {
+export function OrderActions({ name, message, quantity, subtotal, image, delivery, reprice }: OrderProps) {
   const selectionKey = JSON.stringify([message, subtotal]);
   const [addedKey, setAddedKey] = useState("");
   const [error, setError] = useState("");
@@ -78,6 +81,7 @@ export function OrderActions({ name, message, quantity, subtotal, image, deliver
             subtotal,
             details: cartDetails(message),
             addedAt: Date.now(),
+            reprice,
           },
         ],
       });

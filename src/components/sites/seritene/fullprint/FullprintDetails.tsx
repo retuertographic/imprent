@@ -7,7 +7,7 @@ import { SiteLink } from "../SiteLink";
 import { Checkbox, Input, NativeSelect, NativeSelectOption, Textarea } from "./controls";
 import { exampleSmallImage, FullprintTransformation } from "./FullprintTransformation";
 import { OrderActions, ProductDelivery } from "./OrderActions";
-import { calculatePrice, formatEuros, formatNumber, orderMessage, withShipping } from "./pricing";
+import { formatEuros, formatNumber, fullprintOrder } from "./pricing";
 import type { FullprintModel } from "./types";
 
 const OWN_DESIGN = "Aporto mi diseño";
@@ -30,17 +30,18 @@ function FullprintConfigurator({ product, onAttachmentChange }: ConfiguratorProp
 
   const attachment = product.attachments?.find((a) => a.id === attachmentId);
   const fabric = product.fabrics?.find((f) => f.id === fabricId);
-  const variant = product.variants.find((v) => v.id === variantId) ?? firstVariant;
   const quantity = Number(quantityText);
-  const minimum = variant.tiers[0]?.min ?? firstVariant.tiers[0].min;
-  const validQuantity = Number.isSafeInteger(quantity) && quantity >= minimum;
-  const price = calculatePrice(product, variantId, quantity, extraIds, attachmentId, fabricId);
-  const total = withShipping(price?.total, delivery);
-  const message = orderMessage(
-    product,
-    { variantId, quantity, extraIds, attachmentId, fabricId, cut, design, notes, delivery },
-    price,
-  );
+  const { variant, minimum, validQuantity, price, total, message } = fullprintOrder(product, {
+    variantId,
+    quantity,
+    extraIds,
+    attachmentId,
+    fabricId,
+    cut,
+    design,
+    notes,
+    delivery,
+  });
 
   return (
     <div className="print-config">
@@ -276,6 +277,18 @@ function FullprintConfigurator({ product, onAttachmentChange }: ConfiguratorProp
           subtotal={price?.total ?? null}
           delivery={delivery}
           image={product.cartImage}
+          reprice={{
+            kind: "fullprint",
+            slug: product.slug,
+            variantId,
+            extraIds,
+            attachmentId,
+            fabricId,
+            cut,
+            design,
+            notes,
+            delivery,
+          }}
         />
       ) : (
         <button type="button" disabled className="brand-button print-request">
