@@ -225,6 +225,8 @@ export type MarkChoice = {
   label: string;
   detail: string;
   marking: Marking;
+  /** Prenda del conjunto (chándal, camiseta + pantalón); vacío en el resto. */
+  garment?: string;
 };
 
 function choice(id: number, zone: string, label: string, position: string, size: string, technique = "DTF"): MarkChoice {
@@ -248,6 +250,55 @@ const uvOneSide = (kind: string) => ({
   kind,
   choices: [choice(1, "front", "Logo en una cara", "Cara principal", "A1", "DTF UV")],
 });
+
+/**
+ * Conjuntos (chándal, camiseta + pantalón): zonas por prenda. Cada posición lleva delante la prenda
+ * («Chaqueta · Espalda») y los ids son correlativos.
+ */
+function outfit(garments: string[]) {
+  const choices: MarkChoice[] = [];
+  const add = (garment: string, list: MarkChoice[]) =>
+    list.forEach((c) => {
+      const id = choices.length + 1;
+      choices.push({
+        ...c,
+        id,
+        zone: `${garment}:${c.zone}`,
+        garment,
+        marking: { ...c.marking, id, position: `${garment} · ${c.marking.position}` },
+      });
+    });
+  for (const garment of garments) {
+    add(garment, [
+      chestLeft(),
+      chestRight(),
+      ...(garment.startsWith("Camiseta") ? [choice(8, "front-large", "Diseño delante", "Delantera", "A4")] : []),
+      back(),
+      sleeveLeft(),
+      sleeveRight(),
+    ]);
+  }
+  add("Pantalón", [
+    choice(1, "left", "Muslo izquierdo", "Muslo izquierdo", "A6"),
+    choice(2, "right", "Muslo derecho", "Muslo derecho", "A6"),
+  ]);
+  return { kind: "conjunto", choices };
+}
+
+/** Zonas agrupadas por prenda (un solo grupo sin nombre fuera de los conjuntos). */
+export function markGroups(options: { choices: MarkChoice[] }) {
+  return [...new Set(options.choices.map((c) => c.garment || ""))].map((garment) => ({
+    garment,
+    zones: [
+      ...new Map(
+        options.choices
+          .filter((c) => (c.garment || "") === garment)
+          .flatMap(choiceMarks)
+          .map((m) => [m.position, m]),
+      ).values(),
+    ],
+  }));
+}
 
 const fold = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "");
 
@@ -319,6 +370,21 @@ export function markingOptions(product: Pick<MerchProduct, "categories" | "name"
     sleeveRight(),
     sleevesBoth(),
   ];
+  // La descripción empieza por «Pantalón…»: es la pieza suelta, no el conjunto.
+  const trousers = /^(?:pantalon(?:es)?|bermudas?|leggings?|mallas|shorts?)\b/.test(
+    fold(product.description.replace(/<[^>]*>/g, " ").trim()).toLowerCase(),
+  );
+  if (
+    !trousers &&
+    (has("chnd") ||
+      (/^CH\d{4}$/.test(product.code) && /\bchandal\b/.test(text)) ||
+      (/\bconjunto\b/.test(text) && /\bchaqueta\b/.test(text) && /\bpantalon\b/.test(text)))
+  ) {
+    return outfit(["Chaqueta"]);
+  }
+  if (!trousers && /\bconjunto\b/.test(text) && /\bcamisetas?\b/.test(text) && /\bpantalon\b/.test(text)) {
+    return outfit(/\b(?:dos|2) camisetas\b/.test(text) ? ["Camiseta 1", "Camiseta 2"] : ["Camiseta"]);
+  }
   if (
     has(
       "pant_c",

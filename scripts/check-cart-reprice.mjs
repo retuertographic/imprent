@@ -21,7 +21,7 @@ const SRC = join(ROOT, "src/components/sites/seritene");
 const jiti = createJiti(import.meta.url, { alias: { "@": join(ROOT, "src") } });
 const load = (path) => jiti.import(join(SRC, path));
 
-// loadModelPricing() pide merch-pricing.json con fetch: aquí se sirve el archivo publicado.
+// loadModelPricing() pide merch-pricing.json / roly-pricing.json con fetch: aquí se sirve el archivo publicado.
 globalThis.fetch = async (url) => {
   const file = join(ROOT, "public/sites/seritene", String(url).replace(/^.*\/sites\/seritene/, ""));
   const body = readFileSync(file, "utf8");
@@ -174,20 +174,21 @@ for (const [kind, w, h, m, n, options] of [
   await compare(`superficie ${kind} ${w}×${h}`, page, m, n);
 }
 
-// --- Merchandising -----------------------------------------------------------------------------
-async function merch(model, rowsAdded, rowsChanged, marksFor = () => [], label) {
-  const data = JSON.parse(readFileSync(join(SRC, `merch/data/${model}.json`), "utf8")).product;
-  const today = await loadModelPricing(model);
+// --- Fichas de proveedor: merchandising (Stamina) y ropa (Roly, JHK) ------------------------------
+const productData = (brand, model) => JSON.parse(readFileSync(join(SRC, `merch/data/${brand}/${model}.json`), "utf8")).product;
+async function merch(model, rowsAdded, rowsChanged, marksFor = () => [], label, brand = "stamina") {
+  const data = productData(brand, model);
+  const today = await loadModelPricing(model, brand);
   const p = withModelPricing(data, today);
   const marks = marksFor(p);
   const page = (rows) => {
-    const o = merchOrder({ product: p, rows: rows.map((r) => ({ sku: r.sku, quantity: String(r.quantity) })), marks, askLogo: false, notes: "Entrega en La Laguna", delivery: false });
+    const o = merchOrder({ brand, product: p, rows: rows.map((r) => ({ sku: r.sku, quantity: String(r.quantity) })), marks, askLogo: false, notes: "Entrega en La Laguna", delivery: false });
     const reprice = {
-      kind: "merch", model, code: p.code, name: p.name,
+      kind: "merch", ...(brand === "stamina" ? {} : { brand }), model, code: p.code, name: p.name,
       variants: data.variants.filter((v) => rows.some((r) => r.sku === v.sku)).map(({ sku, color, size, packaging, tariff }) => ({ sku, color, size, packaging, tariff })),
       rows: rows.map((r) => ({ sku: r.sku, quantity: r.quantity })), marks, askLogo: false, notes: "Entrega en La Laguna", delivery: false,
     };
-    return added(p.name, `/producto/stamina/${model}/`, o.quote.quantity, o.subtotal, o.message, JSON.parse(JSON.stringify(reprice)));
+    return added(p.name, `/producto/${brand}/${model}/`, o.quote.quantity, o.subtotal, o.message, JSON.parse(JSON.stringify(reprice)));
   };
   const target = rowsChanged.map((q, i) => ({ sku: rowsAdded[i].sku, quantity: q }));
   const stored = roundTrip(page(rowsAdded));
@@ -205,7 +206,7 @@ async function merch(model, rowsAdded, rowsChanged, marksFor = () => [], label) 
   ok(
     same,
     `${label}: añadido con [${rowsAdded.map((r) => r.quantity)}] y cambiado a [${rowsChanged}]`,
-    same ? `${(fromPage.subtotal / 100).toFixed(2)} €` : `${problem ?? ""}\n  ficha:   ${fromPage.details}\n  carrito: ${cart.details}`,
+    same ? (fromPage.subtotal === null ? "A confirmar" : `${(fromPage.subtotal / 100).toFixed(2)} €`) : `${problem ?? ""}\n  ficha:   ${fromPage.details}\n  carrito: ${cart.details}`,
   );
   // El mismo recálculo (no se vuelve a preparar al editar) lee las cantidades de la selección guardada.
   ok(repricer.quantities(roundTrip(cart)).join() === rowsChanged.join(), `${label}: las cantidades se leen de la selección actualizada`);
@@ -213,12 +214,12 @@ async function merch(model, rowsAdded, rowsChanged, marksFor = () => [], label) 
 }
 {
   // Una fila, tarifa por rangos (cambia de rango a partir de 500 uds.), con marcaje UV.
-  const volen = JSON.parse(readFileSync(join(SRC, "merch/data/1000.json"), "utf8")).product;
+  const volen = productData("stamina", "1000");
   const single = await merch("1000", [{ sku: volen.variants[0].sku, quantity: 1 }], [600], (p) => markingOptions(p).choices.slice(0, 1).flatMap(choiceMarks), "merch 1000 una fila");
   ok(single.repricer.check([5001], 0) !== null, "merch: más de 5.000 uds. se rechaza", single.repricer.check([5001], 0));
 
   // Varias filas con embalaje de 10 en 10 (mínimo 10) y stock limitado.
-  const baky = JSON.parse(readFileSync(join(SRC, "merch/data/1995.json"), "utf8")).product;
+  const baky = productData("stamina", "1995");
   const [blanco, amarillo, royal] = baky.variants;
   const multi = await merch(
     "1995",
@@ -235,6 +236,57 @@ async function merch(model, rowsAdded, rowsChanged, marksFor = () => [], label) 
   ok(stepQuantity(r.rows[1].control, 1, 1) === 10 && stepQuantity(r.rows[0].control, 70, -1) === 60, "merch 1995: «+»/«−» saltan a cantidades válidas");
   const warn = r.warnings([70, 10, 20]);
   ok(warn[0] && !warn[1] && warn[2], "merch 1995: aviso de stock (amarillo 70 > 60, blanco 20 > 0)", JSON.stringify(warn));
+}
+
+// --- Ropa: Roly (tarifa del día de roly-pricing.json) y JHK (tarifa manual, sin stock) -------------
+{
+  // Camiseta: blanco, color y talla con recargo (3XL), con marcajes de prenda.
+  const dogo = productData("roly", "6502");
+  const pick = (color, size) => dogo.variants.find((v) => v.color === color && (!size || v.size === size));
+  const white = pick("BLANCO", "S");
+  const black = pick("NEGRO", "S");
+  const xxl = pick("CHOCOLATE", "3XL");
+  const tee = await merch(
+    "6502",
+    [{ sku: white.sku, quantity: 30 }, { sku: black.sku, quantity: 20 }, { sku: xxl.sku, quantity: 10 }],
+    [40, 20, 12],
+    (p) => markingOptions(p).choices.slice(0, 2).flatMap(choiceMarks),
+    "roly 6502 blanco, color y 3XL",
+    "roly",
+  );
+  ok(tee.stored.reprice.brand === "roly", "roly: la selección guardada lleva la marca (tarifa de roly-pricing.json)");
+  ok(tee.stored.details.includes("(ROLY · CA6502)"), "roly: el mensaje identifica la marca", tee.stored.details.split("\n")[0]);
+
+  // Conjunto (chándal): marcajes de chaqueta y pantalón.
+  const gladius = productData("roly", "0435");
+  await merch(
+    "0435",
+    [{ sku: gladius.variants[0].sku, quantity: 10 }],
+    [26],
+    (p) => [markingOptions(p).choices[0], markingOptions(p).choices.find((c) => c.garment === "Pantalón")].flatMap(choiceMarks),
+    "roly 0435 conjunto (chaqueta + pantalón)",
+    "roly",
+  );
+
+  // Sin tarifa en producción (available: false): «A confirmar» en la ficha y en el carrito.
+  const assen = productData("roly", "0201");
+  const none = await merch("0201", [{ sku: assen.variants[0].sku, quantity: 5 }], [9], () => [], "roly 0201 sin tarifa", "roly");
+  ok(none.stored.subtotal === null, "roly 0201: subtotal «A confirmar» (null)");
+
+  // JHK: tarifa manual en la ficha, sin mínimos ni stock.
+  const jhk = productData("jhk", "TSRA190");
+  const jw = jhk.variants.find((v) => v.color === "White" && v.size === "XS");
+  const jb = jhk.variants.find((v) => v.color === "Black" && v.size === "XXL");
+  const tsra = await merch(
+    "TSRA190",
+    [{ sku: jw.sku, quantity: 30 }, { sku: jb.sku, quantity: 25 }],
+    [30, 3],
+    (p) => markingOptions(p).choices.slice(0, 1).flatMap(choiceMarks),
+    "jhk TSRA190 dos colores",
+    "jhk",
+  );
+  ok(tsra.repricer.rows.every((r) => r.control.min === 1 && r.control.step === 1), "jhk: tarifa manual sin mínimos ni múltiplos");
+  ok(tsra.repricer.warnings([5000, 1]).every((w) => w === null), "jhk: sin stock conocido, nunca avisa de stock («Stock a consultar»)");
 }
 
 // --- Productos sin cantidad en la ficha: vaso de evento y DTF por metros ----------------------------

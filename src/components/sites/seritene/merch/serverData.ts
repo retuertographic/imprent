@@ -1,22 +1,31 @@
 /**
- * Fichas de merchandising para el servidor (solo al generar el HTML estático).
- * Un JSON por modelo en ./data/, generado por scripts/extract-merch-products.mjs.
+ * Fichas de producto de proveedor para el servidor (solo al generar el HTML estático).
+ * Un JSON por modelo en ./data/<marca>/, generado por scripts/extract-merch-products.mjs.
  */
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { Metadata } from "next";
 import { getGroupData } from "../shop/serverData";
-import type { MerchPageData } from "./types";
+import type { Brand, MerchPageData } from "./types";
 
 const DATA_DIR = join(process.cwd(), "src/components/sites/seritene/merch/data");
 
-/** Modelos de 4 cifras de las 1.584 fichas Stamina, en el orden del listado de producción. */
-export const merchProductIds = () => getGroupData("merchandising").lists[""];
+/** Ids de las fichas de una marca, en el orden del listado de producción (modelo de 4 cifras; código en JHK). */
+export function merchProductIds(brand: Brand = "stamina"): string[] {
+  if (brand === "stamina") return getGroupData("merchandising").lists[""];
+  const ropa = getGroupData("ropa");
+  return ropa.lists[""]
+    .map((key) => ropa.products[key])
+    .filter((p) => p?.brand === brand)
+    .map((p) => (brand === "jhk" ? p.code : (p.code.match(/\d{4}/)?.[0] ?? p.code)));
+}
 
-export function getMerchProduct(id: string): MerchPageData | null {
-  if (!/^\d{4}$/.test(id)) return null;
+const ID_PATTERN: Record<Brand, RegExp> = { stamina: /^\d{4}$/, roly: /^\d{4}$/, jhk: /^[A-Z0-9]{3,20}$/ };
+
+export function getMerchProduct(id: string, brand: Brand = "stamina"): MerchPageData | null {
+  if (!ID_PATTERN[brand].test(id)) return null;
   try {
-    return JSON.parse(readFileSync(join(DATA_DIR, `${id}.json`), "utf8")) as MerchPageData;
+    return JSON.parse(readFileSync(join(DATA_DIR, brand, `${id}.json`), "utf8")) as MerchPageData;
   } catch {
     return null;
   }
@@ -25,7 +34,7 @@ export function getMerchProduct(id: string): MerchPageData | null {
 /** Metadatos de la ficha con el mismo formato que producción. */
 export function merchMetadata(data: MerchPageData): Metadata {
   const { meta } = data;
-  const path = `/producto/stamina/${data.id}/`;
+  const path = `/producto/${data.brand}/${data.id}/`;
   const images = meta.ogImage ? [{ url: meta.ogImage, alt: meta.ogImageAlt }] : undefined;
   return {
     title: { absolute: meta.title },

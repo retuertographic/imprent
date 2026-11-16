@@ -68,7 +68,9 @@ export type MerchVariantSnapshot = {
 
 export type MerchReprice = {
   kind: "merch";
-  /** Modelo de 4 cifras (clave de merch-pricing.json). */
+  /** Fichas de ropa (Roly, JHK); sin marca = Stamina (formato anterior, sigue valiendo). */
+  brand?: "roly" | "jhk";
+  /** Modelo de 4 cifras (clave de merch-pricing.json / roly-pricing.json); código en JHK. */
   model: string;
   code: string;
   name: string;
@@ -99,7 +101,8 @@ const nullableObj = (v: unknown) => v === undefined || v === null || isObj(v);
 
 function isMerch(e: Obj) {
   return (
-    /^\d{4}$/.test(String(e.model)) &&
+    (e.brand === undefined || e.brand === "roly" || e.brand === "jhk") &&
+    (e.brand === "jhk" ? /^[A-Z0-9]{3,20}$/ : /^\d{4}$/).test(String(e.model)) &&
     str(e.code) &&
     str(e.name, 300) &&
     str(e.notes, 1000) &&
