@@ -1,7 +1,7 @@
-import { MERCH_PRODUCT_IDS } from "./merch/productIds.generated";
+import { JHK_PRODUCT_IDS, MERCH_PRODUCT_IDS, ROLY_PRODUCT_IDS } from "./merch/productIds.generated";
 
 /**
- * Rutas de seritene.com clonadas en esta web (fase 1: todo salvo las fichas /producto/...).
+ * Rutas de seritene.com clonadas en esta web (las fichas /producto/... van aparte: `isMerchProduct`).
  * Los enlaces a estas rutas son locales; el resto apunta a producción.
  */
 export const LOCAL_ROUTES = new Set<string>([
@@ -138,10 +138,11 @@ const normalize = (path: string) => {
   return pathname.endsWith("/") ? pathname : pathname + "/";
 };
 
-/** Fichas Stamina clonadas (`/producto/stamina/<modelo>/`); las de Roly y JHK siguen en producción. */
+/** Fichas de producto clonadas: `/producto/stamina|roly/<modelo>/` y `/producto/jhk/<código>/`. */
+const PRODUCT_IDS: Record<string, Set<string>> = { stamina: MERCH_PRODUCT_IDS, roly: ROLY_PRODUCT_IDS, jhk: JHK_PRODUCT_IDS };
 const isMerchProduct = (pathname: string) => {
-  const m = /^\/producto\/stamina\/(\d{4})\/$/.exec(pathname);
-  return m !== null && MERCH_PRODUCT_IDS.has(m[1]);
+  const m = /^\/producto\/(stamina|roly|jhk)\/([^/]+)\/$/.exec(pathname);
+  return m !== null && PRODUCT_IDS[m[1]].has(m[2]);
 };
 
 export const isLocalRoute = (path: string) => {

@@ -75,7 +75,8 @@ async function merchRepricer(r: MerchReprice): Promise<Repricer | null> {
     import("../merch/pricing"),
   ]);
   // Tarifa y stock del día, como la ficha; si no cargan, la ficha usa los datos propios de la variante.
-  const data = await loadModelPricing(r.model).catch(() => ({ pricing: {}, stock: {} }));
+  const brand = r.brand ?? "stamina";
+  const data = await loadModelPricing(r.model, brand).catch(() => ({ pricing: {}, stock: {} }));
   const product = order.withModelPricing(
     {
       name: r.name,
@@ -131,6 +132,7 @@ async function merchRepricer(r: MerchReprice): Promise<Repricer | null> {
 
   function merchOrderFor(selection: { sku: string; quantity: number }[]) {
     return order.merchOrder({
+      brand,
       product,
       rows: selection,
       marks: r.marks,
