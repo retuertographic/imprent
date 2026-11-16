@@ -23,7 +23,7 @@ tarifa manual de la propia ficha y «Stock a consultar».
 El workflow de deploy, además de con cada push, se ejecuta **cada noche a las 02:17 UTC**
 (03:17 en Madrid en invierno, 04:17 en verano) y antes de compilar ejecuta
 `node scripts/refresh-merch-pricing.mjs`, que vuelve a descargar tarifas y stock de las dos marcas
-(unos 13 min si producción va bien: ~660 peticiones; Roly sola, ~2,5 min).
+(~660 peticiones: 9–10 min si producción va bien, más de 22 min un día lento; Roly sola, ~2,5 min).
 El archivo nuevo solo se usa en esa build; no se commitea. Para que nunca se publiquen precios más
 antiguos que los que ya había:
 - El script parte de la copia **ya publicada** en GitHub Pages (de cada archivo) si es más reciente que la
