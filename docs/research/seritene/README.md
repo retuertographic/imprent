@@ -13,7 +13,7 @@ La lista exacta está en `src/components/sites/seritene/routes.ts` (`LOCAL_ROUTE
 | Home | `/` | `src/app/page.tsx`, componentes `Home*`, `UnboxHero` |
 | Contenido y blog | equipo, valores, servicios, contacto, catálogos, textil, rotulación, diseño, banderas-rollups, ropa-laboral, DTF, mapa web, legales, cuestionario, `/blog/` + 7 artículos | `src/components/sites/seritene/pages/` |
 | Tienda | `/ropa/*`, `/merchandising/*`, `/productos/` (buscador `?q=`), `/imprenta/*` | `src/components/sites/seritene/shop/` (datos en `public/sites/seritene/shop-data/`) |
-| Fichas de merchandising | `/producto/stamina/<id>/` (1.584 modelos Stamina; Roly y JHK siguen en producción) | `src/app/producto/stamina/[id]/`, `src/components/sites/seritene/merch/` (datos en `merch/data/`, tarifas y stock del día en `public/sites/seritene/shop-data/merch-pricing.json`) |
+| Fichas de producto | `/producto/stamina/<id>/` (1.584 modelos Stamina), `/producto/roly/<id>/` (407), `/producto/jhk/<código>/` (12) | `src/app/producto/{stamina,roly,jhk}/[id]/`, `src/components/sites/seritene/merch/` (datos en `merch/data/<marca>/`, tarifas y stock del día en `public/sites/seritene/shop-data/merch-pricing.json` y `roly-pricing.json`; fotos de JHK en `public/sites/seritene/images/jhk/`) |
 | Fullprint | portada, 6 colecciones, 30 modelos | `src/components/sites/seritene/fullprint/` |
 | Soportes y eventos | `/soportes-publicitarios/*`, `/eventos/*`, medallas | `src/components/sites/seritene/soportes/`, `eventos/` |
 
@@ -26,8 +26,8 @@ Cada página mantiene su `canonical` hacia seritene.com.
 - `scripts/extract-fullprint.mjs` — modelos, colecciones y precios de Fullprint.
 - `scripts/extract-seritene-soportes-eventos.mjs` — soportes, eventos y medallas.
 - `scripts/extract-search-index.mjs` — índice del buscador (descripciones completas de producción).
-- `scripts/extract-merch-products.mjs` — fichas Stamina (producto, variantes, JSON-LD, metadatos).
-- `scripts/refresh-merch-pricing.mjs` — tarifas y stock de `/api/gor`; lo ejecuta el deploy cada noche.
+- `scripts/extract-merch-products.mjs` — fichas Stamina, Roly y JHK (producto, variantes, contexto, JSON-LD, metadatos).
+- `scripts/refresh-merch-pricing.mjs` — tarifas y stock de `/api/gor` (Stamina y Roly); lo ejecuta el deploy cada noche.
 
 Son una foto del sitio en noviembre de 2026: si el cliente cambia precios o productos, hay que volver a ejecutarlos.
 
@@ -114,4 +114,26 @@ PNG transparente a 300 ppp y envío por WhatsApp/email). Origen: https://seriten
 
 - El titular rotativo y los carruseles automáticos dependen del tiempo, así que una captura puede
   mostrar otra frase u otra tarjeta que el original en el mismo instante.
-- Las páginas internas no están clonadas (enlazan a producción).
+- Todas las páginas del sitemap están clonadas; ningún enlace del clon apunta a una ficha de seritene.com.
+
+## Fichas de producto (Stamina, Roly, JHK)
+
+Las tres marcas usan el mismo componente de producción (`ShopProduct`, chunk `shop-product`), portado en
+`merch/ShopProduct.tsx` con la marca como prop:
+
+- **Precio de Roly**: igual que Stamina. La ficha trae una tarifa de caché (solo 94 de 407 la tienen) y al cargar
+  pide `/api/gor?action=pricing&brand=roly&modelList=<modelo>`: tarifa por SKU (`unit`/`pack`/`box` según el
+  embalaje; las tallas grandes y algunos colores tienen su propia tarifa, p. ej. 3XL o blanco frente a color),
+  descuento por cantidad total (5 % desde 5 uds. … 19 % desde 2.500) y marcajes de `marking-prices` (DTF A6–A3 por
+  tramos, descuento por varios marcajes textiles). Si la respuesta llega sin tarifa (`available: false`, p. ej.
+  ASSEN 0201), la tarifa del SKU se sustituye por nada y el precio queda «A confirmar»: el refresco guarda esos SKU
+  con tarifa −1 para reproducirlo. El «Desde» del listado sale de esa misma tarifa.
+- **JHK**: tarifa manual (`basis: "manual-unit"`) en la ficha, sin llamadas a la API, «Stock a consultar».
+- **Conjuntos** (chándales y conjuntos camiseta + pantalón, categoría `chnd` o descripción): la personalización
+  se agrupa por prenda («Marcaje de chaqueta», «Marcaje de pantalón»), novedad del despliegue de noviembre.
+- Contexto de la ficha (categoría en las migas, «Antes de elegir», personalización, entrega en Canarias y enlaces)
+  viene en las props `context` de producción y se guarda con cada ficha.
+- Etiqueta «Talla» (ropa) o «Formato» (Stamina); migas «Ropa» o «Merchandising».
+
+Producción carga además `analytics-consent` (banner de cookies con Google Analytics 4 vía Google Tag Manager,
+solo en seritene.com y con consentimiento). El clon no lo incluye: no añade analítica de terceros.

@@ -3,38 +3,50 @@
 
 import { useEffect, useState } from "react";
 import { Check, Plus, Trash2, X } from "lucide-react";
+import { asset } from "../content";
 import { SiteLink } from "../SiteLink";
 import { OrderActions } from "../soportes/OrderActions";
 import { ProductDelivery } from "../soportes/ProductDelivery";
 import { Input, NativeSelect, NativeSelectOption } from "../soportes/form-controls";
-import { loadModelPricing, type ModelPricing } from "./loadPricing";
+import { hasDailyPricing, loadModelPricing, type ModelPricing } from "./loadPricing";
 import { merchOrder, OVER_STOCK, stockStatus, withModelPricing } from "./order";
-import { MARK_SIZES, choiceMarks, markingOptions, productSummary, type Marking } from "./pricing";
-import type { MerchProduct, MerchVariant } from "./types";
+import { MARK_SIZES, choiceMarks, markGroups, markingOptions, productSummary, type Marking } from "./pricing";
+import type { Brand, MerchProduct, MerchVariant, ProductContext } from "./types";
 
 type Props = {
-  /** Modelo de 4 cifras (clave de merch-pricing.json). */
+  brand: Brand;
+  /** Modelo de 4 cifras (clave de merch-pricing.json / roly-pricing.json); código en JHK. */
   model: string;
   product: MerchProduct;
   warehouse: string;
   priceNotice?: string;
+  context?: ProductContext;
 };
 
 type Selection = { id: number; sku: string; quantity: string };
 
 /**
- * Ficha de producto de merchandising (Stamina). Portado del componente `ShopProduct` de seritene.com
- * (chunk `shop-product`). Producción pide la tarifa y el stock a `/api/gor` al cargar; aquí salen de
- * merch-pricing.json, que el workflow de deploy refresca cada noche.
+ * Las fotos de JHK son rutas de seritene.com (`/images/jhk/…`, copiadas en public/sites/seritene/):
+ * se resuelven al pintarlas y se guardan tal cual en el carrito, como en producción.
  */
-export function ShopProduct({ model, product, warehouse, priceNotice = "" }: Props) {
+const imageSrc = (src: string) => (src.startsWith("/") ? asset(src) : src);
+
+/**
+ * Ficha de producto de proveedor: merchandising (Stamina) y ropa (Roly, JHK). Portado del componente
+ * `ShopProduct` de seritene.com (chunk `shop-product`). Producción pide la tarifa y el stock a `/api/gor`
+ * al cargar (salvo JHK); aquí salen de merch-pricing.json / roly-pricing.json, que el workflow de deploy
+ * refresca cada noche.
+ */
+export function ShopProduct({ brand: brandProp, model, product, warehouse, priceNotice = "", context }: Props) {
+  const daily = hasDailyPricing(brandProp);
   const [stock, setStock] = useState<Record<string, number>>({});
   const [overrides, setOverrides] = useState<ModelPricing["pricing"]>({});
-  const [pricingLoading, setPricingLoading] = useState(true);
+  const [pricingLoading, setPricingLoading] = useState(daily);
 
   useEffect(() => {
+    if (!daily) return;
     let alive = true;
-    loadModelPricing(model)
+    loadModelPricing(model, brandProp)
       .then((data) => {
         if (!alive) return;
         setOverrides(data.pricing);
@@ -45,7 +57,7 @@ export function ShopProduct({ model, product, warehouse, priceNotice = "" }: Pro
     return () => {
       alive = false;
     };
-  }, [model]);
+  }, [model, brandProp, daily]);
 
   const p: MerchProduct = withModelPricing(product, { pricing: overrides, stock });
 
@@ -54,7 +66,8 @@ export function ShopProduct({ model, product, warehouse, priceNotice = "" }: Pro
   const [rows, setRows] = useState<Selection[]>([
     { id: 1, sku: p.variants[0]?.sku || "", quantity: options.kind === "placa" ? "5" : "1" },
   ]);
-  const positions = [...new Map(options.choices.flatMap(choiceMarks).map((m) => [m.position, m])).values()];
+  const groups = markGroups(options);
+  const positions = groups.flatMap((g) => g.zones);
   const [marks, setMarks] = useState<Marking[]>(options.kind === "placa" ? options.choices.flatMap(choiceMarks) : []);
   const [nextMarkId, setNextMarkId] = useState(100);
   const sizesFor = (m: Marking) =>
@@ -73,7 +86,9 @@ export function ShopProduct({ model, product, warehouse, priceNotice = "" }: Pro
   const current = p.variants.find((v) => v.sku === rows[0]?.sku);
   const updateRow = (id: number, patch: Partial<Selection>) =>
     setRows((list) => list.map((r) => (r.id === id ? { ...r, ...patch } : r)));
+  const section = brandProp === "roly" || brandProp === "jhk" ? "ropa" : "merchandising";
   const { brand, quote, quantityError, money, subtotal, shipping, varies, unitText, message } = merchOrder({
+    brand: brandProp,
     product: p,
     rows,
     marks,
@@ -94,7 +109,13 @@ export function ShopProduct({ model, product, warehouse, priceNotice = "" }: Pro
         <nav className="breadcrumbs" aria-label="Ruta de navegación">
           <SiteLink href="/">Inicio</SiteLink>
           <span>/</span>
-          <SiteLink href="/merchandising/">Merchandising</SiteLink>
+          <SiteLink href={`/${section}/`}>{section === "ropa" ? "Ropa" : "Merchandising"}</SiteLink>
+          {context?.category && (
+            <>
+              <span>/</span>
+              <SiteLink href={context.category.path}>{context.category.name}</SiteLink>
+            </>
+          )}
           <span>/</span>
           <span>{p.name}</span>
         </nav>
@@ -108,8 +129,8 @@ export function ShopProduct({ model, product, warehouse, priceNotice = "" }: Pro
             <div className="shop-main-photo">
               {current?.image || p.image ? (
                 <img
-                  src={current?.image || p.image}
-                  alt={`${p.name} · ${current?.color || ""}`}
+                  src={imageSrc(current?.image || p.image)}
+                  alt={[p.name, productSummary(p), current?.color].filter(Boolean).join(" · ")}
                   width="700"
                   height="800"
                   fetchPriority="high"
@@ -129,6 +150,26 @@ export function ShopProduct({ model, product, warehouse, priceNotice = "" }: Pro
                   <br />
                   {p.composition.replace(/<[^>]*>/g, " ")}
                 </p>
+              )}
+              {context && (
+                <>
+                  {context.buyingGuide && (
+                    <p>
+                      <b>Antes de elegir</b>
+                      <br />
+                      {context.buyingGuide}
+                    </p>
+                  )}
+                  <p>{context.personalization}</p>
+                  <p>{context.local}</p>
+                  <ul>
+                    {context.links.map((l) => (
+                      <li key={l.path}>
+                        <SiteLink href={l.path}>{l.name}</SiteLink>
+                      </li>
+                    ))}
+                  </ul>
+                </>
               )}
             </details>
           </div>
@@ -162,7 +203,7 @@ export function ShopProduct({ model, product, warehouse, priceNotice = "" }: Pro
                         <span>
                           {image && (
                             <img
-                              src={image}
+                              src={imageSrc(image)}
                               alt=""
                               aria-hidden="true"
                               width="60"
@@ -209,7 +250,7 @@ export function ShopProduct({ model, product, warehouse, priceNotice = "" }: Pro
                         </NativeSelect>
                       </label>
                       <label>
-                        Formato
+                        {brand === "stamina" ? "Formato" : "Talla"}
                         <NativeSelect
                           aria-label={`Talla de la selección ${index + 1}`}
                           value={row.sku}
@@ -247,7 +288,9 @@ export function ShopProduct({ model, product, warehouse, priceNotice = "" }: Pro
                       )}
                     </div>
                     <p className={over ? "shop-stock-warning" : "shop-stock"}>
-                      {`${warehouse === "2040" ? "Stock Canarias" : "Stock proveedor"}: ${v?.stock == null ? "Consultar disponibilidad" : `${v.stock} uds.`}`}
+                      {brand === "jhk"
+                        ? "Stock a consultar"
+                        : `${warehouse === "2040" ? "Stock Canarias" : "Stock proveedor"}: ${v?.stock == null ? "Consultar disponibilidad" : `${v.stock} uds.`}`}
                       {over ? ` · ${OVER_STOCK}` : ""}
                     </p>
                   </div>
@@ -288,86 +331,104 @@ export function ShopProduct({ model, product, warehouse, priceNotice = "" }: Pro
                   <Plus size={20} />
                 </summary>
                 <div className="shop-marking-content">
-                  <p>Cada fila cuenta como un marcaje. Se aplica a todas las unidades.</p>
-                  {marks.map((m, index) => (
-                    <div className="shop-mark-row" key={m.id}>
-                      <span className="shop-mark-number" aria-label={`Marcaje ${index + 1}`}>
-                        {index + 1}
-                      </span>
-                      <label className="shop-mark-position">
-                        Posición
-                        <span className="shop-mark-position-control">
-                          <NativeSelect
-                            aria-label={`Zona del marcaje ${index + 1}`}
-                            value={m.position}
-                            onChange={(e) => {
-                              const picked = positions.find((x) => x.position === e.target.value);
-                              if (picked) setMarks((list) => list.map((x) => (x.id === m.id ? { ...picked, id: m.id } : x)));
+                  <p>
+                    {options.kind === "conjunto"
+                      ? "Elige qué prendas personalizar. Cada marcaje se aplica a todos los conjuntos."
+                      : "Cada fila cuenta como un marcaje. Se aplica a todas las unidades."}
+                  </p>
+                  {groups.map(({ garment, zones }) => {
+                    const label = (position: string) => (garment ? position.slice(garment.length + 3) : position);
+                    return (
+                      <div className={garment ? "shop-mark-garment" : undefined} key={garment || "product"}>
+                        {garment && <h3>Marcaje de {garment.toLocaleLowerCase("es")}</h3>}
+                        {marks.map((m, index) =>
+                          zones.some((z) => z.position === m.position) ? (
+                            <div className="shop-mark-row" key={m.id}>
+                              <span className="shop-mark-number" aria-label={`Marcaje ${index + 1}`}>
+                                {index + 1}
+                              </span>
+                              <label className="shop-mark-position">
+                                Posición
+                                <span className="shop-mark-position-control">
+                                  <NativeSelect
+                                    aria-label={`Zona del marcaje ${index + 1}${garment ? " · " + garment : ""}`}
+                                    value={m.position}
+                                    onChange={(e) => {
+                                      const picked = zones.find((x) => x.position === e.target.value);
+                                      if (picked) setMarks((list) => list.map((x) => (x.id === m.id ? { ...picked, id: m.id } : x)));
+                                    }}
+                                  >
+                                    {zones.map((pos) => (
+                                      <NativeSelectOption
+                                        key={pos.position}
+                                        value={pos.position}
+                                        disabled={marks.some((x) => x.id !== m.id && x.position === pos.position)}
+                                      >
+                                        {label(pos.position)}
+                                      </NativeSelectOption>
+                                    ))}
+                                  </NativeSelect>
+                                  <span className="shop-mark-position-value" aria-hidden="true">
+                                    {label(m.position)}
+                                  </span>
+                                </span>
+                              </label>
+                              <label className="shop-mark-size">
+                                Tamaño
+                                <span className="shop-mark-size-control">
+                                  <NativeSelect
+                                    aria-label={`Tamaño del marcaje ${index + 1}`}
+                                    value={m.size}
+                                    onChange={(e) =>
+                                      setMarks((list) => list.map((x) => (x.id === m.id ? { ...x, size: e.target.value } : x)))
+                                    }
+                                  >
+                                    {sizesFor(m).map((s) => (
+                                      <NativeSelectOption key={s} value={s}>
+                                        {m.technique === "DTF UV"
+                                          ? "Logo a color"
+                                          : `${s} · hasta ${MARK_SIZES.find((x) => x.code === s)?.dimensions}`}
+                                      </NativeSelectOption>
+                                    ))}
+                                  </NativeSelect>
+                                  <span className="shop-mark-size-value" aria-hidden="true">
+                                    <strong>{m.technique === "DTF UV" ? "Logo a color" : m.size}</strong>
+                                    {m.technique !== "DTF UV" && <span>hasta {MARK_SIZES.find((x) => x.code === m.size)?.dimensions}</span>}
+                                  </span>
+                                </span>
+                              </label>
+                              <div className="shop-mark-price">
+                                <span>Precio / ud.</span>
+                                <output aria-live="polite">{money(quote?.marks[index]?.unitCents)}</output>
+                              </div>
+                              <button
+                                type="button"
+                                className="shop-mark-remove"
+                                aria-label={`Eliminar marcaje ${index + 1}`}
+                                onClick={() => setMarks((list) => list.filter((x) => x.id !== m.id))}
+                              >
+                                <X size={17} />
+                              </button>
+                            </div>
+                          ) : null,
+                        )}
+                        {zones.some((z) => !marks.some((x) => x.position === z.position)) && (
+                          <button
+                            type="button"
+                            className="shop-add shop-mark-add"
+                            onClick={() => {
+                              const free = zones.find((z) => !marks.some((x) => x.position === z.position));
+                              if (free) setMarks((list) => [...list, { ...free, id: nextMarkId }]);
+                              setNextMarkId((n) => n + 1);
+                              setAskLogo(false);
                             }}
                           >
-                            {positions.map((pos) => (
-                              <NativeSelectOption
-                                key={pos.position}
-                                value={pos.position}
-                                disabled={marks.some((x) => x.id !== m.id && x.position === pos.position)}
-                              >
-                                {pos.position}
-                              </NativeSelectOption>
-                            ))}
-                          </NativeSelect>
-                          <span className="shop-mark-position-value" aria-hidden="true">
-                            {m.position}
-                          </span>
-                        </span>
-                      </label>
-                      <label className="shop-mark-size">
-                        Tamaño
-                        <span className="shop-mark-size-control">
-                          <NativeSelect
-                            aria-label={`Tamaño del marcaje ${index + 1}`}
-                            value={m.size}
-                            onChange={(e) => setMarks((list) => list.map((x) => (x.id === m.id ? { ...x, size: e.target.value } : x)))}
-                          >
-                            {sizesFor(m).map((s) => (
-                              <NativeSelectOption key={s} value={s}>
-                                {m.technique === "DTF UV" ? "Logo a color" : `${s} · hasta ${MARK_SIZES.find((x) => x.code === s)?.dimensions}`}
-                              </NativeSelectOption>
-                            ))}
-                          </NativeSelect>
-                          <span className="shop-mark-size-value" aria-hidden="true">
-                            <strong>{m.technique === "DTF UV" ? "Logo a color" : m.size}</strong>
-                            {m.technique !== "DTF UV" && <span>hasta {MARK_SIZES.find((x) => x.code === m.size)?.dimensions}</span>}
-                          </span>
-                        </span>
-                      </label>
-                      <div className="shop-mark-price">
-                        <span>Precio / ud.</span>
-                        <output aria-live="polite">{money(quote?.marks[index]?.unitCents)}</output>
+                            <Plus size={17} /> {garment ? `Añadir marcaje de ${garment.toLocaleLowerCase("es")}` : "Añadir otro marcaje"}
+                          </button>
+                        )}
                       </div>
-                      <button
-                        type="button"
-                        className="shop-mark-remove"
-                        aria-label={`Eliminar marcaje ${index + 1}`}
-                        onClick={() => setMarks((list) => list.filter((x) => x.id !== m.id))}
-                      >
-                        <X size={17} />
-                      </button>
-                    </div>
-                  ))}
-                  {positions.length > marks.length && (
-                    <button
-                      type="button"
-                      className="shop-add shop-mark-add"
-                      onClick={() => {
-                        const free = positions.find((pos) => !marks.some((x) => x.position === pos.position));
-                        if (free) setMarks((list) => [...list, { ...free, id: nextMarkId }]);
-                        setNextMarkId((n) => n + 1);
-                        setAskLogo(false);
-                      }}
-                    >
-                      <Plus size={17} /> Añadir otro marcaje
-                    </button>
-                  )}
+                    );
+                  })}
                   {marks.length > 0 && (
                     <button type="button" className="shop-add" onClick={() => setMarks([])}>
                       Sin marcaje
@@ -455,6 +516,7 @@ export function ShopProduct({ model, product, warehouse, priceNotice = "" }: Pro
                   delivery={delivery}
                   reprice={{
                     kind: "merch",
+                    ...(brandProp === "stamina" ? {} : { brand: brandProp }),
                     model,
                     code: p.code,
                     name: p.name,
