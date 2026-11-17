@@ -43,8 +43,10 @@ export const navCategories: NavCategory[] = [
       ["Abrigos y chaquetas", "abrigos"],
       ["Ropa deportiva", "deporte"],
       ["Ropa laboral", "laboral"],
-      ["Gorras", "gorras"],
-    ].map(([name, slug]) => ({ name, href: `/ropa/${slug}/` })),
+    ]
+      .map(([name, slug]) => ({ name, href: `/ropa/${slug}/` }))
+      // Producción enlaza /ropa/gorras/, que redirige (308) a la categoría de merchandising.
+      .concat({ name: "Gorras", href: "/merchandising/gorras/" }),
   },
   {
     name: "Merchandising",
