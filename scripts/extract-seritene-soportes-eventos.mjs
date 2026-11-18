@@ -27,6 +27,8 @@ import {
   resolveTree,
   text,
 } from "./lib/seritene-rsc.mjs";
+// Mejora propia: sin notas internas de borrador y con «sin IGIC» (ver lib/public-copy.mjs).
+import { publicStaticProduct } from "./lib/public-copy.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const OUT_SOPORTES = join(ROOT, "src/components/sites/seritene/soportes/data.generated.ts");
@@ -344,11 +346,11 @@ function eventos() {
 
   const products = {};
   for (const slug of EVENT_PRODUCTS) {
-    const p = staticProduct(`/eventos/producto/${slug}/`);
+    const p = publicStaticProduct(staticProduct(`/eventos/producto/${slug}/`));
     meta[p.route] = p.meta;
     products[slug] = p;
   }
-  const medalProduct = staticProduct(MEDAL_PRODUCT);
+  const medalProduct = publicStaticProduct(staticProduct(MEDAL_PRODUCT));
   meta[MEDAL_PRODUCT] = medalProduct.meta;
 
   const banner = "// Generado por scripts/extract-seritene-soportes-eventos.mjs — no editar a mano.\n";
