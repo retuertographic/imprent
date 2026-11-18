@@ -141,8 +141,9 @@ PNG transparente a 300 ppp y envío por WhatsApp/email). Origen: https://seriten
   discontinuo) se distingue del color seleccionado (anillo verde).
 - **Imágenes:** las 8 fotos de colección de `/soportes-publicitarios/` (PNG de 1,6–2,5 MB, como en producción) se sirven
   en WebP de 1254 y 640 px con `srcset` (`coleccion-*.webp`, `coleccion-*-640.webp`, generadas con sharp). Los PNG se
-  conservan porque `soportes/areaPricing.ts` los usa como miniatura del carrito. La primera fila de los listados de
-  productos se carga sin `lazy` (las dos primeras con `fetchpriority="high"`).
+  conservan porque `soportes/areaPricing.ts` los usa como miniatura del carrito. En los listados de productos, las dos
+  primeras fotos (primera fila en móvil, donde está el LCP) se cargan sin `lazy` y con `fetchpriority="high"`; con
+  más fotos no diferidas, React las precarga todas antes que el CSS y el LCP simulado empeora.
 
 ## Fichas de producto (Stamina, Roly, JHK)
 
