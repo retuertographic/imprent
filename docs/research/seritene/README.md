@@ -104,6 +104,14 @@ PNG transparente a 300 ppp y envío por WhatsApp/email). Origen: https://seriten
   las cantidades fijas de imprenta (desplegable) y los avisos de stock. Las selecciones sin `reprice` (añadidas antes)
   muestran la cantidad fija con «Cambiar en la ficha»; las que no tienen cantidad en la ficha (DTF por metros, fichas
   estáticas de eventos) siguen «a confirmar». Comprobación: `node scripts/check-cart-reprice.mjs`.
+  Tercera mejora propia: «Enviar por email» junto a WhatsApp (`mailto:` con el mismo `cartMessage()`; si el enlace
+  pasaría de `MAILTO_MAX`, un texto corto que pide adjuntar el resumen descargado) y el bloque «Qué pasa después»
+  (`orderSteps`, `logoHint` y `typicalLeadTime` —vacío hasta que el cliente dé un plazo— en `content.ts`).
+- Contacto: el formulario de `/contacto/` ofrece también «Enviar por email». Dirección completa (NAP) visible en el
+  pie y en `/contacto/` desde `contact.address` (`content.ts`), con enlace a Google Maps por nombre y dirección.
+  Sin horario hasta tenerlo del cliente (campo comentado en `contact`).
+- JSON-LD: el layout publica una vez el grafo sitewide de producción (`SiteJsonLd.tsx`: LocalBusiness, logo,
+  WebSite y los 8 Service) con `geo` y `hasMap` añadidos; las fichas enlazan a `/#organization` y `/#website`.
 - Buscador: índice propio (`public/sites/seritene/shop-data/search-index.json`, 2119 registros, 177 KB
   comprimido) con la misma lógica de coincidencia y orden que `/api/search` de producción
   (`shop/searchIndex.ts`). Coincide en 111 de 113 consultas de prueba (`node scripts/check-search.mjs`);
