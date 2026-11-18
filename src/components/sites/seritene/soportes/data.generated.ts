@@ -590,7 +590,7 @@ export const supportCollections: Record<string, SupportCollectionData> = {
           "detail": "300 × 226 cm · Pack completo",
           "description": "Estructura plegable, gráfica textil de 210 g/m² y bolsa.",
           "price": {
-            "strong": "Consultar precio",
+            "strong": "A presupuestar",
             "small": "Presupuesto según tu pedido"
           },
           "action": "Ver producto"
@@ -614,7 +614,7 @@ export const supportCollections: Record<string, SupportCollectionData> = {
           "detail": "373 × 226 cm · Pack completo",
           "description": "Estructura plegable, gráfica textil de 210 g/m² y bolsa.",
           "price": {
-            "strong": "Consultar precio",
+            "strong": "A presupuestar",
             "small": "Presupuesto según tu pedido"
           },
           "action": "Ver producto"
@@ -638,7 +638,7 @@ export const supportCollections: Record<string, SupportCollectionData> = {
           "detail": "445 × 226 cm · Pack completo",
           "description": "Estructura plegable, gráfica textil de 210 g/m² y bolsa.",
           "price": {
-            "strong": "Consultar precio",
+            "strong": "A presupuestar",
             "small": "Presupuesto según tu pedido"
           },
           "action": "Ver producto"

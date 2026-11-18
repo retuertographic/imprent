@@ -264,7 +264,7 @@ export const eventCollections: Record<string, EventCollectionData> = {
         "heading": "h2",
         "name": "Abanico personalizado de plástico · AB001",
         "description": "Un detalle ligero y lleno de color para fiestas, promociones y celebraciones.",
-        "small": "10.000 uds. · Precio orientativo · Sin impuestos",
+        "small": "10.000 uds. · Precio orientativo · Sin IGIC",
         "strong": "Desde 0,55 €/ud.",
         "action": "Ver producto"
       },
@@ -282,7 +282,7 @@ export const eventCollections: Record<string, EventCollectionData> = {
         "heading": "h2",
         "name": "Abanico personalizado de madera · AB002",
         "description": "La calidez de la madera para bodas, eventos y campañas con personalidad.",
-        "small": "10.000 uds. · Precio orientativo · Sin impuestos",
+        "small": "10.000 uds. · Precio orientativo · Sin IGIC",
         "strong": "Desde 0,99 €/ud.",
         "action": "Ver producto"
       },
@@ -300,7 +300,7 @@ export const eventCollections: Record<string, EventCollectionData> = {
         "heading": "h2",
         "name": "Abanico personalizado de bambú · AB003",
         "description": "Acabado natural de bambú y tu diseño a todo color para acompañar cada celebración.",
-        "small": "10.000 uds. · Precio orientativo · Sin impuestos",
+        "small": "10.000 uds. · Precio orientativo · Sin IGIC",
         "strong": "Desde 1,15 €/ud.",
         "action": "Ver producto"
       },
@@ -318,7 +318,7 @@ export const eventCollections: Record<string, EventCollectionData> = {
         "heading": "h2",
         "name": "Abanico personalizado de bambú · AB004",
         "description": "Acabado natural de bambú y tu diseño a todo color para acompañar cada celebración.",
-        "small": "10.000 uds. · Precio orientativo · Sin impuestos",
+        "small": "10.000 uds. · Precio orientativo · Sin IGIC",
         "strong": "Desde 1,24 €/ud.",
         "action": "Ver producto"
       }
@@ -389,7 +389,7 @@ export const eventCollections: Record<string, EventCollectionData> = {
         "heading": "h2",
         "name": "Vaso reutilizable personalizado · 400 ml",
         "description": "Un vaso reutilizable con la identidad de tu evento, pensado para fiestas, festivales y celebraciones.",
-        "small": "10.000 uds. · 1 tinta · Orientativo, sin impuestos",
+        "small": "10.000 uds. · 1 tinta · Orientativo, sin IGIC",
         "strong": "Desde 0,28 €/ud.",
         "action": "Ver producto"
       },
@@ -407,7 +407,7 @@ export const eventCollections: Record<string, EventCollectionData> = {
         "heading": "h2",
         "name": "Vaso reutilizable personalizado · 500 ml",
         "description": "Un vaso reutilizable con la identidad de tu evento, pensado para fiestas, festivales y celebraciones.",
-        "small": "10.000 uds. · 1 tinta · Orientativo, sin impuestos",
+        "small": "10.000 uds. · 1 tinta · Orientativo, sin IGIC",
         "strong": "Desde 0,35 €/ud.",
         "action": "Ver producto"
       },
@@ -425,7 +425,7 @@ export const eventCollections: Record<string, EventCollectionData> = {
         "heading": "h2",
         "name": "Vaso reutilizable personalizado · 900 ml",
         "description": "Un vaso reutilizable con la identidad de tu evento, pensado para fiestas, festivales y celebraciones.",
-        "small": "10.000 uds. · 1 tinta · Orientativo, sin impuestos",
+        "small": "10.000 uds. · 1 tinta · Orientativo, sin IGIC",
         "strong": "Desde 0,49 €/ud.",
         "action": "Ver producto"
       }

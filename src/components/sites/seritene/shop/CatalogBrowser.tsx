@@ -126,7 +126,7 @@ export function CatalogBrowser({ group, categoryId, basePath, initialItems, tota
         </>
       )}
       <p className="shop-fineprint">
-        Precios sin impuestos, transporte ni diseño gráfico. El marcaje se añade en la ficha. Disponibilidad y presupuesto
+        Precios sin IGIC, transporte ni diseño gráfico. El marcaje se añade en la ficha. Disponibilidad y presupuesto
         sujetos a confirmación.
       </p>
     </section>

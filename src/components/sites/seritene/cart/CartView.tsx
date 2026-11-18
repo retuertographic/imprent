@@ -46,7 +46,7 @@ function CartLine({ item, onRemove, onQuantity, onAnnounce }: LineProps) {
           <h2>{item.name}</h2>
         </SiteLink>
         <QuantityEditor item={item} onApply={onQuantity} onAnnounce={onAnnounce} />
-        <strong>{item.subtotal === null ? "A consultar" : formatEuro(item.subtotal)}</strong>
+        <strong>{item.subtotal === null ? "A presupuestar" : formatEuro(item.subtotal)}</strong>
         <details>
           <summary>Ver selección</summary>
           <p className="cart-details">{item.details}</p>
@@ -246,13 +246,13 @@ export function CartView() {
               <p className="cart-small">6 € por pedido · Gratis desde 199 €.</p>
               <div className="cart-grand">
                 <span>Total orientativo</span>
-                <strong>{summary.total === null ? "A confirmar" : formatEuro(summary.total)}</strong>
+                <strong>{summary.total === null ? "A presupuestar" : formatEuro(summary.total)}</strong>
               </div>
               {summary.pending && (
                 <p>Hay productos pendientes de presupuesto. El subtotal solo suma los que tienen precio.</p>
               )}
               <p className="cart-small">
-                Sin impuestos. Confirmamos precios, disponibilidad, diseño y plazo por WhatsApp. No se realiza ningún
+                Sin IGIC. Confirmamos precios, disponibilidad, diseño y plazo por WhatsApp. No se realiza ningún
                 cobro.
               </p>
               {hasExpired && (

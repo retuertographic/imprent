@@ -242,7 +242,7 @@ export function PaperFanPage() {
               <p className="static-price-detail">{number.format(best.min)} uds. · Ambas caras incluidas</p>
               <div className="static-table-wrap" role="region" aria-label="Tabla de precios" tabIndex={0}>
                 <table>
-                  <caption>Precios unitarios sin impuestos</caption>
+                  <caption>Precios unitarios sin IGIC</caption>
                   <thead>
                     <tr>
                       <th scope="col">Cantidad desde</th>
@@ -261,7 +261,7 @@ export function PaperFanPage() {
               </div>
               <p className="static-price-note">Pedido mínimo: 250 unidades.</p>
               <p className="static-price-note">
-                Precios por unidad sin impuestos. Consulta transporte, preparación y plazo en tu presupuesto.
+                Precios por unidad sin IGIC. Consulta transporte, preparación y plazo en tu presupuesto.
               </p>
             </section>
             <section className="static-product-box">

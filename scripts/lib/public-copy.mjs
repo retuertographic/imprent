@@ -16,7 +16,7 @@ export function publicCopy(value) {
     .replace(/\b([Ss])in impuestos\b/g, (_, s) => `${s}in IGIC`)
     .replace(/\s{2,}/g, " ")
     .trim();
-  return /^consultar$/i.test(out) ? "A presupuestar" : out;
+  return /^consultar(?: precio)?$/i.test(out) ? "A presupuestar" : out;
 }
 
 /** Aplica `publicCopy` a los textos visibles de una ficha estática y quita las notas que quedan vacías. */

@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Check, MessageCircle, ShoppingCart } from "lucide-react";
 import { SiteLink } from "../SiteLink";
 import { cartDetails, readCart, writeCart } from "../cart/storage";
 import { whatsappUrl } from "./order";
 import type { Reprice } from "../cart/reprice";
+import { StickyOrderBar, type StickyOrder } from "../soportes/StickyOrderBar";
 
 type Props = {
   name: string;
@@ -21,10 +22,13 @@ type Props = {
   icons?: boolean;
   /** Selección para recalcular en el carrito al cambiar la cantidad (mejora propia). */
   reprice?: Reprice;
+  /** Barra fija inferior en móvil con el total y «Añadir al carrito» (mejora propia). */
+  sticky?: StickyOrder;
 };
 
 /** Botones «Solicitar pedido» (WhatsApp) y «Añadir al carrito». */
-export function OrderActions({ name, message, quantity = null, subtotal = null, image = "", delivery = false, path, icons = true, reprice }: Props) {
+export function OrderActions({ name, message, quantity = null, subtotal = null, image = "", delivery = false, path, icons = true, reprice, sticky }: Props) {
+  const actionsRef = useRef<HTMLDivElement>(null);
   const [added, setAdded] = useState("");
   const [error, setError] = useState("");
   const [ready, setReady] = useState(false);
@@ -60,7 +64,7 @@ export function OrderActions({ name, message, quantity = null, subtotal = null, 
 
   const isAdded = added === signature;
   return (
-    <div className="order-actions">
+    <div className="order-actions" ref={actionsRef}>
       <div className="order-actions-buttons">
         <a className="brand-button order-direct" href={whatsappUrl(message)} target="_blank" rel="noreferrer">
           {icons && <MessageCircle size={18} />}
@@ -79,6 +83,9 @@ export function OrderActions({ name, message, quantity = null, subtotal = null, 
         <p className="order-error" role="alert">
           {error}
         </p>
+      )}
+      {sticky && ready && (
+        <StickyOrderBar {...sticky} actions={actionsRef} onAdd={add} disabled={!ready} added={isAdded} error={error} />
       )}
     </div>
   );

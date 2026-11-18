@@ -4,7 +4,7 @@ import { SiteLink } from "../SiteLink";
 import type { ShopItem } from "./catalogSnapshots";
 
 const fineprint =
-  "Precios sin impuestos, transporte ni diseño gráfico. El marcaje se añade en la ficha. Disponibilidad y presupuesto sujetos a confirmación.";
+  "Precios sin IGIC, transporte ni diseño gráfico. El marcaje se añade en la ficha. Disponibilidad y presupuesto sujetos a confirmación.";
 
 const imageSrc = (src: string) => (src.startsWith("/") ? asset(src) : src);
 

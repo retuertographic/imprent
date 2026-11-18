@@ -7,6 +7,7 @@ import { ProductDelivery } from "../ProductDelivery";
 import { formatEuro } from "../order";
 import { photocallOrder } from "../pricing";
 import type { PhotocallProduct } from "../types";
+import { formatUnits } from "../../units";
 
 export function PhotocallConfigurator({ product }: { product: PhotocallProduct }) {
   const [quantityText, setQuantityText] = useState("1");
@@ -31,10 +32,10 @@ export function PhotocallConfigurator({ product }: { product: PhotocallProduct }
       </div>
       <div className="print-total" aria-live="polite">
         <span>{product.unit === null ? "Presupuesto personalizado" : "Total del pedido · sin IGIC"}</span>
-        <strong>{product.unit === null ? "Consultar precio" : price && shipping ? formatEuro(shipping.total) : "—"}</strong>
+        <strong>{product.unit === null ? "A presupuestar" : price && shipping ? formatEuro(shipping.total) : "—"}</strong>
         {price && (
           <p>
-            {quantity} unidades × {formatEuro(price.unit)} / ud.
+            {formatUnits(quantity)} × {formatEuro(price.unit)} / ud.
           </p>
         )}
         {product.unit === null && <p>Indícanos las unidades y te confirmamos el importe.</p>}
@@ -49,6 +50,7 @@ export function PhotocallConfigurator({ product }: { product: PhotocallProduct }
           subtotal={price?.total}
           delivery={delivery}
           reprice={{ kind: "photocall", slug: product.slug, delivery }}
+          sticky={{ total: price && shipping ? formatEuro(shipping.total) : "A presupuestar", detail: formatUnits(quantity), panel: ".print-total" }}
         />
       ) : (
         <button className="brand-button print-request" disabled>

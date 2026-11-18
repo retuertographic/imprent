@@ -28,7 +28,7 @@ import {
   text,
 } from "./lib/seritene-rsc.mjs";
 // Mejora propia: sin notas internas de borrador y con «sin IGIC» (ver lib/public-copy.mjs).
-import { publicStaticProduct } from "./lib/public-copy.mjs";
+import { publicCopy, publicStaticProduct } from "./lib/public-copy.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const OUT_SOPORTES = join(ROOT, "src/components/sites/seritene/soportes/data.generated.ts");
@@ -171,8 +171,8 @@ function shopCard(article) {
     heading: heading.type,
     name: text(heading),
     description: textOf(info, "shop-card-description"),
-    ...(small ? { small: text(small) } : {}),
-    strong: text(find(bottom, byType("strong"))),
+    ...(small ? { small: publicCopy(text(small)) } : {}),
+    strong: publicCopy(text(find(bottom, byType("strong")))),
     action: textOf(bottom, "shop-configure"),
   };
 }
