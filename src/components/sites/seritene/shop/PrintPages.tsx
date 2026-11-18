@@ -43,12 +43,13 @@ export function ImprentaPage() {
       </nav>
       <header className="wrap shop-heading">
         <div>
-          <p className="eyebrow">IMPRENTA EN TENERIFE · SERITENE</p>
-          <h1>
+          {/* H1 descriptivo con aspecto de antetítulo; el lema conserva el aspecto del antiguo H1. */}
+          <h1 className="eyebrow kw-kicker">Imprenta en Tenerife</h1>
+          <p className="kw-slogan">
             Del papel
             <br />
             <em>al papelón.</em>
-          </h1>
+          </p>
         </div>
         <p>Tu marca tiene mucho que contar. Dale color, dale forma, dale a imprimir.</p>
       </header>

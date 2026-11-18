@@ -1,0 +1,181 @@
+/*
+ * Correcciones de accesibilidad y SEO sobre las hojas de producción (que no se editan).
+ * Se importa la última en src/app/layout.tsx. Como las hojas de cada página se cargan después,
+ * las reglas van prefijadas con #contenido (el <main> de todas las páginas) para ganar en
+ * especificidad sin !important (salvo donde producción ya lo usa).
+ */
+
+/* 1. H1 descriptivos en las páginas de servicio ---------------------------------------------
+ * El H1 lleva la palabra clave («… en Tenerife») con el aspecto del antetítulo (.kw-kicker) y el
+ * lema conserva el aspecto del antiguo H1 (.kw-slogan, un <p>). Son copias de las reglas de producción
+ * del antiguo antetítulo y del antiguo H1 de cada página, ordenadas por su especificidad original y su
+ * orden de cascada; todas tienen la misma especificidad (:where para las condiciones, :is(#contenido *)
+ * para ganar a las reglas genéricas de h1 y p), así que gana la misma regla que antes. */
+/* Páginas de servicio (ServicePage) */
+.kw-kicker:where(.service-hero *):is(#contenido *){margin:0;padding:0;max-width:none;width:auto;white-space:normal;position:static;font-size:12px;font-weight:700;letter-spacing:normal;line-height:1.5;text-transform:uppercase}
+.kw-slogan:where(.service-hero *):is(#contenido *){color:inherit;max-width:none;margin:0;font-size:inherit;font-weight:inherit}
+.kw-kicker:where(.eyebrow):where(.service-hero *):is(#contenido *){letter-spacing:.13em;color:var(--brand-green);margin-bottom:24px;font-size:12px;font-weight:700;line-height:1.5}
+@media (max-width:600px){.kw-kicker:where(.eyebrow):where(.service-hero *):is(#contenido *){margin-bottom:20px;font-size:10px}}
+.kw-kicker:where(.eyebrow):where(.service-hero *):is(#contenido *){font-size:12px}
+.kw-kicker:where(.eyebrow):where(.service-hero *):is(#contenido *){color:#357c22;letter-spacing:.1em;font-size:12px;font-weight:700}
+.kw-kicker:where(.brand-main *):where(.service-hero *):is(#contenido *){line-height:1.75}
+.kw-slogan:where(.brand-main *):where(.service-hero *):is(#contenido *){letter-spacing:-.055em;font-weight:700;line-height:1.08}
+.kw-slogan:where(.service-hero *):is(#contenido *){margin-bottom:25px;font-size:clamp(42px,5.1vw,73px);line-height:1.13}
+@media (max-width:860px){.kw-slogan:where(.service-hero *):is(#contenido *){max-width:680px;font-size:62px}}
+@media (max-width:600px){.kw-slogan:where(.service-hero *):is(#contenido *){letter-spacing:-.055em;font-size:44px;line-height:1.12}}
+.kw-slogan:where(.service-hero *):is(#contenido *){font-size:clamp(44px,4.8vw,68px)}
+@media (max-width:600px){.kw-slogan:where(.service-hero *):is(#contenido *){font-size:43px}}
+.kw-slogan:where(.brand-main *):where(.service-hero *):is(#contenido *){letter-spacing:-.065em;font-weight:800}
+.kw-slogan:where(.service-hero *):is(#contenido *)>span{display:block}
+.kw-slogan:where(.service-hero *):is(#contenido *)>em{display:block}
+.kw-slogan:where(.service-hero *):is(#contenido *) em{color:#357c22}
+/* /imprenta/ */
+.kw-kicker:where(.shop-heading *):is(#contenido *){margin:0;padding:0;max-width:none;width:auto;white-space:normal;position:static;font-size:12px;font-weight:700;letter-spacing:normal;line-height:1.5;text-transform:uppercase}
+.kw-slogan:where(.shop-heading *):is(#contenido *){color:inherit;max-width:none;margin:0;font-size:inherit;font-weight:inherit}
+.kw-kicker:where(.eyebrow):where(.shop-heading *):is(#contenido *){letter-spacing:.13em;color:var(--brand-green);margin-bottom:24px;font-size:12px;font-weight:700;line-height:1.5}
+@media (max-width:600px){.kw-kicker:where(.eyebrow):where(.shop-heading *):is(#contenido *){margin-bottom:20px;font-size:10px}}
+.kw-kicker:where(.eyebrow):where(.shop-heading *):is(#contenido *){font-size:12px}
+.kw-kicker:where(.eyebrow):where(.shop-heading *):is(#contenido *){color:#357c22;letter-spacing:.1em;font-size:12px;font-weight:700}
+.kw-kicker:where(.brand-main *):where(.shop-heading *):is(#contenido *){line-height:1.75}
+.kw-kicker:where(.eyebrow):where(.print-main *):where(.shop-heading *):is(#contenido *){color:#32851e}
+.kw-slogan:where(.brand-main *):where(.shop-heading *):is(#contenido *){letter-spacing:-.055em;font-weight:700;line-height:1.08}
+.kw-slogan:where(.brand-main *):where(.shop-heading *):is(#contenido *){letter-spacing:-.065em;font-weight:800}
+.kw-slogan:where(.shop-heading *):is(#contenido *){margin-top:12px;font-size:clamp(38px,4.6vw,64px);line-height:1.03}
+@media (max-width:760px){.kw-slogan:where(.shop-heading *):is(#contenido *){font-size:clamp(32px,7vw,45px);line-height:1.06}}
+.kw-slogan:where(.shop-heading *):is(#contenido *){letter-spacing:-.055em;margin:18px 0 0;font-size:clamp(46px,6.5vw,90px);line-height:.98}
+@media (max-width:430px){.kw-slogan:where(.shop-heading *):is(#contenido *){font-size:45px}}
+/* /soportes-publicitarios/ */
+.kw-kicker:where(.events-heading *):is(#contenido *){margin:0;padding:0;max-width:none;width:auto;white-space:normal;position:static;font-size:12px;font-weight:700;letter-spacing:normal;line-height:1.5;text-transform:uppercase}
+.kw-slogan:where(.events-heading *):is(#contenido *){color:inherit;max-width:none;margin:0;font-size:inherit;font-weight:inherit}
+.kw-kicker:where(.eyebrow):where(.events-heading *):is(#contenido *){letter-spacing:.13em;color:var(--brand-green);margin-bottom:24px;font-size:12px;font-weight:700;line-height:1.5}
+@media (max-width:600px){.kw-kicker:where(.eyebrow):where(.events-heading *):is(#contenido *){margin-bottom:20px;font-size:10px}}
+.kw-kicker:where(.eyebrow):where(.events-heading *):is(#contenido *){font-size:12px}
+.kw-kicker:where(.eyebrow):where(.events-heading *):is(#contenido *){color:#357c22;letter-spacing:.1em;font-size:12px;font-weight:700}
+.kw-kicker:where(.brand-main *):where(.events-heading *):is(#contenido *){line-height:1.75}
+.kw-kicker:where(.eyebrow):where(.events-heading *):is(#contenido *){color:#4e753c}
+.kw-kicker:where(.eyebrow):where(.print-main *):where(.events-heading *):is(#contenido *){color:#32851e}
+.kw-slogan:where(.brand-main *):where(.events-heading *):is(#contenido *){letter-spacing:-.055em;font-weight:700;line-height:1.08}
+.kw-slogan:where(.brand-main *):where(.events-heading *):is(#contenido *){letter-spacing:-.065em;font-weight:800}
+.kw-slogan:where(.events-heading *):is(#contenido *){letter-spacing:-.045em;margin:10px 0 16px;font-size:clamp(32px,4vw,52px);line-height:1.12}
+@media (max-width:540px){.kw-slogan:where(.events-heading *):is(#contenido *){font-size:38px}}
+/* /servicios/ */
+.kw-kicker:where(.page-intro *):is(#contenido *){margin:0;padding:0;max-width:none;width:auto;white-space:normal;position:static;font-size:12px;font-weight:700;letter-spacing:normal;line-height:1.5;text-transform:uppercase}
+.kw-slogan:where(.page-intro *):is(#contenido *){color:inherit;max-width:none;margin:0;font-size:inherit;font-weight:inherit}
+.kw-kicker:where(.eyebrow):where(.page-intro *):is(#contenido *){letter-spacing:.13em;color:var(--brand-green);margin-bottom:24px;font-size:12px;font-weight:700;line-height:1.5}
+@media (max-width:600px){.kw-kicker:where(.eyebrow):where(.page-intro *):is(#contenido *){margin-bottom:20px;font-size:10px}}
+.kw-kicker:where(.eyebrow):where(.page-intro *):is(#contenido *){font-size:12px}
+.kw-kicker:where(.eyebrow):where(.page-intro *):is(#contenido *){color:#357c22;letter-spacing:.1em;font-size:12px;font-weight:700}
+.kw-kicker:where(.brand-main *):where(.page-intro *):is(#contenido *){line-height:1.75}
+.kw-slogan:where(.brand-main *):where(.page-intro *):is(#contenido *){letter-spacing:-.055em;font-weight:700;line-height:1.08}
+.kw-slogan:where(.page-intro *):is(#contenido *){max-width:1000px;margin-bottom:30px;font-size:clamp(50px,6.7vw,92px)}
+@media (max-width:600px){.kw-slogan:where(.page-intro *):is(#contenido *){margin-bottom:22px;font-size:45px}}
+.kw-slogan:where(.page-intro *):is(#contenido *){margin-inline:auto;font-size:clamp(44px,5.8vw,78px)}
+@media (max-width:600px){.kw-slogan:where(.page-intro *):is(#contenido *){font-size:43px}}
+.kw-slogan:where(.brand-main *):where(.page-intro *):is(#contenido *){letter-spacing:-.065em;font-weight:800}
+.kw-slogan:where(.page-intro *):is(#contenido *) em{color:#357c22}
+/* /fullprint/ */
+.kw-kicker:where(.fp-story *):is(#contenido *){margin:0;padding:0;max-width:none;width:auto;white-space:normal;position:static;font-size:12px;font-weight:700;letter-spacing:normal;line-height:1.5;text-transform:uppercase}
+.kw-slogan:where(.fp-story *):is(#contenido *){color:inherit;max-width:none;margin:0;font-size:inherit;font-weight:inherit}
+.kw-kicker:where(.fp-story-eyebrow):where(.fp-story *):is(#contenido *){color:#56564f;letter-spacing:.18em;margin:0 0 20px;font-size:10px;font-weight:700}
+@media (max-width:600px){.kw-kicker:where(.fp-story-eyebrow):where(.fp-story *):is(#contenido *){margin-bottom:18px;font-size:9px}}
+.kw-kicker:where(.brand-main *):where(.fp-story *):is(#contenido *){line-height:1.75}
+.kw-slogan:where(.brand-main *):where(.fp-story *):is(#contenido *){letter-spacing:-.055em;font-weight:700;line-height:1.08}
+.kw-slogan:where(.brand-main *):where(.fp-story *):is(#contenido *){letter-spacing:-.065em;font-weight:800}
+.kw-slogan:where(.fp-story *):is(#contenido *) em{color:#43b02a;font-style:normal}
+.kw-slogan:where(.brand-main .fp-story *):where(.fp-story *):is(#contenido *){letter-spacing:-.065em;margin:0 0 24px;font-size:clamp(44px,6.2vw,84px);line-height:1.04}
+@media (max-width:600px){.kw-slogan:where(.brand-main .fp-story *):where(.fp-story *):is(#contenido *){margin-bottom:20px;font-size:clamp(34px,9.4vw,54px)}}
+
+/* 2. Contraste ------------------------------------------------------------------------------
+ * El verde de marca #43b02a sobre blanco da 2,8:1. Para TEXTO sobre fondo claro se usa #267d16
+ * (5,2:1); #43b02a se mantiene en botones, fondos, iconos y textos sobre fondo oscuro. */
+#contenido .article-body > section > span,
+#contenido .service-directory-row > span,
+#contenido .service-directory-row > div > div,
+#contenido .values-grid article > span,
+#contenido .events-heading em,
+#contenido .fp-section-hero h1 em,
+#contenido .fp-story h1 em,
+#contenido .fp-story .kw-slogan em,
+#contenido .support-shop-intro h1 em,
+#contenido .foam-intro h1 em,
+#contenido .custom-intro h1 em,
+#contenido .fullprint-page-hero h1 em,
+#contenido .work-compact-copy h2 em,
+#contenido .home-team-copy h2 em,
+#contenido .about-bottom h2 em,
+#contenido #team-heading em,
+#contenido .team-outro h2 em {
+  color: #267d16;
+}
+
+/* Avisos de stock/cantidad dentro del panel de precio oscuro (#192318): #a3410c daba 2,56:1. Sobre
+ * fondo blanco (fila de variante, error de cantidad) se mantiene #a3410c, que da 6,3:1. */
+#contenido :is(.shop-price-panel, .print-total, .foam-price, .medal-price) .shop-stock-warning {
+  color: #ff9a5c !important;
+}
+
+/* Textos grises pequeños por debajo de 4,5:1 (mismo tono, más oscuros). */
+#contenido .service-hero figcaption {
+  color: #6c7866;
+}
+#contenido .service-hero .service-product-mockup figcaption {
+  color: #666;
+}
+#contenido .print-example,
+#contenido label[for="print-custom-format"] > span {
+  color: #6b6b6b;
+}
+#contenido .fp-cover-bottom small {
+  color: #697164;
+}
+#contenido .fp-cover-number {
+  color: #6f776a;
+}
+#contenido .foam-preview small {
+  color: #6c7166;
+}
+#contenido.home-editorial .eyebrow,
+#contenido .home-editorial .eyebrow,
+#contenido .home-editorial .work-compact-copy .eyebrow,
+#contenido .home-editorial .social-copy .eyebrow,
+#contenido .home-editorial .home-team-copy > p:not(.eyebrow),
+#contenido .edit-help-disclosure > summary > span:last-child,
+#contenido p[aria-live="off"] {
+  color: #6b6b6b;
+}
+#contenido .home-editorial .social-copy > span {
+  color: #6b6b6b;
+}
+#contenido .contact-layout small {
+  color: #6f7868;
+}
+/* /dtf-x-metros/: textos de la página (no la maqueta decorativa del programa). */
+#contenido .dtf-step-top span,
+#contenido.dtf-main .dtf-steps p,
+#contenido .dtf-section-heading > p,
+#contenido .dtf-ready li,
+#contenido .dtf-hero-graphic figcaption,
+#contenido.dtf-main .dtf-hero-description,
+#contenido .dtf-hero-note {
+  color: #6b7364;
+}
+#contenido .dtf-final p:not(.eyebrow),
+#contenido .dtf-final-actions small {
+  color: #626d5a;
+}
+#contenido .dtf-eyebrow > span {
+  color: #2f7020;
+}
+#contenido .dtf-tone-copy .eyebrow {
+  color: #8fb87a;
+}
+#contenido .dtf-tone-note {
+  color: #99ac89;
+}
+
+/* 3. Muestras de color: el foco de teclado se distingue del color seleccionado --------------
+ * Seleccionado = anillo verde continuo; foco = contorno negro discontinuo más separado. */
+#contenido .shop-color-swatch:focus-visible > span {
+  outline: 2px dashed #111;
+  outline-offset: 6px;
+}

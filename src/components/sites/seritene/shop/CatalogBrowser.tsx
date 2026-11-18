@@ -5,7 +5,7 @@ import { BASE_PATH } from "../content";
 import { SiteLink } from "../SiteLink";
 import { loadGroup, pageItems, PER_PAGE } from "./catalog";
 import { ProductSearch } from "./ProductSearch";
-import { CardPlaceholder, MedalCard, ShopCard } from "./ShopCard";
+import { CardPlaceholder, MedalCard, ShopCard, cardImagePriority } from "./ShopCard";
 import type { CardItem, ShopGroup } from "./types";
 
 type Props = {
@@ -69,6 +69,7 @@ export function CatalogBrowser({ group, categoryId, basePath, initialItems, tota
 
   const href = (n: number) => `${BASE_PATH}${basePath}${n > 0 ? `?pagina=${n + 1}` : ""}`;
 
+  const showMedal = group === "merchandising" && !categoryId && page === 0 && !loading;
   return (
     <section className="shop-browser" aria-label="Catálogo de productos">
       {query ? (
@@ -97,10 +98,17 @@ export function CatalogBrowser({ group, categoryId, basePath, initialItems, tota
             </div>
           )}
           <div className="shop-grid">
-            {group === "merchandising" && !categoryId && page === 0 && !loading && <MedalCard />}
+            {showMedal && <MedalCard />}
             {loading
               ? [1, 2, 3].map((n) => <CardPlaceholder key={n} />)
-              : items.map((item) => <ShopCard key={item.key} item={item} brand={brand} />)}
+              : items.map((item, i) => (
+                  <ShopCard
+                    key={item.key}
+                    item={item}
+                    brand={brand}
+                    priority={cardImagePriority(i + (showMedal ? 1 : 0))}
+                  />
+                ))}
           </div>
           {totalModels > PER_PAGE && (
             <nav className="shop-pagination" aria-label="Paginación">

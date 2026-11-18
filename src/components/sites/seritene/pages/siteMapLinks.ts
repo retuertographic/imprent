@@ -61,7 +61,7 @@ export const siteMapLinks: [href: string, label: string][] = [
   ["/rotulacion/", "Rotulación, lonas y cartelería en Tenerife"],
   ["/diseno-grafico/", "Diseño gráfico e identidad visual en Tenerife"],
   ["/imprenta/", "Imprenta y tarjetas de visita en Tenerife"],
-  ["/ropa-laboral/", "Ropa laboral personalizada en Tenerife"],
+  ["/ropa/laboral/", "Ropa laboral personalizada en Tenerife"],
   ["/banderas-rollups/", "Soportes publicitarios personalizados en Tenerife"],
   ["/servicios/", "Servicios"],
   ["/productos/", "Productos y configurador"],

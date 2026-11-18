@@ -4,8 +4,24 @@ import { SiteLink } from "../SiteLink";
 import { formatCents, productImage, productPath } from "./catalog";
 import type { CardItem } from "./types";
 
+/**
+ * Carga de la foto según la posición en la rejilla: las dos primeras (la primera fila en móvil, donde
+ * está el LCP) sin lazy y con prioridad alta; el resto, diferidas. Con más imágenes no diferidas, React
+ * las precarga todas antes que el CSS y el LCP empeora en la simulación de Lighthouse.
+ */
+export type CardImagePriority = "high" | "lazy";
+export const cardImagePriority = (position: number): CardImagePriority => (position < 2 ? "high" : "lazy");
+
 /** Tarjeta de producto del listado (ropa y merchandising). */
-export function ShopCard({ item, brand }: { item: CardItem; brand: string }) {
+export function ShopCard({
+  item,
+  brand,
+  priority = "lazy",
+}: {
+  item: CardItem;
+  brand: string;
+  priority?: CardImagePriority;
+}) {
   const b = item.brand || brand;
   const href = productPath(b, item.code);
   const description = item.description || "Consulta los detalles y opciones de este producto.";
@@ -18,7 +34,8 @@ export function ShopCard({ item, brand }: { item: CardItem; brand: string }) {
             alt={`${item.name} · ${item.description}`}
             width={500}
             height={500}
-            loading="lazy"
+            loading={priority === "high" ? "eager" : "lazy"}
+            fetchPriority={priority === "high" ? "high" : undefined}
             decoding="async"
             referrerPolicy="no-referrer"
           />

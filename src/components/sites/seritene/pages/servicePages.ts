@@ -5,7 +5,9 @@ export type ServicePageData = {
   crumb: string;
   metaTitle: string;
   metaDescription: string;
-  eyebrow: string;
+  /** H1 descriptivo con la palabra clave (se muestra con el aspecto del antetítulo). */
+  h1: string;
+  /** Lema: se muestra con el aspecto del antiguo H1, como párrafo. */
   title: [string, string];
   intro: string;
   dark?: boolean;
@@ -35,7 +37,7 @@ export const textilPage: ServicePageData = {
   metaTitle: "Textil personalizado en Tenerife",
   metaDescription:
     "Camisetas, polos, sudaderas y ropa de trabajo con la personalidad de tu empresa, equipo o evento. En Seritene te acompañamos desde la elección de la prenda hasta el acabado.",
-  eyebrow: "NUESTRA ESPECIALIDAD",
+  h1: "Textil personalizado en Tenerife",
   title: ["No es solo ropa.", "Es tu identidad."],
   intro:
     "Camisetas, polos, sudaderas y ropa de trabajo con la personalidad de tu empresa, equipo o evento. En Seritene te acompañamos desde la elección de la prenda hasta el acabado.",
@@ -80,17 +82,33 @@ export const rotulacionPage: ServicePageData = {
   crumb: "Rotulación, lonas y cartelería",
   metaTitle: "Rotulación, lonas y cartelería en Tenerife",
   metaDescription:
-    "Soportes para que tu negocio o evento gane presencia: lonas, banderas, vinilos y cartelería con una imagen coherente.",
-  eyebrow: "VISIBILIDAD A LO GRANDE",
+    "Rotulación de vehículos, vinilos para escaparates, lonas, banderas y cartelería en Tenerife para que tu negocio o evento gane presencia con una imagen coherente.",
+  h1: "Rotulación de vehículos, escaparates y lonas en Tenerife",
   title: ["Que te vean.", "Que te recuerden."],
   intro:
-    "Soportes para que tu negocio o evento gane presencia: lonas, banderas, vinilos y cartelería con una imagen coherente.",
+    "Soportes para que tu negocio o evento gane presencia: rotulación de vehículos, vinilos para escaparates, lonas, banderas y cartelería con una imagen coherente.",
   dark: true,
   image: { src: "/seritene-hero-dark.webp", alt: mockupAlt },
-  tags: ["Lonas", "Banderas", "Vinilos", "Cartelería", "Expositores"],
+  tags: ["Vehículos", "Escaparates", "Lonas", "Banderas", "Vinilos", "Cartelería", "Expositores"],
   storyEyebrow: "ROTULACIÓN, LONAS Y CARTELERÍA EN TENERIFE",
   storyCta: contactCta,
   story: [
+    {
+      title: "Rotulación de vehículos.",
+      text: "Tu furgoneta o tu coche de empresa también es publicidad: se mueve contigo y lo ven cada día. Cuéntanos el modelo, las zonas que quieres rotular y si ya tienes el diseño. Revisamos la superficie y preparamos una propuesta que respete las formas del vehículo y se lea en movimiento.",
+    },
+    {
+      title: "Escaparates y vinilo.",
+      text: "El escaparate es lo primero que ve quien pasa por delante. Con vinilo puedes mostrar tu logo, el horario, una promoción o una decoración de temporada. Indícanos las medidas del cristal y qué quieres comunicar, y valoramos el vinilo y la colocación más adecuados.",
+    },
+    {
+      title: "Lonas para fachadas, vallas y eventos.",
+      text: "Una lona impresa funciona en fachadas, vallas, ferias y eventos al aire libre. Puedes calcular el precio de una lona con ollados a tu medida en la sección de soportes publicitarios o pedirnos ayuda para elegir el formato.",
+    },
+    {
+      title: "Rótulos y cartelería para tu negocio.",
+      text: "Rótulos para el local, carteles y señalética interior. Antes de producir revisamos la medida, la distancia de lectura y el lugar de colocación para que el mensaje se entienda.",
+    },
     {
       title: "La medida empieza por el lugar.",
       text: "Cuéntanos dónde se colocará la pieza, las dimensiones disponibles y si estará en interior o exterior. Con esos datos valoramos material, formato y acabado.",
@@ -110,6 +128,10 @@ export const rotulacionPage: ServicePageData = {
       a: "Ancho y alto de la superficie y, si puedes, una foto del lugar. Indica también si necesitas orientación sobre colocación.",
     },
     {
+      q: "¿Qué necesitáis para rotular un vehículo?",
+      a: "El modelo del vehículo, las zonas que quieres rotular (laterales, trasera, capó…) y fotos de cada lado. Si ya tienes logo o diseño, envíalo también y lo adaptamos a las formas del vehículo.",
+    },
+    {
       q: "¿Puedo encargar solo el diseño o la impresión?",
       a: "Cuéntanos qué parte tienes resuelta y qué necesitas. Revisaremos los archivos antes de valorar el trabajo.",
     },
@@ -123,7 +145,7 @@ export const disenoPage: ServicePageData = {
   metaTitle: "Diseño gráfico e identidad visual en Tenerife",
   metaDescription:
     "Damos forma a la identidad visual de tu proyecto y la adaptamos para que funcione sobre prendas, productos y soportes publicitarios.",
-  eyebrow: "PRIMERO, UNA BUENA IDEA",
+  h1: "Diseño gráfico e identidad visual en Tenerife",
   title: ["Una idea clara.", "Una marca propia."],
   intro:
     "Damos forma a la identidad visual de tu proyecto y la adaptamos para que funcione sobre prendas, productos y soportes publicitarios.",
@@ -164,7 +186,7 @@ export const banderasPage: ServicePageData = {
   metaTitle: "Soportes publicitarios personalizados en Tenerife",
   metaDescription:
     "Banderas y roll-ups personalizados para tu negocio, feria o evento en Tenerife y Canarias. Tu diseño, en un soporte que se hace notar.",
-  eyebrow: "TU MARCA, BIEN ARRIBA",
+  h1: "Banderas y roll-ups personalizados en Tenerife",
   title: ["Que te vean.", "Desde lejos."],
   intro:
     "Banderas y roll-ups personalizados para tu negocio, feria o evento en Tenerife y Canarias. Tu diseño, en un soporte que se hace notar.",

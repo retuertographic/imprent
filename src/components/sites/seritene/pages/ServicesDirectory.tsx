@@ -40,7 +40,7 @@ const directory = [
     tags: ["Tarjetas de visita", "Papelería", "Diseño para impresión"],
   },
   {
-    href: "/ropa-laboral/",
+    href: "/ropa/laboral/",
     name: "Ropa laboral personalizada",
     text: "Pantalones multibolsillos y prendas para el día a día de tu equipo. Elegimos la referencia y el marcaje según el uso y la composición.",
     tags: ["Pantalones multibolsillos", "Prendas de trabajo", "Logos y personalización"],
@@ -65,7 +65,7 @@ export function ServicesDirectory() {
   return (
     <main id="contenido" className="brand-main">
       <Breadcrumbs items={[{ label: "Servicios" }]} />
-      <PageIntro eyebrow="UN MISMO EQUIPO. MUCHAS POSIBILIDADES." title="De la idea, a todas partes.">
+      <PageIntro h1="Servicios de personalización e impresión en Tenerife" title="De la idea, a todas partes.">
         El textil es nuestro punto de partida. El diseño, la impresión y los productos promocionales completan una
         identidad que se reconoce en cada soporte.
       </PageIntro>

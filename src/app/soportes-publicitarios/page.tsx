@@ -6,6 +6,7 @@ import "../styles/seritene/product-catalog.css";
 import { SiteLink } from "@/components/sites/seritene/SiteLink";
 import { supportJsonLd, supportLanding, supportMeta } from "@/components/sites/seritene/soportes/data.generated";
 import { JsonLd, SupportProducts } from "@/components/sites/seritene/soportes/shared";
+import type { SupportCardData } from "@/components/sites/seritene/soportes/types";
 
 const ROUTE = "/soportes-publicitarios/";
 
@@ -14,8 +15,32 @@ export const metadata: Metadata = {
   alternates: { canonical: ROUTE },
 };
 
+// Las fotos de colección son PNG de 1254 px y ~2 MB (como en producción). Se sirven sus versiones WebP
+// (1254 y 640 px, generadas con sharp desde los PNG) con srcSet. Siguen diferidas (lazy): el LCP de la
+// página es el titular y precargarlas lo retrasa.
+const COLLECTION_PNG = /^\/catalogue\/(coleccion-[a-z-]+)\.png$/;
+const optimizeCard = (card: SupportCardData): SupportCardData => {
+  const match = COLLECTION_PNG.exec(card.image.src);
+  if (!match) return card;
+  const base = `/catalogue/${match[1]}`;
+  return {
+    ...card,
+    image: {
+      ...card.image,
+      src: `${base}.webp`,
+      srcSet: `${base}-640.webp 640w, ${base}.webp 1254w`,
+      sizes: "(max-width: 1000px) 46vw, 320px",
+      width: 1254,
+      height: 1254,
+      loading: "lazy",
+      decoding: "async",
+    },
+  };
+};
+
 export default function SoportesPage() {
-  const { heading, section, help } = supportLanding;
+  const { heading, section: rawSection, help } = supportLanding;
+  const section = { ...rawSection, cards: rawSection.cards.map(optimizeCard) };
   return (
     <main id="contenido" className="brand-main print-main custom-catalog support-shop">
       <JsonLd json={supportJsonLd[ROUTE]} />
@@ -26,12 +51,13 @@ export default function SoportesPage() {
           <span aria-current="page">Soportes publicitarios</span>
         </nav>
         <header className="events-heading">
-          <p className="eyebrow">{heading.eyebrow}</p>
-          <h1>
+          {/* H1 descriptivo con la palabra clave; el lema conserva el aspecto del antiguo H1. */}
+          <h1 className="eyebrow kw-kicker">Soportes publicitarios en Tenerife</h1>
+          <p className="kw-slogan">
             {heading.title}
             <br />
             <em>{heading.em}</em>
-          </h1>
+          </p>
           <p>{heading.intro}</p>
         </header>
       </div>

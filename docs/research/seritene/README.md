@@ -11,7 +11,7 @@ La lista exacta está en `src/components/sites/seritene/routes.ts` (`LOCAL_ROUTE
 | Bloque | Rutas | Código |
 | --- | --- | --- |
 | Home | `/` | `src/app/page.tsx`, componentes `Home*`, `UnboxHero` |
-| Contenido y blog | equipo, valores, servicios, contacto, catálogos, textil, rotulación, diseño, banderas-rollups, ropa-laboral, DTF, mapa web, legales, cuestionario, `/blog/` + 7 artículos | `src/components/sites/seritene/pages/` |
+| Contenido y blog | equipo, valores, servicios, contacto, catálogos, textil, rotulación, diseño, banderas-rollups, DTF, mapa web, legales, cuestionario, `/blog/` + 7 artículos | `src/components/sites/seritene/pages/` |
 | Tienda | `/ropa/*`, `/merchandising/*`, `/productos/` (buscador `?q=`), `/imprenta/*` | `src/components/sites/seritene/shop/` (datos en `public/sites/seritene/shop-data/`) |
 | Fichas de producto | `/producto/stamina/<id>/` (1.584 modelos Stamina), `/producto/roly/<id>/` (407), `/producto/jhk/<código>/` (12) | `src/app/producto/{stamina,roly,jhk}/[id]/`, `src/components/sites/seritene/merch/` (datos en `merch/data/<marca>/`, tarifas y stock del día en `public/sites/seritene/shop-data/merch-pricing.json` y `roly-pricing.json`; fotos de JHK en `public/sites/seritene/images/jhk/`) |
 | Fullprint | portada, 6 colecciones, 30 modelos | `src/components/sites/seritene/fullprint/` |
@@ -117,12 +117,41 @@ PNG transparente a 300 ppp y envío por WhatsApp/email). Origen: https://seriten
   (`shop/searchIndex.ts`). Coincide en 111 de 113 consultas de prueba (`node scripts/check-search.mjs`);
   las 2 diferencias conocidas están explicadas en el script. Se regenera con
   `scripts/extract-search-index.mjs` y `scripts/make-search-fixtures.mjs`.
-- `/catalogos/` y `/ropa-laboral/` muestran una foto de la primera página del catálogo.
+- `/catalogos/` muestra una foto de la primera página del catálogo.
 - Las páginas `?pagina=N` muestran la página 1 en el HTML estático y cargan la pedida en el navegador.
 
 - El titular rotativo y los carruseles automáticos dependen del tiempo, así que una captura puede
   mostrar otra frase u otra tarjeta que el original en el mismo instante.
 - Todas las páginas del sitemap están clonadas; ningún enlace del clon apunta a una ficha de seritene.com.
+
+## Mejoras de la agencia sobre producción (SEO, accesibilidad y rendimiento)
+
+- **`/ropa-laboral/` → `/ropa/laboral/`.** Eran la misma página (mismo título y texto, ambas con canonical propia y
+  en el sitemap). Se conserva `/ropa/laboral/`: es la que enlaza el megamenú de todas las páginas, cuelga de `/ropa/`
+  como el resto de categorías y es el listado completo. En el clon, `/ropa-laboral/` es una página de redirección
+  (meta refresh + canonical a `/ropa/laboral/` + `noindex` + enlace visible), porque la exportación estática no puede
+  responder 301; los enlaces internos van directos a `/ropa/laboral/` (`REDIRECTS` en `routes.ts`, que `SiteLink`
+  aplica también a los datos de producción, como el índice del buscador).
+  **En producción hay que responder `301` de `/ropa-laboral/` a `/ropa/laboral/`, quitarla del sitemap y apuntar el
+  nodo `#service` del LocalBusiness (`hasOfferCatalog`) a `/ropa/laboral/`.**
+- **H1 con palabra clave** en las páginas de servicio cuyo H1 era un lema: `/textil-personalizado/`, `/rotulacion/`,
+  `/diseno-grafico/`, `/banderas-rollups/`, `/imprenta/`, `/fullprint/`, `/soportes-publicitarios/` y `/servicios/`
+  («Imprenta en Tenerife», «Rotulación de vehículos, escaparates y lonas en Tenerife»…). El H1 ocupa el sitio del
+  antetítulo, con su aspecto, y el lema sigue igual como párrafo grande (`.kw-kicker` / `.kw-slogan` en
+  `src/app/styles/seritene/a11y-fixes.css`). `/rotulacion/` tiene además apartados de vehículos, escaparates y
+  vinilo, lonas y rótulos.
+- **Contraste:** el verde de marca `#43b02a` se mantiene en botones, fondos e iconos; como color de texto sobre fondo
+  claro se usa `#267d16`. Aviso de stock bajo y textos grises pequeños oscurecidos hasta 4,5:1. Todo en
+  `a11y-fixes.css` (las hojas de producción no se tocan). Queda fuera la maqueta decorativa del programa en
+  `/dtf-x-metros/` y los textos blancos sobre fondo verde (tarjeta Roly de `/catalogos/`, «Ponemos tu logo…» de la home).
+- **Megamenú:** Escape devuelve el foco al botón que abrió el panel (o a la hamburguesa en móvil) y el panel se cierra
+  si el foco sale de la cabecera. En las fichas, el foco de teclado de las muestras de color (contorno negro
+  discontinuo) se distingue del color seleccionado (anillo verde).
+- **Imágenes:** las 8 fotos de colección de `/soportes-publicitarios/` (PNG de 1,6–2,5 MB, como en producción) se sirven
+  en WebP de 1254 y 640 px con `srcset` (`coleccion-*.webp`, `coleccion-*-640.webp`, generadas con sharp). Los PNG se
+  conservan porque `soportes/areaPricing.ts` los usa como miniatura del carrito. En los listados de productos, las dos
+  primeras fotos (primera fila en móvil, donde está el LCP) se cargan sin `lazy` y con `fetchpriority="high"`; con
+  más fotos no diferidas, React las precarga todas antes que el CSS y el LCP simulado empeora.
 
 ## Fichas de producto (Stamina, Roly, JHK)
 
