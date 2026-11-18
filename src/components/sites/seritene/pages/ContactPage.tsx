@@ -1,10 +1,7 @@
-import { Mail, MessageCircle, Phone } from "lucide-react";
-import { contact } from "../content";
+import { Mail, MapPin, MessageCircle, Phone } from "lucide-react";
+import { contact, mapsUrl } from "../content";
 import { Breadcrumbs, PageIntro } from "./common";
 import { ContactForm } from "./ContactForm";
-
-const mapsUrl =
-  "https://www.google.com/maps/search/?api=1&query=Seritene%20Creaciones%20Publicitarias%20La%20Orotava";
 
 /** /contacto/ */
 export function ContactPage() {
@@ -42,6 +39,19 @@ export function ContactPage() {
               <strong>WhatsApp</strong>
             </span>
           </a>
+          <a className="contact-address" href={mapsUrl} target="_blank" rel="noreferrer">
+            <MapPin size={24} />
+            <span>
+              <small>Dónde estamos</small>
+              <address>
+                <strong>{contact.address.street}</strong>
+                <span>
+                  {contact.address.postalCode} {contact.address.locality} · {contact.address.region}
+                </span>
+              </address>
+              <span className="sr-only">(ver en Google Maps)</span>
+            </span>
+          </a>
           <div className="contact-local">
             <p className="eyebrow">TENERIFE · CANARIAS</p>
             <p>
@@ -49,7 +59,7 @@ export function ContactPage() {
               opciones de entrega para otras islas.
             </p>
             <a className="text-cta" href={mapsUrl} target="_blank" rel="noreferrer">
-              Buscar Seritene en Google Maps
+              Cómo llegar con Google Maps
             </a>
           </div>
         </aside>

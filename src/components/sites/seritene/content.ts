@@ -15,7 +15,64 @@ export const contact = {
   email: "info@seritene.com",
   whatsapp: "https://wa.me/34641782535",
   instagram: "https://www.instagram.com/seritenefabricadeideas/",
+  facebook: "https://www.facebook.com/seritene/",
+  /** Nombre comercial (el mismo que en el perfil de Google y en el JSON-LD de producción). */
+  businessName: "Seritene Creaciones Publicitarias",
+  address: {
+    street: "Calle Lordelos, 20, n.º 9",
+    postalCode: "38315",
+    locality: "La Orotava",
+    region: "Santa Cruz de Tenerife",
+    country: "ES",
+  },
+  geo: { lat: 28.382666, lng: -16.556423 },
+  // Horario de atención: aún no lo tenemos del cliente; no se muestra ni va al JSON-LD hasta confirmarlo.
+  // openingHours: [{ days: ["Mo", "Tu", "We", "Th", "Fr"], opens: "09:00", closes: "14:00" }],
 };
+
+/** «Calle Lordelos, 20, n.º 9 · 38315 La Orotava · Santa Cruz de Tenerife» */
+export const fullAddress = [
+  contact.address.street,
+  `${contact.address.postalCode} ${contact.address.locality}`,
+  contact.address.region,
+].join(" · ");
+
+/** Enlace a Google Maps con el nombre y la dirección completa (abre la ficha del negocio o el punto exacto). */
+export const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+  `${contact.businessName}, ${contact.address.street}, ${contact.address.postalCode} ${contact.address.locality}, ${contact.address.region}`,
+)}`;
+
+/**
+ * Plazo típico de producción para el bloque «Qué pasa después» del carrito.
+ * Vacío a propósito: hace falta que el cliente confirme un plazo real. Mientras esté vacío no se muestra.
+ */
+export const typicalLeadTime = "";
+
+/** Bloque «Qué pasa después» del carrito: pasos tras enviar la solicitud (sin plazos ni horarios inventados). */
+export const orderSteps = [
+  { title: "Te respondemos", text: "Revisamos tu solicitud y te contestamos en horario laboral." },
+  { title: "Revisamos tu diseño", text: "Comprobamos tu logo o archivo y te enviamos una prueba." },
+  { title: "Confirmas y pagas", text: "Cuando des el visto bueno a la prueba y al presupuesto." },
+  { title: "Producimos y entregamos", text: "Lo preparamos en nuestro taller y te lo enviamos o pasas a recogerlo." },
+];
+
+export const logoHint = {
+  title: "Cómo enviarnos tu logo",
+  text: "Adjúntalo en WhatsApp o por email (PNG, PDF, AI o SVG).",
+};
+
+/**
+ * Enlace `mailto:` a info@seritene.com. Saltos de línea como CRLF (RFC 6068) y espacios como %20
+ * (algunos clientes de correo muestran «+» si se usa URLSearchParams).
+ */
+export const mailtoUrl = (subject: string, body: string) =>
+  `mailto:${contact.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body.replace(/\r?\n/g, "\r\n"))}`;
+
+/**
+ * Longitud máxima segura de un enlace `mailto:` (Outlook y algunos navegadores cortan o ignoran
+ * enlaces de más de ~2.000 caracteres). Por encima, el cuerpo se sustituye por un texto corto.
+ */
+export const MAILTO_MAX = 1900;
 
 const wa = (text: string) => `${contact.whatsapp}?text=${encodeURIComponent(text)}`;
 

@@ -1,8 +1,8 @@
 "use client";
 
-import { Check } from "lucide-react";
+import { Check, Mail, MessageCircle } from "lucide-react";
 import { useState, type FormEvent } from "react";
-import { contact } from "../content";
+import { MAILTO_MAX, contact, mailtoUrl } from "../content";
 import { SiteLink } from "../SiteLink";
 
 const services = [
@@ -17,9 +17,17 @@ const services = [
   "Necesito asesoramiento",
 ];
 
-/** Formulario de contacto: prepara el mensaje y lo abre en WhatsApp (no se envía nada a un servidor). */
+type Prepared = { whatsapp: string; email: string; emailShort: boolean; message: string };
+
+const EMAIL_SHORT_TEXT = "Hola Seritene, os escribo con una consulta. Pego el detalle a continuación:\n\n";
+
+/**
+ * Formulario de contacto: prepara el mensaje y lo abre en WhatsApp o en el correo
+ * (no se envía nada a un servidor; la opción de email es una mejora propia).
+ */
 export function ContactForm() {
-  const [link, setLink] = useState("");
+  const [prepared, setPrepared] = useState<Prepared | null>(null);
+  const [copied, setCopied] = useState("");
 
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -30,13 +38,31 @@ export function ContactForm() {
       `Cantidad orientativa: ${get("quantity") || "por definir"}.\n` +
       `Destino: ${get("destination")}.\n` +
       get("message");
-    setLink(`${contact.whatsapp}?text=${encodeURIComponent(message)}`);
+    const subject = `Consulta web: ${get("service")}`;
+    const email = mailtoUrl(subject, message);
+    const emailShort = email.length > MAILTO_MAX;
+    setPrepared({
+      whatsapp: `${contact.whatsapp}?text=${encodeURIComponent(message)}`,
+      email: emailShort ? mailtoUrl(subject, EMAIL_SHORT_TEXT) : email,
+      emailShort,
+      message,
+    });
+    setCopied("");
+  }
+
+  async function copy(message: string) {
+    try {
+      await navigator.clipboard.writeText(message);
+      setCopied("Texto copiado. Pégalo en el correo.");
+    } catch {
+      setCopied("No se pudo copiar. Selecciona el texto de tu consulta y cópialo a mano.");
+    }
   }
 
   return (
-    <form className="contact-form" onSubmit={onSubmit} onChange={() => setLink("")}>
+    <form className="contact-form" onSubmit={onSubmit} onChange={() => setPrepared(null)}>
       <h2>Cuéntanos la idea.</h2>
-      <p>Prepara tu consulta y revísala en WhatsApp antes de enviarla.</p>
+      <p>Prepara tu consulta y revísala en WhatsApp o en tu correo antes de enviarla.</p>
       <div className="form-grid">
         <label>
           Tu nombre
@@ -75,22 +101,38 @@ export function ContactForm() {
       </label>
       <p className="form-note">
         Responsable: José Enrique Ferrera Torres (Seritene). Usamos tu consulta para atender la solicitud y preparar el
-        presupuesto. Al abrir WhatsApp, el texto pasa a ese servicio para que lo revises antes de enviarlo. Puedes ejercer
+        presupuesto. Al abrir WhatsApp o tu correo, el texto pasa a ese servicio para que lo revises antes de enviarlo. Puedes ejercer
         tus derechos por correo y consultar los detalles en la{" "}
         <SiteLink href="/politica-privacidad/">política de privacidad</SiteLink>.
       </p>
       <button className="brand-button" type="submit">
         Preparar mi consulta
       </button>
-      {link && (
+      {prepared && (
         <div className="contact-ready" role="status">
           <Check />
           <div>
             <strong>Tu consulta está lista.</strong>
-            <p>Aún no se ha enviado. Ábrela, revísala y envíala desde WhatsApp.</p>
-            <a className="brand-button light" href={link} target="_blank" rel="noreferrer">
-              Revisar en WhatsApp
-            </a>
+            <p>Aún no se ha enviado. Ábrela en WhatsApp o en tu correo, revísala y envíala.</p>
+            <div className="contact-ready-actions">
+              <a className="brand-button light" href={prepared.whatsapp} target="_blank" rel="noreferrer">
+                <MessageCircle size={17} aria-hidden="true" />
+                Revisar en WhatsApp
+              </a>
+              <a className="contact-ready-email" href={prepared.email}>
+                <Mail size={17} aria-hidden="true" />
+                Enviar por email
+              </a>
+            </div>
+            {prepared.emailShort && (
+              <p className="contact-ready-note">
+                Tu consulta es larga para abrirla entera en el correo.{" "}
+                <button type="button" onClick={() => copy(prepared.message)}>
+                  Copia el texto
+                </button>{" "}
+                y pégalo en el mensaje. {copied}
+              </p>
+            )}
           </div>
         </div>
       )}

@@ -3,9 +3,11 @@ import type { Metadata } from "next";
 // Se importan por separado para que el plugin de Tailwind no los reprocese.
 import "./styles/seritene/base.css";
 import "./styles/seritene/site-shell.css";
+import "./styles/seritene/contact-extras.css";
 import { RevealMotion } from "@/components/sites/seritene/RevealMotion";
 import { SiteFooter } from "@/components/sites/seritene/SiteFooter";
 import { SiteHeader } from "@/components/sites/seritene/SiteHeader";
+import { SiteJsonLd } from "@/components/sites/seritene/SiteJsonLd";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://seritene.com"),
@@ -25,6 +27,7 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body>
+        <SiteJsonLd />
         <SiteHeader />
         {children}
         <SiteFooter />
