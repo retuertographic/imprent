@@ -80,7 +80,7 @@ export const services = [
   { name: "Fullprint", href: "/fullprint/", label: "SIN LÍMITES DE COLOR", text: "El diseño ocupa toda la prenda.", image: "mockup-fullprint" },
   { name: "Merchandising", href: "/merchandising/", text: "Tu marca, siempre a mano.", image: "mockup-merchandising" },
   { name: "Imprenta", href: "/imprenta/", text: "Una buena primera impresión.", image: "mockup-imprenta" },
-  { name: "Ropa laboral", href: "/ropa-laboral/", text: "Equipamos a tu equipo.", image: "mockup-laboral" },
+  { name: "Ropa laboral", href: "/ropa/laboral/", text: "Equipamos a tu equipo.", image: "mockup-laboral" },
   { name: "Soportes publicitarios", href: "/soportes-publicitarios/", text: "Hazte ver desde lejos.", image: "mockup-banderas" },
 ];
 

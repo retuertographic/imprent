@@ -198,7 +198,7 @@ export function ConfidenceSection() {
 }
 
 const audiences: { title: string; text: string; href: string; Icon: LucideIcon }[] = [
-  { title: "Empresas", text: "Uniformes, ropa laboral y merchandising.", href: "/ropa-laboral/", Icon: Building2 },
+  { title: "Empresas", text: "Uniformes, ropa laboral y merchandising.", href: "/ropa/laboral/", Icon: Building2 },
   { title: "Clubes", text: "Equipaciones y deporte personalizado.", href: "/fullprint/", Icon: Trophy },
   { title: "Eventos", text: "Abanicos, lanyards y pulseras.", href: "/merchandising/", Icon: PartyPopper },
   { title: "Particulares", text: "Regalos que hablan de ti.", href: "/productos/", Icon: Gift },

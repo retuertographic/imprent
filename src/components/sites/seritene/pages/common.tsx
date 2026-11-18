@@ -24,12 +24,34 @@ export function Breadcrumbs({ items, className = "wrap breadcrumbs" }: { items: 
   );
 }
 
-/** Cabecera de página: antetítulo, título y entradilla. */
-export function PageIntro({ eyebrow, title, children }: { eyebrow: string; title: ReactNode; children: ReactNode }) {
+/**
+ * Cabecera de página: antetítulo, título y entradilla. Con `h1`, ese texto descriptivo es el H1 (con el
+ * aspecto del antetítulo) y `title` pasa a ser un lema con el aspecto del antiguo H1.
+ */
+export function PageIntro({
+  eyebrow,
+  h1,
+  title,
+  children,
+}: {
+  eyebrow?: string;
+  h1?: string;
+  title: ReactNode;
+  children: ReactNode;
+}) {
   return (
     <section className="wrap page-intro">
-      <p className="eyebrow">{eyebrow}</p>
-      <h1>{title}</h1>
+      {h1 ? (
+        <>
+          <h1 className="eyebrow kw-kicker">{h1}</h1>
+          <p className="kw-slogan">{title}</p>
+        </>
+      ) : (
+        <>
+          <p className="eyebrow">{eyebrow}</p>
+          <h1>{title}</h1>
+        </>
+      )}
       <p>{children}</p>
     </section>
   );

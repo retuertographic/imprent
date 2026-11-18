@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 // Se importan por separado para que el plugin de Tailwind no los reprocese.
 import "./styles/seritene/base.css";
 import "./styles/seritene/site-shell.css";
+import "./styles/seritene/a11y-fixes.css";
 import { RevealMotion } from "@/components/sites/seritene/RevealMotion";
 import { SiteFooter } from "@/components/sites/seritene/SiteFooter";
 import { SiteHeader } from "@/components/sites/seritene/SiteHeader";

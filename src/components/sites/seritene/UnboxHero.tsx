@@ -30,7 +30,7 @@ const products: UnboxProduct[] = [
   { name: "Fullprint", href: "/fullprint/", image: "mockup-fullprint", x: -0.135, y: -0.19, mobileStartX: -0.2, mobileX: -0.28, mobileY: -0.15, turn: -15, desktopTurn: -19, width: 24, height: 44, mobileWidth: 45, mobileHeight: 40 },
   { name: "Merchandising", href: "/merchandising/", image: "mockup-merchandising", x: 0.135, y: -0.05, mobileStartX: 0.1, mobileX: 0.13, mobileY: 0.01, turn: 15, desktopTurn: -6, width: 17, height: 37, mobileWidth: 40, mobileHeight: 48 },
   { name: "Imprenta", href: "/imprenta/", image: "mockup-imprenta", x: -0.395, y: -0.53, mobileStartX: -0.32, mobileX: -0.31, mobileY: -0.45, turn: -15, desktopTurn: -12, width: 9, height: 20, mobileWidth: 25, mobileHeight: 20 },
-  { name: "Ropa laboral", href: "/ropa-laboral/", image: "mockup-laboral", x: 0.31, y: -0.45, mobileStartX: 0.14, mobileX: 0.29, mobileY: -0.485, turn: 15, desktopTurn: 22, width: 13, height: 31, mobileWidth: 32, mobileHeight: 35 },
+  { name: "Ropa laboral", href: "/ropa/laboral/", image: "mockup-laboral", x: 0.31, y: -0.45, mobileStartX: 0.14, mobileX: 0.29, mobileY: -0.485, turn: 15, desktopTurn: 22, width: 13, height: 31, mobileWidth: 32, mobileHeight: 35 },
   { name: "Soportes publicitarios", href: "/soportes-publicitarios/", image: "mockup-banderas", x: 0.4, y: -0.28, mobileStartX: 0.3, mobileX: 0.4, mobileY: -0.24, turn: -15, desktopTurn: -12, width: 10, height: 21, mobileWidth: 30, mobileHeight: 20 },
 ];
 

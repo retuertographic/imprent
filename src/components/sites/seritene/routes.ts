@@ -96,7 +96,6 @@ export const LOCAL_ROUTES = new Set<string>([
   "/nuestros-valores/",
   "/politica-privacidad/",
   "/productos/",
-  "/ropa-laboral/",
   "/ropa/",
   "/ropa/abrigos/",
   "/ropa/camisetas/",
@@ -143,6 +142,23 @@ const PRODUCT_IDS: Record<string, Set<string>> = { stamina: MERCH_PRODUCT_IDS, r
 const isMerchProduct = (pathname: string) => {
   const m = /^\/producto\/(stamina|roly|jhk)\/([^/]+)\/$/.exec(pathname);
   return m !== null && PRODUCT_IDS[m[1]].has(m[2]);
+};
+
+/**
+ * Rutas retiradas por duplicadas → ruta que se conserva. La antigua sigue existiendo como página de
+ * redirección (meta refresh + canonical + noindex: la exportación estática no puede responder 301), pero
+ * los enlaces internos van directamente al destino. En producción deben responder 301 (ver docs/research).
+ */
+export const REDIRECTS: Record<string, string> = {
+  "/ropa-laboral/": "/ropa/laboral/",
+};
+
+/** Sustituye una ruta retirada por su destino, conservando consulta y fragmento. */
+export const resolveRedirect = (href: string) => {
+  if (!href.startsWith("/")) return href;
+  const [, pathname, rest] = /^([^?#]*)(.*)$/.exec(href) ?? ["", href, ""];
+  const target = REDIRECTS[normalize(pathname)];
+  return target ? target + rest : href;
 };
 
 export const isLocalRoute = (path: string) => {
