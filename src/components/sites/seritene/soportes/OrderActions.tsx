@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useSyncExternalStore } from "react";
+import { useRef, useState, useSyncExternalStore } from "react";
 import { Check, MessageCircle, ShoppingCart } from "lucide-react";
 import { SiteLink } from "../SiteLink";
 import { CART_LIMIT, cartDetails, currentProductPath, readCart, writeCart } from "../cart/storage";
 import { whatsappUrl } from "./order";
 import type { Reprice } from "../cart/reprice";
+import { StickyOrderBar, type StickyOrder } from "./StickyOrderBar";
 
 type Props = {
   name: string;
@@ -19,12 +20,15 @@ type Props = {
   expiresAt?: number;
   /** Selección para recalcular en el carrito al cambiar la cantidad (mejora propia). */
   reprice?: Reprice;
+  /** Barra fija inferior en móvil con el total y «Añadir al carrito» (mejora propia). */
+  sticky?: StickyOrder;
 };
 
 const noopSubscribe = () => () => {};
 
 /** «Solicitar pedido» por WhatsApp y «Añadir al carrito» (localStorage). */
-export function OrderActions({ name, message, quantity = null, subtotal = null, image = "", delivery = false, expiresAt, reprice }: Props) {
+export function OrderActions({ name, message, quantity = null, subtotal = null, image = "", delivery = false, expiresAt, reprice, sticky }: Props) {
+  const actionsRef = useRef<HTMLDivElement>(null);
   const [addedKey, setAddedKey] = useState("");
   const [error, setError] = useState("");
   const key = JSON.stringify([message, subtotal]);
@@ -75,7 +79,7 @@ export function OrderActions({ name, message, quantity = null, subtotal = null, 
   }
 
   return (
-    <div className="order-actions">
+    <div className="order-actions" ref={actionsRef}>
       <div className="order-actions-buttons">
         <a className="brand-button order-direct" href={whatsappUrl(message)} target="_blank" rel="noreferrer">
           <MessageCircle size={18} />
@@ -95,6 +99,7 @@ export function OrderActions({ name, message, quantity = null, subtotal = null, 
           {error}
         </p>
       )}
+      {sticky && mounted && <StickyOrderBar {...sticky} actions={actionsRef} onAdd={addToCart} disabled={!mounted} added={added} error={error} />}
     </div>
   );
 }

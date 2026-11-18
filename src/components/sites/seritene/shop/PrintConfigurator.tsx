@@ -5,6 +5,7 @@ import { Check, ChevronDown } from "lucide-react";
 import { formatCents } from "./catalog";
 import { NativeOption, NativeSelect, ProductDelivery, TextInput } from "./FormControls";
 import { OrderActions } from "./OrderActions";
+import { formatUnits } from "../units";
 import { flyerFormats, PRINT_MINIMUM, printOrder, printQuantityOptions, type PrintProduct } from "./printData";
 
 const number = new Intl.NumberFormat("es-ES");
@@ -198,10 +199,10 @@ export function PrintConfigurator({ product }: { product: PrintProduct }) {
 
       <div className="print-total" aria-live="polite" aria-atomic="true">
         <span>{custom ? "Lo preparamos para ti" : "Total del pedido"}</span>
-        <strong>{custom ? "A consultar" : quote && withDelivery ? formatCents(withDelivery.total) : canOrder ? "A consultar" : "—"}</strong>
+        <strong>{custom ? "A presupuestar" : quote && withDelivery ? formatCents(withDelivery.total) : canOrder ? "A presupuestar" : "—"}</strong>
         {quote && (
           <p>
-            {fmt(quantity)} unidades
+            {formatUnits(quantity)}
             {product.tiers.length > 0 ? ` × ${formatCents(quote.unit)} / ud.` : ""}
             {variant ? ` · ${variant.label}` : ""}
           </p>
@@ -226,6 +227,11 @@ export function PrintConfigurator({ product }: { product: PrintProduct }) {
           image={product.art.small || product.art.src}
           path={`/imprenta/${product.slug}/`}
           reprice={{ kind: "print", slug: product.slug, variantId, design, customFormat, delivery }}
+          sticky={{
+            total: !custom && quote && withDelivery ? formatCents(withDelivery.total) : "A presupuestar",
+            detail: formatUnits(quantity),
+            panel: ".print-total",
+          }}
         />
       ) : (
         <button type="button" className="brand-button print-request" disabled>

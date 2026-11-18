@@ -51,7 +51,7 @@ export function cartMessage(cart: Cart) {
     cart.delivery
       ? `Envío: ${summary.shipping === null ? "a confirmar" : summary.shipping === 0 ? "gratuito" : formatEuro(summary.shipping)}.`
       : "Sin envío a domicilio.",
-    `Total orientativo: ${summary.total === null ? "a confirmar" : formatEuro(summary.total)}. Sin impuestos.`,
+    `Total orientativo: ${summary.total === null ? "a confirmar" : formatEuro(summary.total)}. Sin IGIC.`,
     "Confirmar disponibilidad, precios, diseño y plazo antes de realizar el pedido.",
   ].join("\n");
 }

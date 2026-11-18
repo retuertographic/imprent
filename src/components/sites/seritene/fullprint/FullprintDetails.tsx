@@ -9,6 +9,7 @@ import { exampleSmallImage, FullprintTransformation } from "./FullprintTransform
 import { OrderActions, ProductDelivery } from "./OrderActions";
 import { formatEuros, formatNumber, fullprintOrder } from "./pricing";
 import type { FullprintModel } from "./types";
+import { formatUnits } from "../units";
 
 const OWN_DESIGN = "Aporto mi diseño";
 const HELP_DESIGN = "Necesito ayuda con el diseño";
@@ -253,10 +254,10 @@ function FullprintConfigurator({ product, onAttachmentChange }: ConfiguratorProp
 
       <div className="print-total" aria-live="polite" aria-atomic="true">
         <span>Total del pedido</span>
-        <strong>{price && total ? formatEuros(total.total) : validQuantity ? "A consultar" : "—"}</strong>
+        <strong>{price && total ? formatEuros(total.total) : validQuantity ? "A presupuestar" : "—"}</strong>
         {price ? (
           <p>
-            {formatNumber(quantity)} unidades × {formatEuros(price.unit)} / ud.
+            {formatUnits(quantity)} × {formatEuros(price.unit)} / ud.
           </p>
         ) : (
           validQuantity && <p>Confirmamos el precio para esta opción y cantidad.</p>
@@ -288,6 +289,11 @@ function FullprintConfigurator({ product, onAttachmentChange }: ConfiguratorProp
             design,
             notes,
             delivery,
+          }}
+          sticky={{
+            total: price && total ? formatEuros(total.total) : "A presupuestar",
+            detail: formatUnits(quantity),
+            panel: ".print-total",
           }}
         />
       ) : (

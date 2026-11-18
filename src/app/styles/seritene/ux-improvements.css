@@ -1,0 +1,182 @@
+/*
+ * Mejoras propias de la agencia (no existen en producción): tabla de precios por cantidad de las fichas
+ * de proveedor, barra fija de pedido en móvil y posición de los botones flotantes (WhatsApp y Seribot).
+ * Hoja global (layout.tsx) porque los botones flotantes viven en el pie de todas las páginas.
+ */
+
+/* --- Tabla «Precio por unidad según cantidad» (merch/VolumeTiers.tsx) --- */
+.shop-volume-tiers {
+  margin-top: 20px;
+  max-width: 560px;
+}
+.shop-volume-tiers table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: #fff;
+  border: 1px solid #dbe3d5;
+  border-radius: 14px;
+  overflow: hidden;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+.shop-volume-tiers caption {
+  caption-side: top;
+  text-align: left;
+  color: #111;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.35;
+  padding: 0 0 8px;
+}
+.shop-volume-tiers caption small {
+  display: block;
+  color: #52604e;
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 2px;
+}
+.shop-volume-tiers th,
+.shop-volume-tiers td {
+  padding: 8px 12px;
+  text-align: right;
+  border-top: 1px solid #edf1ea;
+  white-space: nowrap;
+}
+.shop-volume-tiers th:first-child {
+  text-align: left;
+}
+.shop-volume-tiers thead th {
+  border-top: 0;
+  background: #f6f9f3;
+  color: #52604e;
+  font-size: 12px;
+  font-weight: 700;
+}
+.shop-volume-tiers tbody th {
+  font-weight: 600;
+  color: #263421;
+}
+.shop-volume-tiers td:nth-child(2) {
+  font-weight: 800;
+  color: #111;
+}
+.shop-volume-tiers td:nth-child(3) {
+  color: #2f6b20;
+  font-weight: 700;
+}
+.shop-volume-tiers tr.is-current > * {
+  background: #edf6e7;
+}
+.shop-volume-tiers tr.is-current th:first-child {
+  box-shadow: inset 4px 0 0 #43b02a;
+}
+.shop-volume-tiers .shop-fineprint {
+  margin-top: 8px;
+}
+@media (max-width: 420px) {
+  .shop-volume-tiers th,
+  .shop-volume-tiers td {
+    padding: 7px 9px;
+    font-size: 13px;
+  }
+}
+
+/* --- Barra fija de pedido en móvil (soportes/StickyOrderBar.tsx) --- */
+.sticky-order-bar {
+  display: none;
+}
+@media (max-width: 900px) {
+  .sticky-order-bar {
+    position: fixed;
+    z-index: 50;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 12px;
+    padding: 10px max(16px, env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom))
+      max(16px, env(safe-area-inset-left));
+    background: #fff;
+    border-top: 1px solid #dbe3d5;
+    box-shadow: 0 -6px 20px #15261018;
+    transform: translateY(110%);
+    visibility: hidden;
+    transition:
+      transform 0.2s ease,
+      visibility 0s linear 0.2s;
+  }
+  .sticky-order-bar.is-visible {
+    transform: none;
+    visibility: visible;
+    transition: transform 0.2s ease;
+  }
+  .sticky-order-total {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    line-height: 1.2;
+  }
+  .sticky-order-total strong {
+    color: #111;
+    font-size: 19px;
+    font-weight: 800;
+  }
+  .sticky-order-total span {
+    color: #52604e;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .sticky-order-bar .sticky-order-button {
+    flex: none;
+    margin: 0;
+    min-height: 48px;
+    color: #111;
+    background: #43b02a;
+    border-color: #43b02a;
+    font-weight: 700;
+    padding-inline: 18px;
+    gap: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+  }
+  .sticky-order-bar .sticky-order-button:disabled {
+    opacity: 0.6;
+  }
+  .sticky-order-error {
+    flex-basis: 100%;
+    margin: 0;
+    color: #a3261b;
+    font-size: 12px;
+  }
+
+  /* Botones flotantes: en las fichas con barra, Seribot se oculta (tapa el panel) y WhatsApp sube sobre la barra. */
+  body.has-sticky-order .seribot-float {
+    display: none;
+  }
+  body.sticky-order-visible .seritene-chat-float {
+    bottom: calc(80px + env(safe-area-inset-bottom));
+  }
+
+  /* /carrito/: el resumen ya tiene su botón de WhatsApp; los flotantes tapaban «Vaciar carrito». */
+  body:has(.cart-page) .seribot-float,
+  body:has(.cart-page) .seritene-chat-float {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sticky-order-bar,
+  .sticky-order-bar.is-visible {
+    transition: none;
+  }
+}
+@media print {
+  .sticky-order-bar {
+    display: none !important;
+  }
+}
