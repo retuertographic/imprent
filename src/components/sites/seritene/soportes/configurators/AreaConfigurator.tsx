@@ -10,6 +10,7 @@ import { Input } from "../form-controls";
 import { OrderActions } from "../OrderActions";
 import { ProductDelivery } from "../ProductDelivery";
 import { formatEuro } from "../order";
+import { formatUnits } from "../../units";
 import { AREA_PRICING, areaOrder, validMeasure, type AreaKind, type AreaOptions } from "../areaPricing";
 import { BannerArt, FoamArt, MagnetArt, PosterArt } from "./AreaArt";
 
@@ -274,6 +275,7 @@ export function AreaConfigurator({ kind }: { kind: AreaKind }) {
             subtotal={price.total}
             delivery={delivery}
             reprice={{ kind: "area", area: kind, width, height, thickness: options.thickness, finish: options.finish, delivery }}
+            sticky={{ total: shipping ? formatEuro(shipping.total) : "—", detail: formatUnits(quantity), panel: ".foam-price" }}
           />
         ) : (
           <button className="brand-button print-request" disabled>

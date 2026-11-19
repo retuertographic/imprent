@@ -81,12 +81,15 @@ export function FullprintLanding() {
   return (
     <>
       <section className="fp-story wrap" aria-labelledby="fp-story-title">
-        <p className="fp-story-eyebrow">FULLPRINT · SERITENE</p>
-        <h1 id="fp-story-title">
+        {/* H1 descriptivo con aspecto de antetítulo; el lema conserva el aspecto del antiguo H1. */}
+        <h1 id="fp-story-title" className="fp-story-eyebrow kw-kicker">
+          Camisetas fullprint y sublimación en Tenerife
+        </h1>
+        <p className="kw-slogan">
           Tu diseño.
           <br />
           <em>Por todo el tejido.</em>
-        </h1>
+        </p>
         <p className="fp-story-description">Ropa, bolsas y complementos personalizados a todo color. Hecho en Tenerife.</p>
       </section>
 

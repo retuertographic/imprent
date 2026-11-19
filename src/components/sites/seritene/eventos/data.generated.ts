@@ -264,7 +264,7 @@ export const eventCollections: Record<string, EventCollectionData> = {
         "heading": "h2",
         "name": "Abanico personalizado de plástico · AB001",
         "description": "Un detalle ligero y lleno de color para fiestas, promociones y celebraciones.",
-        "small": "10.000 uds. · Precio orientativo · Sin impuestos",
+        "small": "10.000 uds. · Precio orientativo · Sin IGIC",
         "strong": "Desde 0,55 €/ud.",
         "action": "Ver producto"
       },
@@ -282,7 +282,7 @@ export const eventCollections: Record<string, EventCollectionData> = {
         "heading": "h2",
         "name": "Abanico personalizado de madera · AB002",
         "description": "La calidez de la madera para bodas, eventos y campañas con personalidad.",
-        "small": "10.000 uds. · Precio orientativo · Sin impuestos",
+        "small": "10.000 uds. · Precio orientativo · Sin IGIC",
         "strong": "Desde 0,99 €/ud.",
         "action": "Ver producto"
       },
@@ -300,7 +300,7 @@ export const eventCollections: Record<string, EventCollectionData> = {
         "heading": "h2",
         "name": "Abanico personalizado de bambú · AB003",
         "description": "Acabado natural de bambú y tu diseño a todo color para acompañar cada celebración.",
-        "small": "10.000 uds. · Precio orientativo · Sin impuestos",
+        "small": "10.000 uds. · Precio orientativo · Sin IGIC",
         "strong": "Desde 1,15 €/ud.",
         "action": "Ver producto"
       },
@@ -318,7 +318,7 @@ export const eventCollections: Record<string, EventCollectionData> = {
         "heading": "h2",
         "name": "Abanico personalizado de bambú · AB004",
         "description": "Acabado natural de bambú y tu diseño a todo color para acompañar cada celebración.",
-        "small": "10.000 uds. · Precio orientativo · Sin impuestos",
+        "small": "10.000 uds. · Precio orientativo · Sin IGIC",
         "strong": "Desde 1,24 €/ud.",
         "action": "Ver producto"
       }
@@ -389,7 +389,7 @@ export const eventCollections: Record<string, EventCollectionData> = {
         "heading": "h2",
         "name": "Vaso reutilizable personalizado · 400 ml",
         "description": "Un vaso reutilizable con la identidad de tu evento, pensado para fiestas, festivales y celebraciones.",
-        "small": "10.000 uds. · 1 tinta · Orientativo, sin impuestos",
+        "small": "10.000 uds. · 1 tinta · Orientativo, sin IGIC",
         "strong": "Desde 0,28 €/ud.",
         "action": "Ver producto"
       },
@@ -407,7 +407,7 @@ export const eventCollections: Record<string, EventCollectionData> = {
         "heading": "h2",
         "name": "Vaso reutilizable personalizado · 500 ml",
         "description": "Un vaso reutilizable con la identidad de tu evento, pensado para fiestas, festivales y celebraciones.",
-        "small": "10.000 uds. · 1 tinta · Orientativo, sin impuestos",
+        "small": "10.000 uds. · 1 tinta · Orientativo, sin IGIC",
         "strong": "Desde 0,35 €/ud.",
         "action": "Ver producto"
       },
@@ -425,7 +425,7 @@ export const eventCollections: Record<string, EventCollectionData> = {
         "heading": "h2",
         "name": "Vaso reutilizable personalizado · 900 ml",
         "description": "Un vaso reutilizable con la identidad de tu evento, pensado para fiestas, festivales y celebraciones.",
-        "small": "10.000 uds. · 1 tinta · Orientativo, sin impuestos",
+        "small": "10.000 uds. · 1 tinta · Orientativo, sin IGIC",
         "strong": "Desde 0,49 €/ud.",
         "action": "Ver producto"
       }
@@ -819,9 +819,9 @@ export const eventProducts: Record<string, StaticProductData> = {
       "Tela de poliéster"
     ],
     "priceLead": "Desde 0,55 €/ud.",
-    "priceDetail": "10.000 uds. · Precio orientativo · Sin impuestos",
+    "priceDetail": "10.000 uds. · Precio orientativo · Sin IGIC",
     "table": {
-      "caption": "Precios unitarios sin impuestos",
+      "caption": "Precios unitarios sin IGIC",
       "head": [
         "Cantidad",
         "Precio / ud."
@@ -878,13 +878,12 @@ export const eventProducts: Record<string, StaticProductData> = {
       ]
     },
     "priceNotes": [
-      "PVP orientativos sin impuestos. Transporte y preparación, cuando correspondan, se confirmarán en el presupuesto.",
-      "Los precios de 100 y 250 unidades son propuestas pendientes de validación.",
+      "PVP orientativos sin IGIC. Transporte y preparación, cuando correspondan, se confirmarán en el presupuesto.",
       "Transporte urgente: consultar presupuesto."
     ],
     "customization": [
       "Personalización de la tela con el diseño de tu evento.",
-      "A partir de 2.000 unidades: logo a una tinta en la varilla principal (+0,08 €/ud.) y caja individual personalizada (+0,15 €/ud.). Suplementos orientativos pendientes de validación."
+      "A partir de 2.000 unidades: logo a una tinta en la varilla principal (+0,08 €/ud.) y caja individual personalizada (+0,15 €/ud.)."
     ],
     "order": {
       "name": "Abanico personalizado de plástico · AB001",
@@ -941,9 +940,9 @@ export const eventProducts: Record<string, StaticProductData> = {
       "Tela de poliéster"
     ],
     "priceLead": "Desde 0,99 €/ud.",
-    "priceDetail": "10.000 uds. · Precio orientativo · Sin impuestos",
+    "priceDetail": "10.000 uds. · Precio orientativo · Sin IGIC",
     "table": {
-      "caption": "Precios unitarios sin impuestos",
+      "caption": "Precios unitarios sin IGIC",
       "head": [
         "Cantidad",
         "Precio / ud."
@@ -1000,13 +999,12 @@ export const eventProducts: Record<string, StaticProductData> = {
       ]
     },
     "priceNotes": [
-      "PVP orientativos sin impuestos. Transporte y preparación, cuando correspondan, se confirmarán en el presupuesto.",
-      "Los precios de 100 y 250 unidades son propuestas pendientes de validación.",
+      "PVP orientativos sin IGIC. Transporte y preparación, cuando correspondan, se confirmarán en el presupuesto.",
       "Transporte urgente: consultar presupuesto."
     ],
     "customization": [
       "Personalización de la tela con el diseño de tu evento.",
-      "A partir de 2.000 unidades: logo a una tinta en la varilla principal (+0,08 €/ud.) y caja individual personalizada (+0,15 €/ud.). Suplementos orientativos pendientes de validación."
+      "A partir de 2.000 unidades: logo a una tinta en la varilla principal (+0,08 €/ud.) y caja individual personalizada (+0,15 €/ud.)."
     ],
     "order": {
       "name": "Abanico personalizado de madera · AB002",
@@ -1064,9 +1062,9 @@ export const eventProducts: Record<string, StaticProductData> = {
       "Acabado natural"
     ],
     "priceLead": "Desde 1,15 €/ud.",
-    "priceDetail": "10.000 uds. · Precio orientativo · Sin impuestos",
+    "priceDetail": "10.000 uds. · Precio orientativo · Sin IGIC",
     "table": {
-      "caption": "Precios unitarios sin impuestos",
+      "caption": "Precios unitarios sin IGIC",
       "head": [
         "Cantidad",
         "Precio / ud."
@@ -1075,13 +1073,13 @@ export const eventProducts: Record<string, StaticProductData> = {
         {
           "label": "100",
           "cells": [
-            "Consultar"
+            "A presupuestar"
           ]
         },
         {
           "label": "250",
           "cells": [
-            "Consultar"
+            "A presupuestar"
           ]
         },
         {
@@ -1123,12 +1121,12 @@ export const eventProducts: Record<string, StaticProductData> = {
       ]
     },
     "priceNotes": [
-      "PVP orientativos sin impuestos. Transporte y preparación, cuando correspondan, se confirmarán en el presupuesto.",
+      "PVP orientativos sin IGIC. Transporte y preparación, cuando correspondan, se confirmarán en el presupuesto.",
       "Transporte urgente: consultar presupuesto."
     ],
     "customization": [
       "Sublimación a todo color por una cara de la tela.",
-      "A partir de 2.000 unidades: logo a una tinta en la varilla principal (+0,08 €/ud.) y caja individual personalizada (+0,15 €/ud.). Suplementos orientativos pendientes de validación."
+      "A partir de 2.000 unidades: logo a una tinta en la varilla principal (+0,08 €/ud.) y caja individual personalizada (+0,15 €/ud.)."
     ],
     "order": {
       "name": "Abanico personalizado de bambú · AB003",
@@ -1186,9 +1184,9 @@ export const eventProducts: Record<string, StaticProductData> = {
       "Acabado natural"
     ],
     "priceLead": "Desde 1,24 €/ud.",
-    "priceDetail": "10.000 uds. · Precio orientativo · Sin impuestos",
+    "priceDetail": "10.000 uds. · Precio orientativo · Sin IGIC",
     "table": {
-      "caption": "Precios unitarios sin impuestos",
+      "caption": "Precios unitarios sin IGIC",
       "head": [
         "Cantidad",
         "Precio / ud."
@@ -1197,13 +1195,13 @@ export const eventProducts: Record<string, StaticProductData> = {
         {
           "label": "100",
           "cells": [
-            "Consultar"
+            "A presupuestar"
           ]
         },
         {
           "label": "250",
           "cells": [
-            "Consultar"
+            "A presupuestar"
           ]
         },
         {
@@ -1245,12 +1243,12 @@ export const eventProducts: Record<string, StaticProductData> = {
       ]
     },
     "priceNotes": [
-      "PVP orientativos sin impuestos. Transporte y preparación, cuando correspondan, se confirmarán en el presupuesto.",
+      "PVP orientativos sin IGIC. Transporte y preparación, cuando correspondan, se confirmarán en el presupuesto.",
       "Transporte urgente: consultar presupuesto."
     ],
     "customization": [
       "Sublimación a todo color por una cara de la tela.",
-      "A partir de 2.000 unidades: logo a una tinta en la varilla principal (+0,08 €/ud.) y caja individual personalizada (+0,15 €/ud.). Suplementos orientativos pendientes de validación."
+      "A partir de 2.000 unidades: logo a una tinta en la varilla principal (+0,08 €/ud.) y caja individual personalizada (+0,15 €/ud.)."
     ],
     "order": {
       "name": "Abanico personalizado de bambú · AB004",
@@ -1308,9 +1306,9 @@ export const eventProducts: Record<string, StaticProductData> = {
       "Reutilizable"
     ],
     "priceLead": "Desde 0,28 €/ud.",
-    "priceDetail": "10.000 uds. · 1 tinta · Orientativo, sin impuestos",
+    "priceDetail": "10.000 uds. · 1 tinta · Orientativo, sin IGIC",
     "table": {
-      "caption": "Precios unitarios sin impuestos",
+      "caption": "Precios unitarios sin IGIC",
       "head": [
         "Impresión",
         "3.000 uds.",
@@ -1337,7 +1335,7 @@ export const eventProducts: Record<string, StaticProductData> = {
         {
           "label": "IML · Una posición",
           "cells": [
-            "Consultar",
+            "A presupuestar",
             "0,47 €",
             "0,41 €"
           ]
@@ -1345,7 +1343,7 @@ export const eventProducts: Record<string, StaticProductData> = {
         {
           "label": "IML · Completo",
           "cells": [
-            "Consultar",
+            "A presupuestar",
             "0,51 €",
             "0,46 €"
           ]
@@ -1353,7 +1351,7 @@ export const eventProducts: Record<string, StaticProductData> = {
       ]
     },
     "priceNotes": [
-      "Precios orientativos por unidad, sin impuestos. Tarifas propuestas pendientes de validación con la tarifa original.",
+      "Precios orientativos por unidad, sin IGIC.",
       "Los gastos de preparación y transporte a Tenerife, cuando correspondan, se confirmarán en el presupuesto.",
       "Más de 10.000 unidades: consultar presupuesto."
     ],
@@ -1419,9 +1417,9 @@ export const eventProducts: Record<string, StaticProductData> = {
       "Reutilizable"
     ],
     "priceLead": "Desde 0,35 €/ud.",
-    "priceDetail": "10.000 uds. · 1 tinta · Orientativo, sin impuestos",
+    "priceDetail": "10.000 uds. · 1 tinta · Orientativo, sin IGIC",
     "table": {
-      "caption": "Precios unitarios sin impuestos",
+      "caption": "Precios unitarios sin IGIC",
       "head": [
         "Impresión",
         "3.000 uds.",
@@ -1448,7 +1446,7 @@ export const eventProducts: Record<string, StaticProductData> = {
         {
           "label": "IML · Una posición",
           "cells": [
-            "Consultar",
+            "A presupuestar",
             "0,58 €",
             "0,52 €"
           ]
@@ -1456,7 +1454,7 @@ export const eventProducts: Record<string, StaticProductData> = {
         {
           "label": "IML · Completo",
           "cells": [
-            "Consultar",
+            "A presupuestar",
             "0,63 €",
             "0,56 €"
           ]
@@ -1464,7 +1462,7 @@ export const eventProducts: Record<string, StaticProductData> = {
       ]
     },
     "priceNotes": [
-      "Precios orientativos por unidad, sin impuestos. Tarifas propuestas pendientes de validación con la tarifa original.",
+      "Precios orientativos por unidad, sin IGIC.",
       "Los gastos de preparación y transporte a Tenerife, cuando correspondan, se confirmarán en el presupuesto.",
       "Más de 10.000 unidades: consultar presupuesto."
     ],
@@ -1530,9 +1528,9 @@ export const eventProducts: Record<string, StaticProductData> = {
       "Reutilizable"
     ],
     "priceLead": "Desde 0,49 €/ud.",
-    "priceDetail": "10.000 uds. · 1 tinta · Orientativo, sin impuestos",
+    "priceDetail": "10.000 uds. · 1 tinta · Orientativo, sin IGIC",
     "table": {
-      "caption": "Precios unitarios sin impuestos",
+      "caption": "Precios unitarios sin IGIC",
       "head": [
         "Impresión",
         "3.000 uds.",
@@ -1559,23 +1557,23 @@ export const eventProducts: Record<string, StaticProductData> = {
         {
           "label": "IML · Una posición",
           "cells": [
-            "Consultar",
-            "Consultar",
+            "A presupuestar",
+            "A presupuestar",
             "0,68 €"
           ]
         },
         {
           "label": "IML · Completo",
           "cells": [
-            "Consultar",
-            "Consultar",
+            "A presupuestar",
+            "A presupuestar",
             "0,72 €"
           ]
         }
       ]
     },
     "priceNotes": [
-      "Precios orientativos por unidad, sin impuestos. Tarifas propuestas pendientes de validación con la tarifa original.",
+      "Precios orientativos por unidad, sin IGIC.",
       "Los gastos de preparación y transporte a Tenerife, cuando correspondan, se confirmarán en el presupuesto.",
       "Más de 10.000 unidades: consultar presupuesto."
     ],
@@ -1696,7 +1694,7 @@ export const eventProducts: Record<string, StaticProductData> = {
     "priceLead": "Desde 5,20 €/ud.",
     "priceDetail": "100+ uds. · Hasta 15 cm · Sin IGIC",
     "table": {
-      "caption": "Precios unitarios sin impuestos",
+      "caption": "Precios unitarios sin IGIC",
       "head": [
         "Cantidad",
         "Hasta 15 cm",
@@ -1845,7 +1843,7 @@ export const medalProduct: StaticProductData = {
   "priceLead": "Desde 1,55 €/ud.",
   "priceDetail": "1.000+ uds. · Cinta lisa · Sin IGIC",
   "table": {
-    "caption": "Precios unitarios sin impuestos",
+    "caption": "Precios unitarios sin IGIC",
     "head": [
       "Cantidad",
       "Cinta lisa",

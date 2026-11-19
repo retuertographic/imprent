@@ -31,6 +31,10 @@ export function SiteHeader() {
   const menuToggleRef = useRef<HTMLButtonElement>(null);
   const searchToggleRef = useRef<HTMLButtonElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const moreToggleRef = useRef<HTMLButtonElement>(null);
+  const panelButtonRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+  // Botones candidatos a recibir el foco tras cerrar con Escape (se usa el primero visible).
+  const pendingFocus = useRef<(HTMLElement | null | undefined)[] | null>(null);
 
   const closeAll = () => {
     setMenuOpen(false);
@@ -62,6 +66,31 @@ export function SiteHeader() {
     if (searchOpen) searchInputRef.current?.focus();
   }, [searchOpen]);
 
+  // Tras cerrar con Escape, el foco vuelve al botón que abrió el panel si sigue visible
+  // (en móvil el botón de categoría queda oculto al cerrar el menú: se usa la hamburguesa).
+  useEffect(() => {
+    const candidates = pendingFocus.current;
+    if (!candidates) return;
+    pendingFocus.current = null;
+    candidates.find((el) => el && el.getClientRects().length > 0)?.focus();
+  });
+
+  const onEscape = () => {
+    const menuToggle = menuToggleRef.current;
+    if (panel && menuOpen) {
+      // Menú móvil con una categoría desplegada: se pliega solo la categoría.
+      setPanel(null);
+      pendingFocus.current = [panelButtonRefs.current[panel], menuToggle];
+      return;
+    }
+    if (panel) pendingFocus.current = [panelButtonRefs.current[panel], menuToggle];
+    else if (searchOpen) pendingFocus.current = [searchToggleRef.current, searchInputRef.current];
+    else if (moreOpen) pendingFocus.current = [moreToggleRef.current];
+    else if (menuOpen) pendingFocus.current = [menuToggle];
+    else return;
+    closeAll();
+  };
+
   const pauseLabel = `${paused ? "Activar" : "Pausar"} animaciones`;
 
   return (
@@ -73,11 +102,12 @@ export function SiteHeader() {
         className="catalog-header"
         ref={headerRef}
         onKeyDown={(event) => {
-          if (event.key === "Escape") {
-            const wasSearch = searchOpen;
-            closeAll();
-            (wasSearch ? searchToggleRef.current : menuToggleRef.current)?.focus();
-          }
+          if (event.key === "Escape") onEscape();
+        }}
+        onBlur={(event) => {
+          // Si el foco sale de la cabecera (Tab fuera del panel), se cierran los paneles abiertos.
+          const next = event.relatedTarget;
+          if (next instanceof Node && !event.currentTarget.contains(next)) closeAll();
         }}
       >
         <div className="ch-main ch-inner">
@@ -99,6 +129,9 @@ export function SiteHeader() {
                   {category.links ? (
                     <>
                       <button
+                        ref={(el) => {
+                          panelButtonRefs.current[category.name] = el;
+                        }}
                         aria-expanded={panel === category.name}
                         aria-controls={`ch-panel-${index}`}
                         className={isCurrent(category.href) ? "ch-current" : ""}
@@ -177,6 +210,7 @@ export function SiteHeader() {
             </button>
             <button
               className="ch-icon ch-more-toggle"
+              ref={moreToggleRef}
               aria-label="Más sobre Seritene"
               aria-expanded={moreOpen}
               onClick={() => {

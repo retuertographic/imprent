@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
-import { asset, contact, whatsappLinks } from "./content";
+import { asset, contact, mapsUrl, whatsappLinks } from "./content";
 import { BrandCta } from "./BrandCta";
 import { SiteLink } from "./SiteLink";
 
@@ -70,7 +70,16 @@ export function SiteFooter() {
             <strong>Hablemos</strong>
             <a href={`tel:${contact.phone}`}>{contact.displayPhone}</a>
             <a href={`mailto:${contact.email}`}>{contact.email}</a>
-            <span>Tenerife · Islas Canarias</span>
+            <a href={mapsUrl} target="_blank" rel="noreferrer" className="footer-address">
+              <address>
+                {contact.address.street}
+                <br />
+                {contact.address.postalCode} {contact.address.locality}
+                <br />
+                {contact.address.region}
+              </address>
+              <span className="sr-only"> (ver en Google Maps)</span>
+            </a>
             <a href={contact.whatsapp} target="_blank" rel="noreferrer">
               Escríbenos por WhatsApp
             </a>
@@ -100,7 +109,7 @@ export function SiteFooter() {
         aria-label="Seribot: abre el asistente para encontrar tu producto"
         title="Encuentra lo que necesitas en cuatro preguntas"
       >
-        <img src={asset("/seribot-floating.webp")} alt="" aria-hidden="true" width={88} height={88} />
+        <img src={asset("/seribot-floating-176.webp")} alt="" aria-hidden="true" width={88} height={88} loading="lazy" />
         <span>¿Te ayudo?</span>
       </SiteLink>
     </>

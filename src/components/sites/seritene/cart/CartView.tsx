@@ -1,14 +1,15 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { ArrowRight, Copy, Download, MessageCircle, ShoppingCart, Trash2 } from "lucide-react";
-import { asset } from "../content";
+import { ArrowRight, Copy, Download, Mail, MessageCircle, ShoppingCart, Trash2 } from "lucide-react";
+import { asset, contact, logoHint, orderSteps, typicalLeadTime } from "../content";
 import { SiteLink } from "../SiteLink";
 import {
   LONG_MESSAGE,
   LONG_MESSAGE_TEXT,
   cartMessage,
   cartSummary,
+  emailOrder,
   formatEuro,
   hasExpiredFiles,
   whatsappUrl,
@@ -46,7 +47,7 @@ function CartLine({ item, onRemove, onQuantity, onAnnounce }: LineProps) {
           <h2>{item.name}</h2>
         </SiteLink>
         <QuantityEditor item={item} onApply={onQuantity} onAnnounce={onAnnounce} />
-        <strong>{item.subtotal === null ? "A consultar" : formatEuro(item.subtotal)}</strong>
+        <strong>{item.subtotal === null ? "A presupuestar" : formatEuro(item.subtotal)}</strong>
         <details>
           <summary>Ver selección</summary>
           <p className="cart-details">{item.details}</p>
@@ -110,6 +111,27 @@ function ClearCart({ count, onClear }: { count: number; onClear: () => void }) {
   );
 }
 
+/** «Qué pasa después» (mejora propia): pasos tras enviar la solicitud y cómo mandar el logo. */
+function OrderNextSteps() {
+  return (
+    <section className="cart-next" aria-labelledby="cart-next-title">
+      <h3 id="cart-next-title">Qué pasa después</h3>
+      <ol>
+        {orderSteps.map((step) => (
+          <li key={step.title}>
+            <strong>{step.title}</strong>
+            <span>{step.text}</span>
+          </li>
+        ))}
+      </ol>
+      {typicalLeadTime && <p className="cart-next-lead">Plazo típico: {typicalLeadTime}.</p>}
+      <p className="cart-next-logo">
+        <strong>{logoHint.title}:</strong> {logoHint.text}
+      </p>
+    </section>
+  );
+}
+
 /** Página /carrito/ (portada del componente `CartView` de seritene.com). */
 export function CartView() {
   const { cart, ready, error, update } = useCart();
@@ -121,6 +143,7 @@ export function CartView() {
   const isLong = message.length > LONG_MESSAGE;
   const hasExpired = hasExpiredFiles(cart);
   const whatsapp = whatsappUrl(isLong ? LONG_MESSAGE_TEXT : message);
+  const email = emailOrder(message);
 
   function download() {
     const url = URL.createObjectURL(new Blob([message], { type: "text/plain;charset=utf-8" }));
@@ -129,7 +152,7 @@ export function CartView() {
     link.download = "pedido-seritene.txt";
     link.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
-    setStatus("Resumen descargado. Puedes adjuntarlo en WhatsApp.");
+    setStatus("Resumen descargado. Puedes adjuntarlo en WhatsApp o en tu email.");
   }
 
   async function copy() {
@@ -246,24 +269,35 @@ export function CartView() {
               <p className="cart-small">6 € por pedido · Gratis desde 199 €.</p>
               <div className="cart-grand">
                 <span>Total orientativo</span>
-                <strong>{summary.total === null ? "A confirmar" : formatEuro(summary.total)}</strong>
+                <strong>{summary.total === null ? "A presupuestar" : formatEuro(summary.total)}</strong>
               </div>
               {summary.pending && (
                 <p>Hay productos pendientes de presupuesto. El subtotal solo suma los que tienen precio.</p>
               )}
               <p className="cart-small">
-                Sin impuestos. Confirmamos precios, disponibilidad, diseño y plazo por WhatsApp. No se realiza ningún
+                Sin IGIC. Confirmamos precios, disponibilidad, diseño y plazo por WhatsApp. No se realiza ningún
                 cobro.
               </p>
               {hasExpired && (
                 <p className="order-error">Algún archivo adjunto ha caducado. Vuelve a enviarlo por WhatsApp.</p>
               )}
-              {isLong && (
-                <p>Tu selección es extensa. Descarga el resumen y adjúntalo en WhatsApp para enviarlo completo.</p>
+              {isLong ? (
+                <p>Tu selección es extensa. Descarga el resumen y adjúntalo en WhatsApp o en el email para enviarlo completo.</p>
+              ) : (
+                email.isLong && (
+                  <p className="cart-small">
+                    Si lo envías por email, pulsa «Descargar» y adjunta el resumen: es demasiado largo para el mensaje.
+                  </p>
+                )
               )}
               <a className="brand-button" href={whatsapp} target="_blank" rel="noreferrer">
                 <MessageCircle size={19} />
                 Solicitar pedido por WhatsApp
+              </a>
+              <a className="cart-email" href={email.url}>
+                <Mail size={17} />
+                Enviar por email
+                <span className="sr-only"> a {contact.email}</span>
               </a>
               <div className="cart-export">
                 <button type="button" onClick={copy}>
@@ -276,6 +310,7 @@ export function CartView() {
                 </button>
               </div>
               <p role="status">{status}</p>
+              <OrderNextSteps />
             </aside>
           </div>
         ) : (

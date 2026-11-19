@@ -284,3 +284,96 @@
     text-overflow: ellipsis;
   }
 }
+
+/* «Enviar por email»: alternativa secundaria a WhatsApp (contorno, mismo ancho que el botón principal). */
+.cart-email {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 46px;
+  margin-top: 10px;
+  padding: 11px 12px;
+  color: var(--brand-ink);
+  background: #fff;
+  border: 1px solid #b9c7b1;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.cart-email:hover {
+  border-color: var(--brand-ink);
+}
+
+.cart-email:focus-visible {
+  outline: 2px solid var(--brand-ink);
+  outline-offset: 2px;
+}
+
+/* «Qué pasa después»: pasos numerados al final del resumen. */
+.cart-next {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid #dce4d6;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.cart-next h3 {
+  margin: 0 0 12px;
+  font-size: 15px;
+}
+
+.cart-next ol {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: cart-next;
+}
+
+.cart-next li {
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  column-gap: 10px;
+  counter-increment: cart-next;
+}
+
+.cart-next li::before {
+  content: counter(cart-next);
+  grid-row: span 2;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  color: #fff;
+  background: #2f7d1d;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.cart-next li span,
+.cart-next-lead {
+  color: #4f5c49;
+}
+
+.cart-next-logo {
+  margin: 14px 0 0;
+  padding: 10px 12px;
+  background: #fff;
+  border: 1px solid #dce4d6;
+  border-radius: 12px;
+}
+
+/* Con el bloque de pasos el resumen puede superar la altura de la ventana: se desplaza por dentro
+   en lugar de quedar cortado mientras está fijo (sticky). */
+@media (min-width: 761px) {
+  .cart-summary {
+    max-height: calc(100vh - 130px);
+    overflow-y: auto;
+  }
+}

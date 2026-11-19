@@ -16,11 +16,12 @@ export function ServicePage({ page }: { page: ServicePageData }) {
       <Breadcrumbs items={[{ label: page.crumb }]} />
       <section className={`service-hero wrap ${page.dark ? "service-hero-dark" : ""}`}>
         <div>
-          <p className="eyebrow">{page.eyebrow}</p>
-          <h1>
+          {/* H1 descriptivo con aspecto de antetítulo; el lema conserva el aspecto del antiguo H1. */}
+          <h1 className="eyebrow kw-kicker">{page.h1}</h1>
+          <p className="kw-slogan">
             <span>{page.title[0]}</span>
             <em>{page.title[1]}</em>
-          </h1>
+          </p>
           <p>{page.intro}</p>
           <SiteLink className="brand-button" href="/contacto/">
             Pedir asesoramiento <Plus size={17} />

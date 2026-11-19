@@ -10,7 +10,8 @@ import { ProductDelivery } from "../soportes/ProductDelivery";
 import { Input, NativeSelect, NativeSelectOption } from "../soportes/form-controls";
 import { hasDailyPricing, loadModelPricing, type ModelPricing } from "./loadPricing";
 import { merchOrder, OVER_STOCK, stockStatus, withModelPricing } from "./order";
-import { MARK_SIZES, choiceMarks, markGroups, markingOptions, productSummary, type Marking } from "./pricing";
+import { MARK_SIZES, choiceMarks, markGroups, markingOptions, productSummary, volumeTiers, type Marking } from "./pricing";
+import { VolumeTiers } from "./VolumeTiers";
 import type { Brand, MerchProduct, MerchVariant, ProductContext } from "./types";
 
 type Props = {
@@ -30,6 +31,18 @@ type Selection = { id: number; sku: string; quantity: string };
  * se resuelven al pintarlas y se guardan tal cual en el carrito, como en producción.
  */
 const imageSrc = (src: string) => (src.startsWith("/") ? asset(src) : src);
+
+/** Tipos de artículo (de `markingOptions`) que son prendas: «talla» y «prenda»; el resto, «variante» y «producto». */
+const GARMENT_KINDS = new Set(["camiseta", "polo", "sudadera", "prenda-superior", "pantalon", "conjunto", "gorra"]);
+
+/** Talla o variante real (no «TALLA ÚNICA ADULTO», «UNICA»…). */
+const realSize = (size: string | null | undefined) => !!size && !/^(?:talla )?[uú]nica\b/i.test(size.trim());
+
+/** Técnica de marcaje tal como se explica al cliente. */
+const TECHNIQUES: Record<string, string> = {
+  DTF: "DTF: impresión a todo color, rentable desde 1 unidad",
+  "DTF UV": "DTF UV: logo a todo color para superficies rígidas",
+};
 
 /**
  * Ficha de producto de proveedor: merchandising (Stamina) y ropa (Roly, JHK). Portado del componente
@@ -79,6 +92,14 @@ export function ShopProduct({ brand: brandProp, model, product, warehouse, price
           ? ["A6", "A5"]
           : ["A6", "A5", "A4", "A3"];
   const [askLogo, setAskLogo] = useState(false);
+  // Mejora propia: el paso de personalización empieza abierto si el artículo admite marcaje.
+  const [markingOpen, setMarkingOpen] = useState(positions.length > 0);
+  const isGarment = brandProp !== "stamina" || GARMENT_KINDS.has(options.kind);
+  const item = isGarment ? "la prenda" : "el producto";
+  const hasSizes = p.variants.some((v) => realSize(v.size));
+  const showSizeSelect = hasSizes || p.colors.some((c) => p.variants.filter((v) => v.color === c).length > 1);
+  const sizeLabel = isGarment ? "Talla" : "Variante";
+  const techniques = [...new Set(marks.map((m) => m.technique))];
   const [nextRowId, setNextRowId] = useState(2);
   const [allColors, setAllColors] = useState(false);
   const [notes, setNotes] = useState("");
@@ -97,6 +118,9 @@ export function ShopProduct({ brand: brandProp, model, product, warehouse, price
     delivery,
     pricingLoading,
   });
+
+  // Mejora propia: precio por unidad en cada tramo de cantidad para la primera selección y los marcajes elegidos.
+  const tiers = pricingLoading || askLogo || !rows[0] ? [] : volumeTiers(p, rows[0].sku, marks);
 
   const selectColor = (rowId: number, color: string, from: MerchVariant | undefined) => {
     const v = p.variants.find((x) => x.color === color && x.size === from?.size) || p.variants.find((x) => x.color === color);
@@ -181,7 +205,14 @@ export function ShopProduct({ brand: brandProp, model, product, warehouse, price
             <p className="shop-product-summary">{productSummary(p)}</p>
             <section className="shop-step">
               <h2>
-                <span>01</span> {options.kind === "placa" ? "Modelo y cantidad" : "Color, talla y cantidad"}
+                <span>01</span>{" "}
+                {options.kind === "placa"
+                  ? "Modelo y cantidad"
+                  : isGarment
+                    ? "Color, talla y cantidad"
+                    : showSizeSelect
+                      ? "Color, variante y cantidad"
+                      : "Color y cantidad"}
               </h2>
               <p className="shop-selected-color">
                 Color: <strong>{current?.color || "Único"}</strong>
@@ -249,10 +280,11 @@ export function ShopProduct({ brand: brandProp, model, product, warehouse, price
                           )}
                         </NativeSelect>
                       </label>
+                      {showSizeSelect && (
                       <label>
-                        {brand === "stamina" ? "Formato" : "Talla"}
+                        {sizeLabel}
                         <NativeSelect
-                          aria-label={`Talla de la selección ${index + 1}`}
+                          aria-label={`${sizeLabel} de la selección ${index + 1}`}
                           value={row.sku}
                           onChange={(e) => updateRow(row.id, { sku: e.target.value })}
                         >
@@ -263,6 +295,7 @@ export function ShopProduct({ brand: brandProp, model, product, warehouse, price
                           ))}
                         </NativeSelect>
                       </label>
+                      )}
                       <label>
                         Unidades
                         <Input
@@ -301,11 +334,13 @@ export function ShopProduct({ brand: brandProp, model, product, warehouse, price
                   className="shop-add"
                   disabled={rows.length >= 30}
                   onClick={() => {
-                    setRows((list) => [...list, { id: nextRowId, sku: p.variants[0].sku, quantity: "1" }]);
+                    // Mejora propia: la fila nueva copia el color y la talla de la anterior.
+                    setRows((list) => [...list, { id: nextRowId, sku: list[list.length - 1]?.sku || p.variants[0].sku, quantity: "1" }]);
                     setNextRowId((n) => n + 1);
                   }}
                 >
-                  <Plus size={17} /> Añadir otra talla o color
+                  <Plus size={17} />{" "}
+                  {isGarment ? "Añadir otra talla o color" : showSizeSelect ? "Añadir otra variante o color" : "Añadir otro color"}
                 </button>
               )}
               {quantityError && (
@@ -313,9 +348,27 @@ export function ShopProduct({ brand: brandProp, model, product, warehouse, price
                   {quantityError}
                 </p>
               )}
+              {tiers.length > 0 && current && (
+                <VolumeTiers
+                  tiers={tiers}
+                  quantity={quote?.quantity ?? null}
+                  detail={[
+                    rows.length > 1 ? "Para la primera selección" : "",
+                    current.color,
+                    realSize(current.size) ? current.size : "",
+                    marks.length ? `${marks.length} ${marks.length === 1 ? "marcaje incluido" : "marcajes incluidos"}` : "sin marcaje",
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")}
+                />
+              )}
             </section>
             <section className="shop-step shop-simple-markings">
-              <details className="shop-marking-disclosure">
+              <details
+                className="shop-marking-disclosure"
+                open={markingOpen}
+                onToggle={(e) => setMarkingOpen(e.currentTarget.open)}
+              >
                 <summary>
                   <span>
                     <b>02</b>
@@ -324,8 +377,10 @@ export function ShopProduct({ brand: brandProp, model, product, warehouse, price
                       {askLogo
                         ? "Marcaje a consultar"
                         : marks.length
-                          ? marks.map((m) => m.position + " · " + m.size).join(" / ")
-                          : "Sin logo · Abre para añadir tu marcaje"}
+                          ? marks.map((m) => `${m.position} · ${m.technique === "DTF UV" ? m.technique : `${m.size} · ${m.technique}`}`).join(" / ")
+                          : positions.length
+                            ? "Sin logo · Añade tu marcaje"
+                            : "Sin logo · Abre para añadir tu marcaje"}
                     </small>
                   </span>
                   <Plus size={20} />
@@ -335,6 +390,13 @@ export function ShopProduct({ brand: brandProp, model, product, warehouse, price
                     {options.kind === "conjunto"
                       ? "Elige qué prendas personalizar. Cada marcaje se aplica a todos los conjuntos."
                       : "Cada fila cuenta como un marcaje. Se aplica a todas las unidades."}
+                    {positions.length > 0 && (
+                      <>
+                        {" "}
+                        Técnica{" "}
+                        {[...new Set(positions.map((z) => z.technique))].map((t) => TECHNIQUES[t] ?? t).join(" · ")}.
+                      </>
+                    )}
                   </p>
                   {groups.map(({ garment, zones }) => {
                     const label = (position: string) => (garment ? position.slice(garment.length + 3) : position);
@@ -392,7 +454,7 @@ export function ShopProduct({ brand: brandProp, model, product, warehouse, price
                                     ))}
                                   </NativeSelect>
                                   <span className="shop-mark-size-value" aria-hidden="true">
-                                    <strong>{m.technique === "DTF UV" ? "Logo a color" : m.size}</strong>
+                                    <strong>{m.technique === "DTF UV" ? "Logo a color" : `${m.size} · ${m.technique}`}</strong>
                                     {m.technique !== "DTF UV" && <span>hasta {MARK_SIZES.find((x) => x.code === m.size)?.dimensions}</span>}
                                   </span>
                                 </span>
@@ -423,7 +485,11 @@ export function ShopProduct({ brand: brandProp, model, product, warehouse, price
                               setAskLogo(false);
                             }}
                           >
-                            <Plus size={17} /> {garment ? `Añadir marcaje de ${garment.toLocaleLowerCase("es")}` : "Añadir otro marcaje"}
+                            <Plus size={17} /> {garment
+                              ? `Añadir marcaje de ${garment.toLocaleLowerCase("es")}`
+                              : marks.length
+                                ? "Añadir otro marcaje"
+                                : "Añadir marcaje"}
                           </button>
                         )}
                       </div>
@@ -451,7 +517,8 @@ export function ShopProduct({ brand: brandProp, model, product, warehouse, price
                   )}
                   {marks.length > 0 && (
                     <p className="shop-fineprint">
-                      Impresión a color. Revisamos que el tamaño elegido encaje en la prenda antes de producir. Diseño gráfico no incluido.
+                      {techniques.map((t) => TECHNIQUES[t] ?? t).join(" · ")}. Revisamos que el tamaño elegido encaje en {item} antes de
+                      producir. Diseño gráfico no incluido.
                     </p>
                   )}
                   {marks.length > 0 && quote && marks.some((m) => m.technique === "DTF UV") && quote.quantity > 1000 && (
@@ -492,7 +559,7 @@ export function ShopProduct({ brand: brandProp, model, product, warehouse, price
                 <strong>{money(shipping?.total)}</strong>
               </div>
               <ProductDelivery subtotal={subtotal} selected={delivery} onChange={setDelivery} />
-              <p>Sin impuestos ni diseño gráfico. No es un pedido confirmado.</p>
+              <p>Sin IGIC ni diseño gráfico. No es un pedido confirmado.</p>
               <details className="product-notes">
                 <summary>Añadir una nota al pedido</summary>
                 <label>
@@ -528,6 +595,11 @@ export function ShopProduct({ brand: brandProp, model, product, warehouse, price
                     askLogo,
                     notes,
                     delivery,
+                  }}
+                  sticky={{
+                    total: money(shipping?.total),
+                    detail: `${quote.quantity} ${quote.quantity === 1 ? "unidad" : "unidades"}`,
+                    panel: ".shop-price-panel",
                   }}
                 />
               ) : (
