@@ -1,7 +1,7 @@
 "use client";
 /* eslint-disable @next/next/no-img-element */
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Check, Plus, Trash2, X } from "lucide-react";
 import { asset } from "../content";
 import { SiteLink } from "../SiteLink";
@@ -11,6 +11,7 @@ import { Input, NativeSelect, NativeSelectOption } from "../soportes/form-contro
 import { hasDailyPricing, loadModelPricing, type ModelPricing } from "./loadPricing";
 import { merchOrder, OVER_STOCK, stockStatus, withModelPricing } from "./order";
 import { MARK_SIZES, choiceMarks, markGroups, markingOptions, productSummary, volumeTiers, type Marking } from "./pricing";
+import type { ProductHeading } from "./productSeo";
 import { VolumeTiers } from "./VolumeTiers";
 import type { Brand, MerchProduct, MerchVariant, ProductContext } from "./types";
 
@@ -22,6 +23,10 @@ type Props = {
   warehouse: string;
   priceNotice?: string;
   context?: ProductContext;
+  /** H1 SEO («Camiseta personalizada» + «Roly Assen»); sin él, el nombre del modelo como en producción. */
+  heading?: ProductHeading;
+  /** Bloques de servidor al final de la ficha (productos relacionados). */
+  children?: ReactNode;
 };
 
 type Selection = { id: number; sku: string; quantity: string };
@@ -50,7 +55,7 @@ const TECHNIQUES: Record<string, string> = {
  * al cargar (salvo JHK); aquí salen de merch-pricing.json / roly-pricing.json, que el workflow de deploy
  * refresca cada noche.
  */
-export function ShopProduct({ brand: brandProp, model, product, warehouse, priceNotice = "", context }: Props) {
+export function ShopProduct({ brand: brandProp, model, product, warehouse, priceNotice = "", context, heading, children }: Props) {
   const daily = hasDailyPricing(brandProp);
   const [stock, setStock] = useState<Record<string, number>>({});
   const [overrides, setOverrides] = useState<ModelPricing["pricing"]>({});
@@ -148,60 +153,22 @@ export function ShopProduct({ brand: brandProp, model, product, warehouse, price
             {priceNotice}
           </p>
         )}
+        {/* Mejora propia: columna de opciones (H1) primero en el HTML; la foto se coloca delante con CSS (product-seo.css). */}
         <div className="shop-product-layout">
-          <div className="shop-product-visual">
-            <div className="shop-main-photo">
-              {current?.image || p.image ? (
-                <img
-                  src={imageSrc(current?.image || p.image)}
-                  alt={[p.name, productSummary(p), current?.color].filter(Boolean).join(" · ")}
-                  width="700"
-                  height="800"
-                  fetchPriority="high"
-                  referrerPolicy="no-referrer"
-                />
-              ) : (
-                <span>Imagen no disponible</span>
-              )}
-              <span>Tu próximo favorito.</span>
-            </div>
-            <details className="shop-product-details product-info-details">
-              <summary>Ficha técnica y composición</summary>
-              <p>{p.description.replace(/<[^>]*>/g, " ")}</p>
-              {p.composition && (
-                <p>
-                  <b>Composición</b>
-                  <br />
-                  {p.composition.replace(/<[^>]*>/g, " ")}
-                </p>
-              )}
-              {context && (
-                <>
-                  {context.buyingGuide && (
-                    <p>
-                      <b>Antes de elegir</b>
-                      <br />
-                      {context.buyingGuide}
-                    </p>
-                  )}
-                  <p>{context.personalization}</p>
-                  <p>{context.local}</p>
-                  <ul>
-                    {context.links.map((l) => (
-                      <li key={l.path}>
-                        <SiteLink href={l.path}>{l.name}</SiteLink>
-                      </li>
-                    ))}
-                  </ul>
-                </>
-              )}
-            </details>
-          </div>
           <div className="shop-product-options">
             <span className="eyebrow">
               {brand.toUpperCase()} · REF. {p.code}
             </span>
-            <h1>{p.name}</h1>
+            {/* Mejora propia: H1 con tipo de producto y marca; el texto de carga y el configurador van después. */}
+            <h1>
+              {heading ? (
+                <>
+                  <span className="shop-h1-kind">{heading.kind}</span> {heading.model}
+                </>
+              ) : (
+                p.name
+              )}
+            </h1>
             <p className="shop-product-summary">{productSummary(p)}</p>
             <section className="shop-step">
               <h2>
@@ -610,8 +577,57 @@ export function ShopProduct({ brand: brandProp, model, product, warehouse, price
               <p>Se abre WhatsApp con tu selección.</p>
             </section>
           </div>
+          <div className="shop-product-visual">
+            <div className="shop-main-photo">
+              {current?.image || p.image ? (
+                <img
+                  src={imageSrc(current?.image || p.image)}
+                  alt={[p.name, productSummary(p), current?.color].filter(Boolean).join(" · ")}
+                  width="700"
+                  height="800"
+                  fetchPriority="high"
+                  referrerPolicy="no-referrer"
+                />
+              ) : (
+                <span>Imagen no disponible</span>
+              )}
+              <span>Tu próximo favorito.</span>
+            </div>
+            <details className="shop-product-details product-info-details">
+              <summary>Ficha técnica y composición</summary>
+              <p>{p.description.replace(/<[^>]*>/g, " ")}</p>
+              {p.composition && (
+                <p>
+                  <b>Composición</b>
+                  <br />
+                  {p.composition.replace(/<[^>]*>/g, " ")}
+                </p>
+              )}
+              {context && (
+                <>
+                  {context.buyingGuide && (
+                    <p>
+                      <b>Antes de elegir</b>
+                      <br />
+                      {context.buyingGuide}
+                    </p>
+                  )}
+                  <p>{context.personalization}</p>
+                  <p>{context.local}</p>
+                  <ul>
+                    {context.links.map((l) => (
+                      <li key={l.path}>
+                        <SiteLink href={l.path}>{l.name}</SiteLink>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
+            </details>
+          </div>
         </div>
       </div>
+      {children}
     </main>
   );
 }

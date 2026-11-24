@@ -1,0 +1,53 @@
+/* Fichas de producto de proveedor (/producto/…): H1 con tipo de producto, orden de columnas y productos relacionados. */
+
+/* La columna de opciones (con el H1) va primero en el HTML; la foto se sigue viendo delante. */
+.shop-product .shop-product-layout > .shop-product-visual {
+  order: -1;
+}
+
+/* «Camiseta personalizada» encima del modelo: el modelo conserva el tamaño y estilo del H1 original. */
+.shop-product .shop-product-options h1 {
+  overflow-wrap: break-word;
+}
+.shop-product .shop-product-options h1 .shop-h1-kind {
+  display: block;
+  margin-bottom: 0.14em;
+  font-size: max(19px, 0.42em);
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+}
+
+.shop-product .product-related {
+  display: grid;
+  gap: 56px;
+  padding-top: 72px;
+  padding-bottom: 16px;
+}
+.shop-product .product-related-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 20px;
+  margin-bottom: 24px;
+}
+.shop-product .product-related-head h2 {
+  margin: 0;
+  font-size: clamp(28px, 3vw, 42px);
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+}
+.shop-product .product-related-head .text-cta {
+  margin-top: 0;
+}
+@media (min-width: 1001px) {
+  .shop-product .product-related .shop-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+@media (max-width: 760px) {
+  .shop-product .product-related {
+    gap: 44px;
+    padding-top: 52px;
+  }
+}
