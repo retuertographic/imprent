@@ -2,6 +2,7 @@
 import { asset } from "../content";
 import { SiteLink } from "../SiteLink";
 import { formatCents, productImage, productPath } from "./catalog";
+import { cardImageProps } from "./imageSizes";
 import type { CardItem } from "./types";
 
 /**
@@ -30,7 +31,7 @@ export function ShopCard({
       <SiteLink className="shop-card-photo" data-brand={b} href={href}>
         {item.image ? (
           <img
-            src={productImage(item.image)}
+            {...cardImageProps(item.image, productImage)}
             alt={`${item.name} · ${item.description}`}
             width={500}
             height={500}

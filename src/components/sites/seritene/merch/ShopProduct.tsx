@@ -5,6 +5,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { Check, Plus, Trash2, X } from "lucide-react";
 import { asset } from "../content";
 import { SiteLink } from "../SiteLink";
+import { firstImage, swatchImageSrc } from "../shop/imageSizes";
 import { OrderActions } from "../soportes/OrderActions";
 import { ProductDelivery } from "../soportes/ProductDelivery";
 import { Input, NativeSelect, NativeSelectOption } from "../soportes/form-controls";
@@ -35,7 +36,9 @@ type Selection = { id: number; sku: string; quantity: string };
  * Las fotos de JHK son rutas de seritene.com (`/images/jhk/…`, copiadas en public/sites/seritene/):
  * se resuelven al pintarlas y se guardan tal cual en el carrito, como en producción.
  */
-const imageSrc = (src: string) => (src.startsWith("/") ? asset(src) : src);
+const resolveImage = (src: string) => (src.startsWith("/") ? asset(src) : src);
+/** Foto principal: la original (`large`). Algunas variantes traen varias URL separadas por comas. */
+const imageSrc = (src: string) => resolveImage(firstImage(src));
 
 /** Tipos de artículo (de `markingOptions`) que son prendas: «talla» y «prenda»; el resto, «variante» y «producto». */
 const GARMENT_KINDS = new Set(["camiseta", "polo", "sudadera", "prenda-superior", "pantalon", "conjunto", "gorra"]);
@@ -201,7 +204,7 @@ export function ShopProduct({ brand: brandProp, model, product, warehouse, price
                         <span>
                           {image && (
                             <img
-                              src={imageSrc(image)}
+                              src={swatchImageSrc(image, resolveImage)}
                               alt=""
                               aria-hidden="true"
                               width="60"
