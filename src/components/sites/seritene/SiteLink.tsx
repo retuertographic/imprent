@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { AnchorHTMLAttributes, ReactNode } from "react";
 import { ext } from "./content";
-import { isLocalRoute } from "./routes";
+import { isLocalRoute, resolveRedirect } from "./routes";
 
 type Props = Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "href"> & {
   href: string;
@@ -11,8 +11,10 @@ type Props = Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "href"> & {
 /**
  * Enlace del sitio: ruta local (con basePath) si la página está clonada;
  * si no, la misma ruta en seritene.com. URLs absolutas, mailto: y tel: pasan tal cual.
+ * Las rutas retiradas (`REDIRECTS`) se enlazan directamente a su destino.
  */
-export function SiteLink({ href, children, ...rest }: Props) {
+export function SiteLink({ href: rawHref, children, ...rest }: Props) {
+  const href = resolveRedirect(rawHref);
   if (href.startsWith("/") && isLocalRoute(href)) {
     return (
       <Link href={href} {...rest}>

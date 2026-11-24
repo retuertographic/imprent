@@ -217,6 +217,78 @@ export function quoteOrder<T extends Marking>(
   return { ...quote, issues: [...new Set(issues)] };
 }
 
+// --- tabla de precios por cantidad (mejora propia) ----------------------------------------------
+
+export type VolumeTier = {
+  /** Primera cantidad del tramo. */
+  from: number;
+  /** Última cantidad del tramo (`null` = sin límite superior en la tabla). */
+  to: number | null;
+  /** Precio por unidad (producto + marcajes), en céntimos sin redondear, como el «Precio unitario» de la ficha. */
+  unitCents: number;
+  /** Ahorro frente al primer tramo, en % entero. */
+  savings: number;
+};
+
+/**
+ * Precio por unidad de una variante en cada cantidad donde cambia el precio: descuento por cantidad
+ * (`QUANTITY_DISCOUNTS`), tramos del marcaje (`MARK_BREAKS`) y pack, caja o rangos de la tarifa del proveedor.
+ * Usa `quoteOrder`, así que cada fila es exactamente lo que calcula la ficha con esa cantidad. Vacío si la
+ * variante no tiene precio (tarifa pendiente, «A presupuestar») o si solo queda un tramo.
+ */
+export function volumeTiers<T extends Marking>(product: Pick<MerchProduct, "variants">, sku: string, marks: T[]): VolumeTier[] {
+  const v = product.variants.find((x) => x.sku === sku);
+  if (!v) return [];
+  const max = QUANTITY_DISCOUNTS[QUANTITY_DISCOUNTS.length - 1].max;
+  const minimum = Math.max(1, v.packaging?.minimum ?? 1);
+  const multiple = Math.max(1, v.packaging?.multiple ?? 1);
+  const breaks = [
+    ...QUANTITY_DISCOUNTS.map((r) => r.min),
+    ...(marks.length ? MARK_BREAKS : []),
+    // El marcaje DTF UV solo tiene tarifa hasta 1.000 uds.: la tabla termina ahí.
+    ...(marks.some((m) => m.technique === "DTF UV") ? [MARK_BREAKS[MARK_BREAKS.length - 1] + 1] : []),
+    v.packaging?.pack,
+    v.packaging?.box,
+    ...(v.tariff?.rangeMinimums ?? []),
+  ]
+    .filter((q): q is number => typeof q === "number" && Number.isInteger(q) && q > 0)
+    .map((q) => Math.max(minimum, Math.ceil(q / multiple) * multiple));
+  const quantities = [...new Set(breaks)].filter((q) => q <= max).sort((a, b) => a - b);
+  const priced: { from: number; unitCents: number }[] = [];
+  // Primera cantidad sin precio después del último tramo (p. ej. DTF UV por encima de 1.000 uds.): cierra la tabla.
+  let stop: number | null = null;
+  const fail = (quantity: number) => {
+    if (priced.length && stop === null) stop = quantity;
+  };
+  for (const quantity of quantities) {
+    try {
+      const quote = quoteOrder(product, [{ sku, quantity }], marks);
+      const line = quote.lines[0];
+      if (quote.issues.length || line?.unitCents == null || quote.markingCents === null) {
+        fail(quantity);
+        continue;
+      }
+      stop = null;
+      const unitCents = line.unitCents + quote.markingCents / quantity;
+      // Solo las cantidades donde baja el precio (dos cortes con el mismo precio son un solo tramo).
+      if (!priced.length || Math.round(unitCents) < Math.round(priced[priced.length - 1].unitCents)) {
+        priced.push({ from: quantity, unitCents });
+      }
+    } catch {
+      // Cantidad no válida para esta variante (mínimo, rentabilidad…): se omite.
+      fail(quantity);
+    }
+  }
+  if (priced.length < 2) return [];
+  const base = priced[0].unitCents;
+  return priced.map((t, i) => ({
+    from: t.from,
+    to: i + 1 < priced.length ? priced[i + 1].from - 1 : stop === null ? null : stop - 1,
+    unitCents: t.unitCents,
+    savings: Math.round((1 - t.unitCents / base) * 100),
+  }));
+}
+
 // --- shop-product: zonas de marcaje -----------------------------------------------------------
 
 export type MarkChoice = {

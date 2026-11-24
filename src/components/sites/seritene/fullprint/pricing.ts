@@ -5,6 +5,7 @@
  */
 import { contact } from "../content";
 import type { FullprintModel } from "./types";
+import { formatUnits } from "../units";
 
 export const formatEuros = (cents: number) =>
   new Intl.NumberFormat("es-ES", { style: "currency", currency: "EUR" }).format(cents / 100);
@@ -88,7 +89,7 @@ export function orderMessage(product: FullprintModel, s: Selection, price: Price
   return [
     `Hola Seritene, quiero presupuesto de ${product.name}.`,
     `Opción: ${variant.label}.`,
-    `Cantidad: ${formatNumber(s.quantity)} unidades.`,
+    `Cantidad: ${formatUnits(s.quantity)}.`,
     attachment ? `Enganche: ${attachment.label}.` : "",
     attachment?.unit === null ? "Precio del enganche y total del pedido pendientes de confirmar." : "",
     product.cuts ? `Corte: ${variant.child ? "Niño" : s.cut}.` : "",

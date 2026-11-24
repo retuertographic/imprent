@@ -1,9 +1,9 @@
 /* eslint-disable @next/next/no-img-element */
 import { asset } from "../content";
 import { SiteLink } from "../SiteLink";
-import { catalogosItems, ropaLaboralItems } from "./catalogSnapshots";
+import { catalogosItems } from "./catalogSnapshots";
 import { Breadcrumbs, FaqSection, PageIntro } from "./common";
-import { SeoLocal, ShopBrowser } from "./Shop";
+import { ShopBrowser } from "./Shop";
 
 /** /catalogos/ */
 export function CatalogosPage() {
@@ -97,39 +97,6 @@ export function CatalogosPage() {
             a: "Envíanos la referencia, color, tallas, cantidad y el diseño. Confirmaremos disponibilidad, técnica y presupuesto.",
           },
         ]}
-      />
-    </main>
-  );
-}
-
-/** /ropa-laboral/ */
-export function RopaLaboralPage() {
-  return (
-    <main id="contenido" className="brand-main shop-page">
-      <div className="wrap">
-        <Breadcrumbs
-          className="breadcrumbs"
-          items={[{ label: "Ropa", href: "/ropa/" }, { label: "Ropa laboral", plain: true }]}
-        />
-        <header className="shop-heading">
-          <div>
-            <p className="eyebrow">PERSONALIZADO EN TENERIFE · PARA TODAS LAS CANARIAS</p>
-            <h1>
-              Ropa laboral personalizada
-              <br />
-              <em>en Tenerife.</em>
-            </h1>
-          </div>
-          <p>
-            Ropa laboral personalizada en Tenerife para tu equipo. Consulta prendas, tallas y marcaje del logo según el
-            tejido y las necesidades de tu actividad.
-          </p>
-        </header>
-        <ShopBrowser items={ropaLaboralItems} pages={5} nextHref="/ropa/laboral/?pagina=2" />
-      </div>
-      <SeoLocal
-        title="Ropa laboral con tu logo en Tenerife"
-        text="Prendas para vestir a tu equipo en su actividad diaria. Indica el puesto y el uso; las necesidades de protección requieren comprobar las características de la referencia elegida."
       />
     </main>
   );

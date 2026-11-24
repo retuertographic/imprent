@@ -7,6 +7,7 @@ import { ProductDelivery } from "../ProductDelivery";
 import { formatEuro } from "../order";
 import { ROLLUP_TIERS as TIERS, rollupOrder } from "../pricing";
 import type { RollupProduct } from "../types";
+import { formatUnits } from "../../units";
 
 const tierLabel = (min: number, next: number | undefined) =>
   next ? (next === min + 1 ? min : `${min}–${next - 1}`) : `${min}+`;
@@ -68,7 +69,7 @@ export function RollupConfigurator({ product }: { product: RollupProduct }) {
         <strong>{price && shipping ? formatEuro(shipping.total) : "—"}</strong>
         {price && (
           <p>
-            {quantity} unidades × {formatEuro(price.unit)} / ud.
+            {formatUnits(quantity)} × {formatEuro(price.unit)} / ud.
           </p>
         )}
       </div>
@@ -82,6 +83,7 @@ export function RollupConfigurator({ product }: { product: RollupProduct }) {
           subtotal={price.total}
           delivery={delivery}
           reprice={{ kind: "rollup", slug: product.slug, delivery }}
+          sticky={{ total: shipping ? formatEuro(shipping.total) : "—", detail: formatUnits(quantity), panel: ".print-total" }}
         />
       ) : (
         <button className="brand-button print-request" disabled>

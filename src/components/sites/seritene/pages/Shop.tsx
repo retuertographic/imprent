@@ -4,7 +4,7 @@ import { SiteLink } from "../SiteLink";
 import type { ShopItem } from "./catalogSnapshots";
 
 const fineprint =
-  "Precios sin impuestos, transporte ni diseño gráfico. El marcaje se añade en la ficha. Disponibilidad y presupuesto sujetos a confirmación.";
+  "Precios sin IGIC, transporte ni diseño gráfico. El marcaje se añade en la ficha. Disponibilidad y presupuesto sujetos a confirmación.";
 
 const imageSrc = (src: string) => (src.startsWith("/") ? asset(src) : src);
 
@@ -16,15 +16,17 @@ export function ShopBrowser({ items, pages, nextHref }: { items: ShopItem[]; pag
   return (
     <section className="shop-browser" aria-label="Catálogo de productos">
       <div className="shop-grid">
-        {items.map((item) => (
+        {items.map((item, i) => (
           <article className="shop-card" key={item.path}>
             <SiteLink className="shop-card-photo" data-brand={item.brand} href={item.path}>
+              {/* Las dos primeras (primera fila en móvil, LCP) sin lazy y con prioridad alta. */}
               <img
                 src={imageSrc(item.image)}
                 alt={item.alt}
                 width={500}
                 height={500}
-                loading="lazy"
+                loading={i < 2 ? "eager" : "lazy"}
+                fetchPriority={i < 2 ? "high" : undefined}
                 decoding="async"
                 referrerPolicy="no-referrer"
               />

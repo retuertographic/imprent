@@ -43,12 +43,13 @@ export function ImprentaPage() {
       </nav>
       <header className="wrap shop-heading">
         <div>
-          <p className="eyebrow">IMPRENTA EN TENERIFE · SERITENE</p>
-          <h1>
+          {/* H1 descriptivo con aspecto de antetítulo; el lema conserva el aspecto del antiguo H1. */}
+          <h1 className="eyebrow kw-kicker">Imprenta en Tenerife</h1>
+          <p className="kw-slogan">
             Del papel
             <br />
             <em>al papelón.</em>
-          </h1>
+          </p>
         </div>
         <p>Tu marca tiene mucho que contar. Dale color, dale forma, dale a imprimir.</p>
       </header>
@@ -242,7 +243,7 @@ export function PaperFanPage() {
               <p className="static-price-detail">{number.format(best.min)} uds. · Ambas caras incluidas</p>
               <div className="static-table-wrap" role="region" aria-label="Tabla de precios" tabIndex={0}>
                 <table>
-                  <caption>Precios unitarios sin impuestos</caption>
+                  <caption>Precios unitarios sin IGIC</caption>
                   <thead>
                     <tr>
                       <th scope="col">Cantidad desde</th>
@@ -261,7 +262,7 @@ export function PaperFanPage() {
               </div>
               <p className="static-price-note">Pedido mínimo: 250 unidades.</p>
               <p className="static-price-note">
-                Precios por unidad sin impuestos. Consulta transporte, preparación y plazo en tu presupuesto.
+                Precios por unidad sin IGIC. Consulta transporte, preparación y plazo en tu presupuesto.
               </p>
             </section>
             <section className="static-product-box">

@@ -57,7 +57,7 @@ export function merchOrder({ brand = "stamina", product: p, rows, marks, askLogo
     quantityError = MERCH_QUANTITY_ERROR;
   }
 
-  const money = (cents: number | null | undefined) => (cents == null ? "A confirmar" : formatEuro(cents));
+  const money = (cents: number | null | undefined) => (cents == null ? "A presupuestar" : formatEuro(cents));
   const subtotal = askLogo || pricingLoading ? null : (quote?.totalCents ?? null);
   const shipping = shippingFor(subtotal, delivery);
   const units =

@@ -1,0 +1,88 @@
+/*
+ * Dirección visible (NAP) en el pie y en /contacto/ (mejora propia; producción solo muestra
+ * «Tenerife · Islas Canarias»). Los datos vienen de `contact.address` en content.ts.
+ */
+.footer-address address,
+.contact-address address {
+  font-style: normal;
+}
+
+.footer-address address {
+  line-height: 1.6;
+}
+
+.contact-address address {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.contact-layout > aside > a.contact-address {
+  align-items: flex-start;
+}
+
+.contact-address address strong {
+  font-size: 16px;
+}
+
+.contact-address address span {
+  color: #4f5c49;
+  font-size: 14px;
+}
+
+/* Tableta: el título ocupa la columna izquierda junto a las cuatro vías de contacto. */
+@media (max-width: 860px) {
+  .contact-layout > aside h2 {
+    grid-row: span 4;
+  }
+}
+
+/* Formulario de contacto: WhatsApp y email con la misma claridad tras preparar la consulta. */
+.contact-ready-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.contact-ready-actions .brand-button,
+.contact-ready-email {
+  gap: 8px;
+}
+
+.contact-ready-actions svg {
+  color: currentColor;
+}
+
+.contact-ready-email {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 12px 16px;
+  color: var(--brand-ink);
+  background: #fff;
+  border: 1px solid var(--brand-ink);
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.contact-ready-email:hover {
+  background: var(--brand-ink);
+  color: #fff;
+}
+
+.contact-ready .contact-ready-note {
+  margin: 12px 0 0;
+}
+
+.contact-ready-note button {
+  padding: 0;
+  color: inherit;
+  background: 0 0;
+  border: 0;
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}

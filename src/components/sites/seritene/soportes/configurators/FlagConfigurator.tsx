@@ -6,9 +6,10 @@ import { asset } from "../../content";
 import { Input, NativeSelect, NativeSelectOption } from "../form-controls";
 import { OrderActions } from "../OrderActions";
 import { ProductDelivery } from "../ProductDelivery";
-import { formatEuro, formatNumber } from "../order";
+import { formatEuro } from "../order";
 import { FLAG_BASES, flagOrder, flagTiers, type CatalogArt, type FlagPack as Pack } from "../pricing";
 import type { FlagProduct } from "../types";
+import { formatUnits } from "../../units";
 
 /** Imagen pequeña de la bandera para el carrito (recortes de /banderas-*.png en producción). */
 const FLAG_CART_IMAGES: Record<string, string> = {
@@ -151,7 +152,7 @@ export function FlagConfigurator({ product }: { product: FlagProduct }) {
         <strong>{price && shipping ? formatEuro(shipping.total) : "—"}</strong>
         {price && (
           <p>
-            {formatNumber(quantity)} unidades × {formatEuro(price.unit)} / ud. · {complete ? "Conjunto completo" : "Solo tela"} ·{" "}
+            {formatUnits(quantity)} × {formatEuro(price.unit)} / ud. · {complete ? "Conjunto completo" : "Solo tela"} ·{" "}
             {sizeId}
           </p>
         )}
@@ -166,6 +167,7 @@ export function FlagConfigurator({ product }: { product: FlagProduct }) {
           subtotal={price.total}
           delivery={delivery}
           reprice={{ kind: "flag", slug: product.slug, sizeId, pack, baseId, delivery }}
+          sticky={{ total: shipping ? formatEuro(shipping.total) : "—", detail: formatUnits(quantity), panel: ".print-total" }}
         />
       ) : (
         <button className="brand-button print-request" disabled>

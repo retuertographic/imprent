@@ -2,7 +2,7 @@
  * Totales y mensaje de WhatsApp del carrito. Portado del chunk `order-request` de seritene.com.
  * Importes en céntimos.
  */
-import { ORIGIN, contact } from "../content";
+import { MAILTO_MAX, ORIGIN, contact, mailtoUrl } from "../content";
 import { type Cart, withoutBasePath } from "./storage";
 
 /** Envío a domicilio: 6 € por pedido, gratis desde 199 €. */
@@ -51,7 +51,7 @@ export function cartMessage(cart: Cart) {
     cart.delivery
       ? `Envío: ${summary.shipping === null ? "a confirmar" : summary.shipping === 0 ? "gratuito" : formatEuro(summary.shipping)}.`
       : "Sin envío a domicilio.",
-    `Total orientativo: ${summary.total === null ? "a confirmar" : formatEuro(summary.total)}. Sin impuestos.`,
+    `Total orientativo: ${summary.total === null ? "a confirmar" : formatEuro(summary.total)}. Sin IGIC.`,
     "Confirmar disponibilidad, precios, diseño y plazo antes de realizar el pedido.",
   ].join("\n");
 }
@@ -66,3 +66,19 @@ export const LONG_MESSAGE_TEXT =
   "Hola Seritene, quiero solicitar un pedido con varios productos. Os adjunto el resumen del carrito para confirmar presupuesto.";
 
 export const whatsappUrl = (message: string) => `${contact.whatsapp}?text=${encodeURIComponent(message)}`;
+
+/** Asunto del correo de pedido (alternativa a WhatsApp, mejora propia). */
+export const EMAIL_SUBJECT = "Pedido Seritene";
+export const LONG_EMAIL_TEXT =
+  "Hola Seritene, quiero solicitar un pedido con varios productos. Os adjunto el resumen del carrito (pedido-seritene.txt) para confirmar presupuesto.";
+
+/**
+ * Enlace «Enviar por email»: lleva el mismo resumen que WhatsApp; si el enlace superaría `MAILTO_MAX`,
+ * un texto corto que pide adjuntar el resumen descargado (como `LONG_MESSAGE` en WhatsApp).
+ */
+export function emailOrder(message: string) {
+  const full = mailtoUrl(EMAIL_SUBJECT, message);
+  return full.length > MAILTO_MAX
+    ? { url: mailtoUrl(EMAIL_SUBJECT, LONG_EMAIL_TEXT), isLong: true }
+    : { url: full, isLong: false };
+}

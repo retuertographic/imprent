@@ -7,6 +7,7 @@ import { ProductDelivery } from "../ProductDelivery";
 import { formatEuro } from "../order";
 import { tentOrder } from "../pricing";
 import type { TentProduct } from "../types";
+import { formatUnits } from "../../units";
 
 export function TentConfigurator({ product }: { product: TentProduct }) {
   const [quantityText, setQuantityText] = useState("1");
@@ -34,7 +35,7 @@ export function TentConfigurator({ product }: { product: TentProduct }) {
         <strong>{price && shipping ? formatEuro(shipping.total) : "—"}</strong>
         {price && (
           <p>
-            {quantity} unidades × {formatEuro(price.unit)} / ud.
+            {formatUnits(quantity)} × {formatEuro(price.unit)} / ud.
           </p>
         )}
       </div>
@@ -48,6 +49,7 @@ export function TentConfigurator({ product }: { product: TentProduct }) {
           subtotal={price.total}
           delivery={delivery}
           reprice={{ kind: "tent", slug: product.slug, delivery }}
+          sticky={{ total: shipping ? formatEuro(shipping.total) : "—", detail: formatUnits(quantity), panel: ".print-total" }}
         />
       ) : (
         <button className="brand-button print-request" disabled>
