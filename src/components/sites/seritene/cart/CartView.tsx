@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Copy, Download, Mail, MessageCircle, ShoppingCart, Trash2 } from "lucide-react";
 import { asset, contact, logoHint, orderSteps, typicalLeadTime } from "../content";
 import { SiteLink } from "../SiteLink";
+import { firstImage } from "../shop/imageSizes";
 import {
   LONG_MESSAGE,
   LONG_MESSAGE_TEXT,
@@ -20,7 +21,11 @@ import { type Cart, type CartItem, withoutBasePath } from "./storage";
 import { useCart } from "./useCart";
 
 /** Las imágenes guardadas son rutas de la web original (`/catalogue/…`): aquí se sirven desde `public/sites/seritene`. */
-const itemImage = (src: string) => (src.startsWith("/") ? asset(src) : src);
+const itemImage = (src: string) => {
+  // Algunas variantes de proveedor traen varias URL separadas por comas: se usa la primera.
+  const first = firstImage(src);
+  return first.startsWith("/") ? asset(first) : first;
+};
 
 type LineProps = {
   item: CartItem;
