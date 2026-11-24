@@ -53,6 +53,25 @@ marca), con las fuentes en `src/app/styles/seritene/fonts/` y `url()` relativas.
 Tokens principales: `--brand-green: #43b02a`, `--brand-ink: #080808`; tipografía Montserrat
 (400 y 500–800, archivos `.woff2` propios del sitio).
 
+### `base.css` podada (generada)
+
+La hoja global de producción está íntegra en `base.full.css` (no se importa). `base.css`, la que importa el
+layout, la **genera** `scripts/prune-css.mjs` quitando las reglas cuyos selectores exigen una clase o un id que
+no aparece en `src/**` ni en `public/**` (datos incluidos; clases construidas con plantillas o `+` se
+conservan por prefijo/sufijo; hay una `SAFELIST` comentada para clases que añade JS). Se conserva todo lo demás
+en el mismo orden: selectores de elementos, estados, atributos, `@media`, `@layer`, `@property`, `@font-face`,
+variables y los `@keyframes` referenciados. 216 KB → 112 KB (gzip 40 → 21 KB).
+
+- **No edites `base.css` a mano**: cambia `base.full.css` (o la `SAFELIST`) y ejecuta `npm run css:prune`.
+- **Al clonar o cambiar páginas** que usen clases de producción que hoy no usa nadie, esas reglas no estarán en
+  `base.css`. Lo detecta `npm run check` (y el CI) de dos formas: `css:check` falla si `base.css` no coincide
+  con lo que generaría el código actual (basta con `npm run css:prune` y comitear), y tras el build
+  `prune-css.mjs --verify` revisa las ~2100 páginas de `out/`: ningún selector podado puede tener todas sus
+  clases e ids en el HTML de una misma página. Queda un hueco: clases que sólo se añaden en tiempo de ejecución
+  y no aparecen como literal en el código (p. ej. leídas de una API externa); esas van a la `SAFELIST`.
+- `node scripts/prune-css.mjs --report` muestra qué se quita y lo que se podría quitar de las demás hojas
+  (todas son por ruta salvo las 5 del layout, y el ahorro es pequeño, así que no se podan).
+
 ## Recursos
 
 Todo en `public/sites/seritene/` con la misma ruta relativa que en el origen
