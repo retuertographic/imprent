@@ -6,8 +6,8 @@
 import { contact } from "../content";
 
 /** Pedidos desde 199 € tienen envío gratuito; si no, 6 €. */
-const FREE_SHIPPING_FROM = 19900;
-const SHIPPING = 600;
+export const FREE_SHIPPING_FROM = 19900;
+export const SHIPPING = 600;
 
 export function shippingFor(subtotal: number | null | undefined, delivery: boolean) {
   if (subtotal == null || !Number.isSafeInteger(subtotal) || subtotal < 0) return null;

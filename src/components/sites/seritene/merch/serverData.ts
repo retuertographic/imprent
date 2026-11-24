@@ -6,6 +6,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { Metadata } from "next";
 import { getGroupData } from "../shop/serverData";
+import { productDescription, productTitle } from "./productSeo";
 import type { Brand, MerchPageData } from "./types";
 
 const DATA_DIR = join(process.cwd(), "src/components/sites/seritene/merch/data");
@@ -31,9 +32,12 @@ export function getMerchProduct(id: string, brand: Brand = "stamina"): MerchPage
   }
 }
 
-/** Metadatos de la ficha con el mismo formato que producción. */
+/**
+ * Metadatos de la ficha con el formato de producción; título («Camiseta personalizada Roly Assen · Tenerife»)
+ * y descripción propios (`productSeo`).
+ */
 export function merchMetadata(data: MerchPageData): Metadata {
-  const { meta } = data;
+  const meta = { ...data.meta, title: productTitle(data), description: productDescription(data) };
   const path = `/producto/${data.brand}/${data.id}/`;
   const images = meta.ogImage ? [{ url: meta.ogImage, alt: meta.ogImageAlt }] : undefined;
   return {

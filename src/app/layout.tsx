@@ -6,6 +6,7 @@ import "./styles/seritene/site-shell.css";
 import "./styles/seritene/contact-extras.css";
 import "./styles/seritene/ux-improvements.css";
 import "./styles/seritene/a11y-fixes.css";
+import "./styles/seritene/product-seo.css";
 import { RevealMotion } from "@/components/sites/seritene/RevealMotion";
 import { SiteFooter } from "@/components/sites/seritene/SiteFooter";
 import { SiteHeader } from "@/components/sites/seritene/SiteHeader";
