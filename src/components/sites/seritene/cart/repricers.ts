@@ -116,7 +116,11 @@ async function merchRepricer(r: MerchReprice): Promise<Repricer | null> {
     },
     warnings: (quantities) => {
       const selection = rowsWith(quantities);
-      return selection.map((row) => (order.stockStatus(product, selection, row.sku).over ? order.OVER_STOCK : null));
+      // Variantes con stock 0 se piden «bajo pedido» (decisión del cliente): sin aviso de reposición.
+      return selection.map((row) => {
+        const { over, variant } = order.stockStatus(product, selection, row.sku);
+        return over && variant?.stock !== 0 ? order.OVER_STOCK : null;
+      });
     },
     apply: (quantities) => {
       const selection = rowsWith(quantities);

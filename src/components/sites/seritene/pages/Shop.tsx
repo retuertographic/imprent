@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import { asset, contact } from "../content";
 import { SiteLink } from "../SiteLink";
+import { cardImageProps } from "../shop/imageSizes";
 import type { ShopItem } from "./catalogSnapshots";
 
 const fineprint =
@@ -21,7 +22,7 @@ export function ShopBrowser({ items, pages, nextHref }: { items: ShopItem[]; pag
             <SiteLink className="shop-card-photo" data-brand={item.brand} href={item.path}>
               {/* Las dos primeras (primera fila en móvil, LCP) sin lazy y con prioridad alta. */}
               <img
-                src={imageSrc(item.image)}
+                {...cardImageProps(item.image, imageSrc)}
                 alt={item.alt}
                 width={500}
                 height={500}

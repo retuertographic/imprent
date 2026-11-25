@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import { SiteLink } from "../SiteLink";
 import { loadSearchIndex, PER_PAGE, productImage } from "./catalog";
+import { cardImageProps } from "./imageSizes";
 import { searchIndex, type SearchRecord, type SearchScope } from "./searchIndex";
 
 export type { SearchScope };
@@ -91,7 +92,7 @@ export function ProductSearch({ query, scope }: { query: string; scope: SearchSc
             <SiteLink className="shop-card-photo" href={item.path}>
               {item.image ? (
                 <img
-                  src={productImage(item.image)}
+                  {...cardImageProps(item.image, productImage)}
                   alt={item.name}
                   width={500}
                   height={500}
