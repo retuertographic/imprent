@@ -290,11 +290,12 @@ export function ShopProduct({ brand: brandProp, model, product, warehouse, price
                         </button>
                       )}
                     </div>
-                    <p className={over ? "shop-stock-warning" : "shop-stock"}>
+                    {/* Sin stock (0 uds.): se puede pedir igual, como «bajo pedido» (decisión del cliente). */}
+                    <p className={over && v?.stock !== 0 ? "shop-stock-warning" : "shop-stock"}>
                       {brand === "jhk"
                         ? "Stock a consultar"
-                        : `${warehouse === "2040" ? "Stock Canarias" : "Stock proveedor"}: ${v?.stock == null ? "Consultar disponibilidad" : `${v.stock} uds.`}`}
-                      {over ? ` · ${OVER_STOCK}` : ""}
+                        : `${warehouse === "2040" ? "Stock Canarias" : "Stock proveedor"}: ${v?.stock == null ? "Consultar disponibilidad" : v.stock === 0 ? "bajo pedido" : `${v.stock} uds.`}`}
+                      {over && v?.stock !== 0 ? ` · ${OVER_STOCK}` : ""}
                     </p>
                   </div>
                 );

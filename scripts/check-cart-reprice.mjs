@@ -235,7 +235,8 @@ async function merch(model, rowsAdded, rowsChanged, marksFor = () => [], label, 
   ok(r.check([10, 1, 20], 0) === null, "merch 1995: se puede cambiar otra fila aunque una siga por debajo del mínimo");
   ok(stepQuantity(r.rows[1].control, 1, 1) === 10 && stepQuantity(r.rows[0].control, 70, -1) === 60, "merch 1995: «+»/«−» saltan a cantidades válidas");
   const warn = r.warnings([70, 10, 20]);
-  ok(warn[0] && !warn[1] && warn[2], "merch 1995: aviso de stock (amarillo 70 > 60, blanco 20 > 0)", JSON.stringify(warn));
+  // Blanco tiene stock 0: se pide «bajo pedido» (decisión del cliente), sin aviso de reposición.
+  ok(warn[0] && !warn[1] && !warn[2], "merch 1995: aviso de stock (amarillo 70 > 60); blanco sin stock = bajo pedido, sin aviso", JSON.stringify(warn));
 }
 
 // --- Ropa: Roly (tarifa del día de roly-pricing.json) y JHK (tarifa manual, sin stock) -------------

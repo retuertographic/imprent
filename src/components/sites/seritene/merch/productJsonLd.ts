@@ -11,7 +11,8 @@
  *   `offers`, `review` o `aggregateRating`, y no hay oferta real que declarar. Se mantienen
  *   BreadcrumbList y WebPage.
  * - `availability` solo cuando hay datos de stock: InStock si alguna variante con precio tiene unidades;
- *   OutOfStock si todas tienen stock conocido y es 0; sin dato (JHK, modelos sin respuesta), se omite.
+ *   BackOrder («bajo pedido», decisión del cliente) si todas tienen stock conocido y es 0; sin dato (JHK,
+ *   modelos sin respuesta), se omite.
  * - Sin `hasMerchantReturnPolicy` ni `deliveryTime`: pendientes de datos del cliente.
  */
 import { readFileSync } from "node:fs";
@@ -97,7 +98,7 @@ const SHIPPING_DETAILS = {
   description: "Envío a domicilio en Canarias: 6 €; gratis en pedidos desde 199 € (importes sin IGIC).",
 };
 
-const SCHEMA_AVAILABILITY = { in: "https://schema.org/InStock", out: "https://schema.org/OutOfStock" };
+const SCHEMA_AVAILABILITY = { in: "https://schema.org/InStock", out: "https://schema.org/BackOrder" };
 
 type JsonLdNode = Record<string, unknown> & { "@type"?: string };
 
