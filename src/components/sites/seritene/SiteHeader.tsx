@@ -14,7 +14,8 @@ import {
   Search,
   X,
 } from "lucide-react";
-import { BASE_PATH, asset, contact, navCategories, utilityLinks } from "./content";
+import { asset, contact, navCategories, utilityLinks } from "./content";
+import { HeaderSearch } from "./HeaderSearch";
 import { SiteLink } from "./SiteLink";
 import { CartLink } from "./cart/CartLink";
 
@@ -178,20 +179,7 @@ export function SiteHeader() {
               </div>
             </div>
           </nav>
-          <form className={`ch-search${searchOpen ? " ch-search-open" : ""}`} action={`${BASE_PATH}/productos/`} role="search">
-            <Search size={20} aria-hidden="true" />
-            <input
-              ref={searchInputRef}
-              type="search"
-              name="q"
-              maxLength={100}
-              placeholder="¿Qué quieres personalizar?"
-              aria-label="Buscar productos"
-            />
-            <button type="submit" aria-label="Buscar productos">
-              <ArrowUpRight size={20} />
-            </button>
-          </form>
+          <HeaderSearch open={searchOpen} inputRef={searchInputRef} />
           <div className="ch-actions">
             <CartLink />
             <button

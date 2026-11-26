@@ -1,9 +1,0 @@
-{
- "query": "flyer",
- "scope": "all",
- "total": 2,
- "ids": [
-  "print:flyers",
-  "stamina:1765"
- ]
-}
