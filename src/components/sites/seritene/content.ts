@@ -238,3 +238,22 @@ export const team: TeamMember[] = [
   { name: "Carolina", role: "Responsable adjunta de confección", area: "Confección", photo: "carolina", scale: 1.3, offsetY: "0%" },
   { name: "El jefe supremo", role: "Director de mimos", area: "Dirección suprema", photo: "jefe-supremo", scale: 1, offsetY: "0%" },
 ];
+
+/** Ayuda del buscador cuando no hay resultados o hay pocos (categorías y servicios más pedidos). */
+export const searchHelp = {
+  popular: [
+    { label: "Camisetas", href: "/ropa/camisetas/" },
+    { label: "Sudaderas", href: "/ropa/sudaderas/" },
+    { label: "Polos", href: "/ropa/polos/" },
+    { label: "Ropa laboral", href: "/ropa/laboral/" },
+    { label: "Gorras", href: "/merchandising/gorras/" },
+    { label: "Tazas", href: "/merchandising/tazas/" },
+    { label: "Bolsas", href: "/merchandising/bolsas/" },
+    { label: "Bolígrafos", href: "/merchandising/boligrafos/" },
+    { label: "Lona impresa", href: "/soportes-publicitarios/lona-impresa/" },
+    { label: "Roll-ups", href: "/soportes-publicitarios/" },
+    { label: "Tarjetas de visita", href: "/imprenta/tarjetas-de-visita/" },
+    { label: "Fullprint", href: "/fullprint/" },
+  ],
+  whatsapp: wa("Hola Seritene, busco un producto que no encuentro en la web: "),
+};

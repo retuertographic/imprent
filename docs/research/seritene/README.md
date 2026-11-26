@@ -131,11 +131,16 @@ PNG transparente a 300 ppp y envío por WhatsApp/email). Origen: https://seriten
   Sin horario hasta tenerlo del cliente (campo comentado en `contact`).
 - JSON-LD: el layout publica una vez el grafo sitewide de producción (`SiteJsonLd.tsx`: LocalBusiness, logo,
   WebSite y los 8 Service) con `geo` y `hasMap` añadidos; las fichas enlazan a `/#organization` y `/#website`.
-- Buscador: índice propio (`public/sites/seritene/shop-data/search-index.json`, 2119 registros, 177 KB
-  comprimido) con la misma lógica de coincidencia y orden que `/api/search` de producción
-  (`shop/searchIndex.ts`). Coincide en 111 de 113 consultas de prueba (`node scripts/check-search.mjs`);
-  las 2 diferencias conocidas están explicadas en el script. Se regenera con
-  `scripts/extract-search-index.mjs` y `scripts/make-search-fixtures.mjs`.
+- Buscador: **ya no es paridad con producción** (diferencia intencionada). El índice
+  (`public/sites/seritene/shop-data/search-index.json`, 2119 registros, ~177 KB comprimido) sigue saliendo de
+  `/api/search` con `scripts/extract-search-index.mjs`, pero la relevancia es propia (`shop/searchIndex.ts`,
+  utilidades de texto en `shop/textMatch.ts`): nombre y tipo de producto pesan mucho más que la descripción,
+  exacta > prefijo > dentro de palabra, plurales y sinónimos del sector, «niño/mujer/hombre» según las tallas y el
+  nombre de los modelos Roly/JHK (campo `a` del índice, `scripts/lib/search-hints.mjs`; se actualiza sin red con
+  `node scripts/refresh-search-hints.mjs`), corrección de erratas y, en la página y en el desplegable de la
+  cabecera, productos primero, accesos a categorías/servicios y las guías aparte (máx. 3). Lo comprueba un test
+  de calidad con consultas reales del sector (`npm run check:search`, incluido en `npm run check`); el antiguo
+  `check-search.mjs` y sus fixtures de producción se retiraron.
 - `/catalogos/` muestra una foto de la primera página del catálogo.
 - Las páginas `?pagina=N` muestran la página 1 en el HTML estático y cargan la pedida en el navegador.
 

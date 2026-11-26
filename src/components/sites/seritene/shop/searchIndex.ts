@@ -1,28 +1,44 @@
 /**
- * Buscador de productos y apartados (?q=), igual que https://seritene.com/api/search.
+ * Buscador de productos y apartados (?q=) que se calcula en el navegador.
  *
- * Producción calcula la búsqueda en el servidor; aquí el índice completo viaja con la web
- * (public/sites/seritene/shop-data/search-index.json, generado por
- * scripts/extract-search-index.mjs) y este módulo reproduce su emparejamiento y su orden.
- * Lo comprueba scripts/check-search.mjs contra respuestas reales guardadas en scripts/fixtures.
+ * El índice completo viaja con la web (public/sites/seritene/shop-data/search-index.json,
+ * generado por scripts/extract-search-index.mjs a partir de los registros de producción) y se
+ * descarga la primera vez que alguien busca. Ya no imita el orden de producción: puntúa por
+ * relevancia propia y lo comprueba un test de calidad (scripts/check-search-quality.mjs).
  *
- * Reglas deducidas de la API:
- * - Texto: minúsculas y sin tildes (ñ → n). Palabras = tramos de letras y cifras; una cifra
- *   pegada a 3+ letras se separa («algodón150» → algodon 150) y «200g/m²» → 200 g m.
- * - Consulta: el guion une palabras (t-shirt → tshirt) y se quitan las palabras vacías (de, la, con…). Si no queda ninguna, no hay
- *   resultados. Cada palabra restante tiene que encontrarse en el registro (Y lógico).
- * - Algunas palabras forman grupos (plurales de categorías, sinónimos: tote → bolsa,
- *   woman → mujer, deportiva → deporte…). Buscar cualquiera equivale a buscar el grupo.
- * - «sin X» exige además la expresión seguida en el texto.
- * - Cada palabra puntúa según dónde y cómo aparece; la nota del registro es la suma:
- *     nombre: igual 7 · sinónimo o palabra que empieza por ella 6 · parecida 5 (1 cambio) o 4,5 (2)
- *     referencia, palabras clave y descripción: igual 4 · empieza por ella 3 · parecida 2 o 1,5
- *   «Parecida» = distancia de edición (con trasposiciones) ≤ 1 para 4–7 letras y ≤ 2 para 8+;
- *   las palabras de 3 letras o con cifras solo cuentan si son iguales.
- * - Orden: nota de mayor a menor y, a igual nota, nombre en orden alfabético español.
- *   Apartados y productos se mezclan en la misma lista.
+ * Cómo puntúa:
+ * - Texto normalizado (minúsculas, sin tildes, «roll up» = rollup) y palabras reducidas a su
+ *   raíz para que singular y plural coincidan (textMatch.ts).
+ * - Cada palabra del registro lleva el peso del campo más importante donde aparece:
+ *     nombre 10 · tipo de producto (primera palabra de la descripción en los modelos del
+ *     proveedor: «Taza de cerámica…» → taza) 10 · palabras siguientes del tipo 8 · referencia 10 ·
+ *     resto de la primera frase 4 · palabras clave propias (soportes, imprenta…) 5 ·
+ *     palabras clave del proveedor (colores, composición) 2 · resto de la descripción 1.
+ * - Cada palabra buscada vale peso × calidad: exacta 1 · sinónimo 0,9 · prefijo 0,6 ·
+ *   dentro de otra palabra 0,3 (y por debajo de 0,5 no cuenta).
+ * - «niño», «mujer», «hombre» piden un público: en Roly y JHK se usa lo que dicen sus tallas y
+ *   su nombre (campo `audience`, ver scripts/lib/search-hints.mjs); en el resto, el texto.
+ * - Con varias palabras, solo entran los registros que las tienen todas (las palabras de
+ *   relleno como «personalizada» o «Tenerife» suman, pero no son obligatorias). Si así salen
+ *   pocos productos, se añaden aparte los que tienen alguna («related»).
+ * - Si no sale nada, se prueba una corrección cercana («camseta» → camiseta).
+ * - Los productos van por un lado; las categorías y servicios cuyo nombre responde a la
+ *   búsqueda, por otro (accesos directos); y las guías y páginas informativas, en un bloque
+ *   secundario limitado.
  * - Ámbitos: /ropa/ busca solo Roly y JHK; /merchandising/, solo Stamina; /productos/, todo.
  */
+import {
+  audienceOfWord,
+  audienceStems,
+  editDistance,
+  isKidsOnly,
+  matchesAudience,
+  PHRASES,
+  stem,
+  SYNONYMS,
+  textWords,
+  type Audience,
+} from "./textMatch";
 
 export type SearchScope = "all" | "roly" | "stamina";
 
@@ -42,12 +58,14 @@ export type SearchRecord = {
   keywords: string;
   /** Referencia del proveedor (p. ej. SU1031), también buscable. */
   code: string;
+  /** Público según tallas y nombre (solo Roly y JHK): k infantil y adulto · K solo infantil · w mujer. */
+  audience: string;
 };
 
 /** Registro compacto del JSON: [id, nombre, descripción, palabras clave, imagen, extras?]. */
 export type CompactRecord = [string, string, string, string, string, CompactExtra?];
-/** Campos que no se pueden deducir del id: p ruta, b etiqueta, t detalle, c referencia. */
-export type CompactExtra = { p?: string; b?: string; t?: string; c?: string };
+/** Campos que no se pueden deducir del id: p ruta, b etiqueta, t detalle, c referencia, a público. */
+export type CompactExtra = { p?: string; b?: string; t?: string; c?: string; a?: string };
 export type CompactIndex = { version: number; records: CompactRecord[] };
 
 const CATALOG_BRANDS = new Set(["roly", "stamina", "jhk"]);
@@ -75,6 +93,7 @@ export function expandRecord([id, name, description, keywords, image, extra = {}
     brand: extra.b ?? d.brand,
     keywords,
     code: extra.c ?? "",
+    audience: extra.a ?? "",
   };
 }
 
@@ -86,258 +105,321 @@ export function compactRecord(r: SearchRecord): CompactRecord {
   if (r.brand !== d.brand) extra.b = r.brand;
   if (r.detail && !r.description) extra.t = r.detail;
   if (r.code) extra.c = r.code;
+  if (r.audience) extra.a = r.audience;
   const image = r.image.startsWith(GORFACTORY) ? "@" + r.image.slice(GORFACTORY.length) : r.image;
   return Object.keys(extra).length ? [r.id, r.name, r.description, r.keywords, image, extra] : [r.id, r.name, r.description, r.keywords, image];
 }
 
-/* ------------------------------------------------------------------ texto */
-
-/** Palabras que no cuentan («bag» también se ignora: «tote bag» = «tote»). */
-const STOPWORDS = new Set(["de", "con", "la", "el", "los", "las", "en", "para", "del", "un", "una", "por", "bag", "bags"]);
-
-/** Palabras que equivalen a buscar varias. */
-const PHRASES: Record<string, string[]> = { hoodie: ["sudadera", "capucha"] };
-
-/**
- * Grupos de palabras equivalentes: clave → [formas exactas, sinónimos].
- * - La clave, las formas exactas y, en los registros, el plural de la clave (+s, +es) cuentan
- *   como la misma palabra.
- * - Los sinónimos también cuentan como coincidencia exacta y, como la clave, admiten prefijo
- *   y parecido; las formas exactas no (p. ej. «woman» no trae «roman»).
- * Buscar cualquier palabra del grupo equivale a buscar la clave.
- */
-const GROUPS: Record<string, [string[], string[]]> = {
-  abrigo: [["abrigos"], []],
-  bolsa: [["bolsas", "tote"], []],
-  boligrafo: [["boligrafos", "boli"], []],
-  botella: [["botellas", "botela"], []],
-  camiseta: [["camisetas", "shirt", "tshirt"], []],
-  chaqueta: [["chaquetas"], []],
-  corta: [["corto", "cortas", "cortos"], []],
-  deporte: [["sport", "deportiva"], ["deportivo"]],
-  fullprint: [["sublimada", "sublimado"], []],
-  gorra: [["gorras", "cap"], []],
-  guia: [["guias"], []],
-  hombre: [["masculina"], []],
-  laboral: [["trabajo"], []],
-  lanyard: [["lanyards"], []],
-  larga: [["largo", "largas", "largos"], []],
-  libreta: [["libretas", "cuaderno"], []],
-  llavero: [["llaveros"], []],
-  mochila: [["mochilas"], []],
-  mujer: [["woman", "femenina"], []],
-  nino: [["ninos", "nina", "ninas", "infantil", "infantiles", "kids"], []],
-  organico: [["organica", "ecologica"], ["ecologico"]],
-  pantalon: [["pantalones"], []],
-  poliester: [["polyester"], []],
-  polo: [["polos"], []],
-  pulsera: [["pulseras"], []],
-  reciclado: [["reciclada", "recicladas", "recycled"], []],
-  sudadera: [["sudaderas"], []],
-  tarjeta: [["tarjetas"], []],
-  taza: [["tazas", "mug"], []],
-  tecnologia: [[], []],
-  toalla: [["toallas"], []],
-};
-
-type Term = {
-  /** Clave y formas exactas: coincidencia exacta en el nombre = 7. */
-  alias: string[];
-  /** Todo lo que cuenta como coincidencia exacta. */
-  exact: string[];
-  /** Palabras con las que se admite prefijo y parecido. */
-  loose: string[];
-  /** Términos de grupos cuya clave empieza por la palabra («full» → fullprint, sublimada…). */
-  prefixGroups: string[];
-  /** Palabra tal cual se escribió cuando llegó al grupo por su plural (ver score). */
-  literal?: Term;
-};
-
-const groupByWord = new Map<string, Term>();
-for (const [key, [forms, synonyms]] of Object.entries(GROUPS)) {
-  // En los registros, el plural de la clave cuenta como la clave (reciclados → reciclado).
-  const alias = [key, ...forms, key + "s", key + "es"];
-  const term: Term = { alias, exact: [...alias, ...synonyms], loose: [key, ...synonyms], prefixGroups: [] };
-  for (const word of [key, ...forms, ...synonyms]) groupByWord.set(word, term);
-}
-
-export const normalize = (text: string) =>
-  text
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase();
-
-export const words = (text: string) =>
-  normalize(text)
-    .replace(/([a-z]{3})(\d)/g, "$1 $2")
-    .replace(/(\d)g\/m/g, "$1 g/m")
-    .split(/[^a-z0-9]+/)
-    .filter(Boolean);
-
-function queryTerm(word: string): Term {
-  const group = groupByWord.get(word);
-  if (group) return group;
-  const plain: Term = { alias: [word], exact: [word], loose: [word], prefixGroups: prefixTerms(word) };
-  // También en plural: «deportivas» → deportiva → deporte.
-  const singular = groupByWord.get(word.replace(/s$/, "")) ?? groupByWord.get(word.replace(/es$/, ""));
-  return singular ? { ...singular, literal: plain } : plain;
-}
-
-function prefixTerms(word: string) {
-  return word.length < 4 ? [] : Object.keys(GROUPS).filter((key) => key !== word && key.startsWith(word)).flatMap((key) => groupByWord.get(key)!.exact);
-}
-
-// En la consulta, el guion entre letras une la palabra («t-shirt» → tshirt, «roll-up» → rollup).
-const queryWords = (query: string) =>
-  words(normalize(query).replace(/([a-z])-(?=[a-z])/g, "$1"))
-    .flatMap((w) => PHRASES[w] ?? [w])
-    .filter((w) => !STOPWORDS.has(w));
-
-/** Palabras de la consulta (vacía si solo hay palabras vacías). */
-export const queryTerms = (query: string) => queryWords(query).map(queryTerm);
-
-/**
- * «sin X» se busca como expresión: además de contener ambas palabras, el registro tiene que
- * decir «sin X» seguido (por eso «sin mangas» encuentra camisetas sin mangas, no cualquier
- * prenda con mangas que diga «sin» en otra parte).
- */
-function withoutPhrases(query: string): Term[] {
-  const list = queryWords(query);
-  return list.flatMap((w, i) => (w === "sin" && i + 1 < list.length ? [queryTerm(list[i + 1])] : []));
-}
-
-const hasPhrase = (p: Prepared, t: Term) =>
-  [p.name, ...p.other].some((list) => list.some((w, i) => w === "sin" && i + 1 < list.length && t.alias.includes(list[i + 1])));
-
-/* ------------------------------------------------------------- parecido */
-
-/** Cambios permitidos para que una palabra se considere parecida. */
-const maxTypos = (word: string) => (/\d/.test(word) || word.length < 4 ? 0 : word.length >= 8 ? 2 : 1);
-
-/** Distancia de edición con trasposiciones (Damerau restringida); corta en max + 1. */
-function editDistance(a: string, b: string, max: number) {
-  if (Math.abs(a.length - b.length) > max) return max + 1;
-  let prev2: number[] = [];
-  let prev = Array.from({ length: b.length + 1 }, (_, j) => j);
-  let prevMin = 0;
-  for (let i = 1; i <= a.length; i++) {
-    const row = [i];
-    let rowMin = i;
-    for (let j = 1; j <= b.length; j++) {
-      let v = Math.min(prev[j] + 1, row[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
-      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) v = Math.min(v, prev2[j - 2] + 1);
-      row.push(v);
-      rowMin = Math.min(rowMin, v);
-    }
-    // Con trasposiciones, una fila puede apoyarse en la de dos pasos atrás.
-    if (rowMin > max && prevMin > max) return max + 1;
-    prevMin = rowMin;
-    prev2 = prev;
-    prev = row;
-  }
-  return prev[b.length];
-}
-
 /* ---------------------------------------------------------------- índice */
 
-type Prepared = { record: SearchRecord; name: string[]; other: string[][] };
+const prefixOf = (id: string) => id.slice(0, id.indexOf(":"));
+const isCatalog = (id: string) => CATALOG_BRANDS.has(prefixOf(id));
+/** Modelos con tallas conocidas (su público sale de las tallas, no del texto). */
+const isSized = (id: string) => prefixOf(id) === "roly" || prefixOf(id) === "jhk";
+/** Registros de producto sin el pequeño empuje de los productos propios (proveedor, fullprint y copias de eventos). */
+const NOT_BOOSTED = new Set([...CATALOG_BRANDS, "fullprint", "event"]);
 
-export type SearchIndex = { records: Prepared[] };
+/** Peso de cada campo (ver la cabecera). */
+const WEIGHT = { name: 10, head: 10, head2: 8, code: 10, summary: 4, curated: 5, keywords: 2, description: 1 };
+
+/** Palabras que no dicen qué es el producto al principio de una descripción («Elegante bolígrafo…»). */
+const HEAD_SKIP = new Set(
+  [
+    "la", "el", "los", "las", "un", "una", "de", "del", "con", "y", "en", "nuevo", "nueva", "elegante", "practico", "practica",
+    "original", "moderno", "moderna", "clasico", "clasica", "completo", "completa", "innovador", "innovadora", "exclusivo",
+    "exclusiva", "bonito", "bonita", "gran", "mini", "set", "pack", "juego", "kit", "lote", "divertido", "divertida",
+  ].map(stem),
+);
+
+export type SearchIndex = {
+  records: SearchRecord[];
+  /** Palabra (raíz) → [registro, peso, registro, peso…] con el mayor peso de cada registro. */
+  postings: Map<string, number[]>;
+  vocab: string[];
+  /** Palabras que aparecen en campos importantes (peso ≥ 4) y cómo se escriben: base de las correcciones. */
+  surface: Map<string, string>;
+};
 
 export function buildSearchIndex(records: SearchRecord[]): SearchIndex {
-  return {
-    records: records.map((record) => ({
-      record,
-      name: words(record.name),
-      other: [[...words(record.keywords), ...(record.code ? [normalize(record.code)] : [])], words(record.description)],
-    })),
-  };
+  const postings = new Map<string, number[]>();
+  const surface = new Map<string, string>();
+  records.forEach((r, i) => {
+    const best = new Map<string, number>();
+    const add = (list: string[], weight: number) => {
+      for (const raw of list) {
+        const w = stem(raw);
+        if ((best.get(w) ?? 0) < weight) best.set(w, weight);
+        if (weight >= WEIGHT.summary && !surface.has(w) && raw.length > 3 && !/\d/.test(raw)) surface.set(w, raw);
+      }
+    };
+    const catalog = isCatalog(r.id);
+    const text = r.description || r.detail;
+    const cut = text.search(/[.\n]/);
+    const first = textWords(cut < 0 ? text : text.slice(0, cut));
+    add(textWords(r.name), WEIGHT.name);
+    if (r.code) add([r.code.toLowerCase()], WEIGHT.code);
+    if (catalog) {
+      add([r.id.slice(r.id.indexOf(":") + 1).toLowerCase()], WEIGHT.code);
+      const head = first.filter((w) => !HEAD_SKIP.has(stem(w)) && !/\d/.test(w)).slice(0, 3);
+      add(head.slice(0, 1), WEIGHT.head);
+      add(head.slice(1), WEIGHT.head2);
+    }
+    add(first, WEIGHT.summary);
+    add(textWords(r.keywords), catalog || r.kind === "page" ? WEIGHT.keywords : WEIGHT.curated);
+    if (cut >= 0) add(textWords(text.slice(cut)), WEIGHT.description);
+    for (const [w, weight] of best) {
+      let list = postings.get(w);
+      if (!list) postings.set(w, (list = []));
+      list.push(i, weight);
+    }
+  });
+  return { records, postings, vocab: [...postings.keys()], surface };
 }
 
 export const indexFromJson = (json: CompactIndex) => buildSearchIndex(json.records.map(expandRecord));
 
-/** Distancias ya calculadas para la consulta en curso (muchas palabras se repiten). */
-type DistanceCache = Map<string, number>;
+/* -------------------------------------------------------------- consulta */
 
-function distance(term: string, word: string, cache: DistanceCache) {
-  const key = term + " " + word;
-  let d = cache.get(key);
-  if (d === undefined) {
-    const max = maxTypos(term);
-    d = editDistance(term, word, max);
-    // Una palabra de un grupo también se compara por su clave (toallas → toalla).
-    const group = groupByWord.get(word);
-    const groupKey = group?.alias[0];
-    if (groupKey && groupKey !== word) d = Math.min(d, editDistance(term, groupKey, max));
-    if (d > max) d = Infinity;
-    cache.set(key, d);
+/** Palabras vacías: no cuentan. */
+const STOPWORDS = new Set(["de", "con", "la", "el", "los", "las", "en", "para", "del", "un", "una", "por", "y", "o", "a", "al", "tu", "su", "mi", "que", "bag", "bags"]);
+
+/** Palabras de relleno: suman si aparecen, pero no son obligatorias. */
+const SOFT = new Set(
+  [
+    "personalizado", "personalizada", "personalizados", "personalizadas", "personalizar", "personalizable", "personalizables",
+    "tenerife", "canarias", "comprar", "precio", "precios", "barato", "barata", "baratos", "baratas", "logo", "ropa", "online",
+    "impreso", "impresa", "impresos", "impresas", "empresa", "empresas",
+  ].map(stem),
+);
+
+type QueryTerm = {
+  /** Palabra tal cual (normalizada) para reconstruir la búsqueda en las correcciones. */
+  word: string;
+  stem: string;
+  alts: string[];
+  optional: boolean;
+  audience?: Audience;
+};
+
+type ParsedQuery = { terms: QueryTerm[]; words: string[]; without: string[] };
+
+export function parseQuery(query: string): ParsedQuery {
+  const list = textWords(query.replace(/([a-z])-(?=[a-z])/gi, "$1 ")).flatMap((w) => PHRASES[w] ?? [w]);
+  const terms: QueryTerm[] = [];
+  const without: string[] = [];
+  const kept: string[] = [];
+  list.forEach((word, i) => {
+    if (word === "sin" && i + 1 < list.length) {
+      without.push(stem(list[i + 1]));
+      return;
+    }
+    if (STOPWORDS.has(word)) return;
+    kept.push(word);
+    const s = stem(word);
+    const audience = audienceOfWord(word);
+    if (terms.some((t) => t.stem === s)) return;
+    terms.push({ word, stem: s, alts: SYNONYMS.get(s) ?? [], optional: SOFT.has(s), audience });
+  });
+  // Si todo es relleno («tenerife»), deja de serlo.
+  if (terms.length && terms.every((t) => t.optional)) terms.forEach((t) => (t.optional = false));
+  return { terms, words: kept, without };
+}
+
+/** Calidad de cada palabra del índice que responde a la palabra buscada. */
+function matchWords(index: SearchIndex, t: QueryTerm) {
+  const found = new Map<string, number>();
+  const set = (w: string, q: number) => {
+    if ((found.get(w) ?? 0) < q) found.set(w, q);
+  };
+  for (const w of index.vocab) {
+    if (w === t.stem) set(w, 1);
+    else if (t.stem.length >= 3 && w.startsWith(t.stem)) set(w, 0.6);
+    else if (t.stem.length >= 4 && w.includes(t.stem)) set(w, 0.3);
   }
-  return d;
-}
-
-/** Menor distancia entre los términos y las palabras (Infinity si ninguna es parecida). */
-function closest(terms: string[], lists: string[][], cache: DistanceCache) {
-  let best = Infinity;
-  for (const term of terms) {
-    if (!maxTypos(term)) continue;
-    for (const list of lists) for (const word of list) best = Math.min(best, distance(term, word, cache));
+  for (const alt of t.alts) {
+    if (index.postings.has(alt)) set(alt, 0.9);
+    if (alt.length >= 4) for (const w of index.vocab) if (w !== alt && w.startsWith(alt)) set(w, 0.5);
   }
-  return best;
+  return found;
 }
 
-const has = (list: string[], term: string) => list.includes(term);
-const extends_ = (list: string[], term: string) => term.length >= 4 && list.some((w) => w !== term && w.startsWith(term));
-
-/** Puntos de una palabra de la consulta en un registro (0 = no aparece). */
-function score(p: Prepared, t: Term, cache: DistanceCache): number {
-  if (!t.literal) return groupScore(p, t, cache);
-  // Plural de una palabra de grupo: la palabra escrita manda y el grupo cuenta un poco menos
-  // («deportivas» pone antes lo que dice «deportivas» que lo que dice «deportiva»).
-  const base = groupScore(p, t, cache);
-  return base ? Math.max(groupScore(p, t.literal, cache), base - 0.01) : 0;
+/** Puntos de una palabra buscada en cada registro (0 = no aparece o no basta). */
+function termScores(index: SearchIndex, t: QueryTerm): Float64Array {
+  const scores = new Float64Array(index.records.length);
+  const apply = (words: Map<string, number>) => {
+    for (const [w, q] of words) {
+      const list = index.postings.get(w)!;
+      for (let k = 0; k < list.length; k += 2) {
+        const s = list[k + 1] * q;
+        if (s >= 0.5 && s > scores[list[k]]) scores[list[k]] = s;
+      }
+    }
+  };
+  if (!t.audience) {
+    apply(matchWords(index, t));
+    return scores;
+  }
+  // Público: en Roly y JHK mandan las tallas y el nombre; en el resto, el texto.
+  apply(new Map(audienceStems(t.audience).filter((w) => index.postings.has(w)).map((w) => [w, 1])));
+  index.records.forEach((r, i) => {
+    if (!isSized(r.id)) return;
+    scores[i] = matchesAudience(r.audience, t.audience!) ? WEIGHT.name + (t.audience === "kids" && isKidsOnly(r.audience) ? 1 : 0) : 0;
+  });
+  return scores;
 }
 
-function groupScore(p: Prepared, t: Term, cache: DistanceCache): number {
-  if (t.alias.some((x) => has(p.name, x))) return 7;
-  if (t.exact.some((x) => has(p.name, x)) || t.loose.some((x) => extends_(p.name, x))) return 6;
-  const inName = closest(t.loose, [p.name], cache);
-  if (inName < Infinity) return inName === 1 ? 5 : 4.5;
-  if (t.exact.some((x) => p.other.some((list) => has(list, x)))) return 4;
-  if (t.loose.some((x) => p.other.some((list) => extends_(list, x)))) return 3;
-  if (t.prefixGroups.some((x) => p.other.some((list) => has(list, x)))) return 3;
-  const inOther = closest(t.loose, p.other, cache);
-  if (inOther < Infinity) return inOther === 1 ? 2 : 1.5;
-  return 0;
+/** Dice «sin X» seguido (para «camiseta sin mangas»). */
+function hasWithout(r: SearchRecord, s: string) {
+  const list = textWords(`${r.name} ${r.description} ${r.keywords}`).map(stem);
+  return list.some((w, i) => w === "sin" && list[i + 1] === s);
 }
 
 const inScope = (id: string, scope: SearchScope) => {
   if (scope === "all") return true;
-  const prefix = id.slice(0, id.indexOf(":"));
+  const prefix = prefixOf(id);
   return scope === "roly" ? prefix === "roly" || prefix === "jhk" : prefix === "stamina";
 };
 
 const collator = new Intl.Collator("es", { sensitivity: "base" });
 
-/** Resultados ordenados como en producción. */
-export function searchIndex(index: SearchIndex, query: string, scope: SearchScope): SearchRecord[] {
-  const terms = queryTerms(query);
-  if (!terms.length) return [];
-  const phrases = withoutPhrases(query);
-  const cache: DistanceCache = new Map();
-  const hits: { record: SearchRecord; total: number }[] = [];
-  for (const p of index.records) {
-    if (!inScope(p.record.id, scope) || !phrases.every((t) => hasPhrase(p, t))) continue;
+/** Las guías del blog nunca van como acceso directo; el resto de apartados, si su nombre responde a la búsqueda. */
+const isGuide = (r: SearchRecord) => r.brand === "GUÍA";
+
+/** Etiqueta corta de un apartado según su tipo (para las tarjetas y las sugerencias). */
+export const pageLabel = (brand: string) =>
+  brand === "CATEGORÍA" ? "Categoría" : brand === "SERVICIO" ? "Servicio" : brand === "GUÍA" ? "Guía" : "Información";
+
+export const GUIDE_LIMIT = 3;
+const SHORTCUT_LIMIT = 3;
+const RELATED_BELOW = 8;
+const RELATED_LIMIT = 24;
+
+export type SearchResults = {
+  /** Búsqueda cuyos resultados se muestran (la corregida si `corrected`). */
+  query: string;
+  /** Productos que responden a todas las palabras, del más relevante al menos. */
+  products: SearchRecord[];
+  /** Productos que responden solo a parte de la búsqueda (cuando hay pocos completos). */
+  related: SearchRecord[];
+  /** Categorías y servicios cuyo nombre responde a la búsqueda. */
+  shortcuts: SearchRecord[];
+  /** Guías y páginas informativas (las primeras GUIDE_LIMIT). */
+  guides: SearchRecord[];
+  guideTotal: number;
+  /** Corrección cercana («¿Quisiste decir…?»). */
+  suggestion?: string;
+  /** La búsqueda original no dio nada y se muestran los resultados de `suggestion`. */
+  corrected?: boolean;
+};
+
+const empty = (query: string): SearchResults => ({ query, products: [], related: [], shortcuts: [], guides: [], guideTotal: 0 });
+
+function run(index: SearchIndex, query: string, scope: SearchScope): SearchResults {
+  const { terms, without } = parseQuery(query);
+  if (!terms.length) return empty(query);
+  const scores = terms.map((t) => termScores(index, t));
+  const required = terms.filter((t) => !t.optional).length;
+  const hasKidsTerm = terms.some((t) => t.audience === "kids");
+
+  type Hit = { record: SearchRecord; total: number; coverage: number; nameHits: number };
+  const full: Hit[] = [];
+  const partial: Hit[] = [];
+  index.records.forEach((record, i) => {
+    if (!inScope(record.id, scope) || (scope !== "all" && record.kind === "page")) return;
     let total = 0;
-    for (const t of terms) {
-      const s = score(p, t, cache);
-      if (!s) {
-        total = 0;
-        break;
+    let coverage = 0;
+    let need = required;
+    let nameHits = 0;
+    terms.forEach((t, k) => {
+      const s = scores[k][i];
+      // Los apartados no tienen público: «sudadera niño» también lleva a la categoría Sudaderas.
+      if (t.audience && record.kind === "page" && !t.optional) {
+        need--;
+        return;
       }
+      if (!s) return;
       total += s;
-    }
-    if (total) hits.push({ record: p.record, total });
+      if (!t.optional) coverage++;
+      if (s >= 9) nameHits++;
+    });
+    if (!total) return;
+    if (!hasKidsTerm && isKidsOnly(record.audience)) total *= 0.9;
+    // A igualdad, antes los productos propios con configurador (soportes, imprenta, medallas).
+    if (record.kind === "product" && !NOT_BOOSTED.has(prefixOf(record.id))) total += 0.5;
+    const hit = { record, total, coverage, nameHits };
+    if (coverage >= need && without.every((s) => hasWithout(record, s))) full.push(hit);
+    // Parciales: solo si alguna palabra responde al nombre o al tipo de producto.
+    else if (coverage > 0 && nameHits > 0 && record.kind === "product" && without.every((s) => hasWithout(record, s))) partial.push(hit);
+  });
+
+  const byScore = (a: Hit, b: Hit) => b.total - a.total || collator.compare(a.record.name, b.record.name);
+  full.sort(byScore);
+  const products = full.filter((h) => h.record.kind === "product");
+  const pages = full.filter((h) => h.record.kind === "page");
+  const nameTerms = terms.filter((t) => !t.optional && !t.audience).length;
+  const shortcuts = pages.filter((h) => !isGuide(h.record) && nameTerms > 0 && h.nameHits >= nameTerms).slice(0, SHORTCUT_LIMIT);
+  const shortcutIds = new Set(shortcuts.map((h) => h.record.id));
+  const guides = pages.filter((h) => !shortcutIds.has(h.record.id) && h.total / terms.length >= 2);
+  const related =
+    products.length < RELATED_BELOW && required > 1
+      ? partial.sort((a, b) => b.coverage - a.coverage || byScore(a, b)).slice(0, RELATED_LIMIT).map((h) => h.record)
+      : [];
+  return {
+    query,
+    products: products.map((h) => h.record),
+    related,
+    shortcuts: shortcuts.map((h) => h.record),
+    guides: guides.slice(0, GUIDE_LIMIT).map((h) => h.record),
+    guideTotal: guides.length,
+  };
+}
+
+/* ------------------------------------------------------------ correcciones */
+
+/** Cambios permitidos para considerar una palabra un error de tecleo. */
+const maxTypos = (word: string) => (/\d/.test(word) || word.length < 4 ? 0 : word.length >= 8 ? 2 : 1);
+
+/** ¿La palabra buscada responde a algo con peso? (si no, se busca una corrección). */
+function isKnown(index: SearchIndex, t: QueryTerm) {
+  if (t.audience) return true;
+  for (const [w, q] of matchWords(index, t)) {
+    const list = index.postings.get(w)!;
+    for (let k = 1; k < list.length; k += 2) if (list[k] * q >= WEIGHT.summary * 0.6) return true;
   }
-  hits.sort((a, b) => b.total - a.total || collator.compare(a.record.name, b.record.name));
-  return hits.map((h) => h.record);
+  return false;
+}
+
+/** Búsqueda corregida con las palabras más parecidas del catálogo, o undefined si no hay ninguna clara. */
+export function suggestCorrection(index: SearchIndex, query: string): string | undefined {
+  const { terms, words } = parseQuery(query);
+  let changed = false;
+  const fixed = words.map((word) => {
+    const t = terms.find((x) => x.word === word);
+    if (!t || isKnown(index, t)) return word;
+    const max = maxTypos(t.stem);
+    if (!max) return word;
+    let best: { word: string; d: number; df: number } | undefined;
+    for (const [w, display] of index.surface) {
+      const d = editDistance(t.stem, w, max);
+      if (d > max) continue;
+      const df = index.postings.get(w)!.length;
+      if (!best || d < best.d || (d === best.d && df > best.df)) best = { word: display, d, df };
+    }
+    if (!best) return word;
+    changed = true;
+    return best.word;
+  });
+  return changed ? fixed.join(" ") : undefined;
+}
+
+/** Busca en el índice: productos, accesos directos, guías y, si hace falta, una corrección. */
+export function searchCatalog(index: SearchIndex, query: string, scope: SearchScope = "all"): SearchResults {
+  const results = run(index, query, scope);
+  if (results.products.length >= 3) return results;
+  const suggestion = suggestCorrection(index, query);
+  if (!suggestion) return results;
+  const fixed = run(index, suggestion, scope);
+  if (fixed.products.length <= results.products.length) return results;
+  if (!results.products.length && !results.shortcuts.length) return { ...fixed, suggestion, corrected: true };
+  return { ...results, suggestion };
 }
