@@ -22,7 +22,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createSearchClient } from "./lib/search-api.mjs";
 
-// search-index-build.mjs carga shop/searchIndex.ts (Node quita los tipos); se silencia su aviso.
+// Por si Node carga algún .ts quitando los tipos, se silencia su aviso de «module type».
 process.removeAllListeners("warning");
 process.on("warning", (w) => w.code !== "MODULE_TYPELESS_PACKAGE_JSON" && console.warn(w));
 const { buildIndex } = await import("./lib/search-index-build.mjs");
