@@ -27,3 +27,6 @@ export type GroupData = {
 
 /** Producto listo para pintar una tarjeta. */
 export type CardItem = Product & { key: string };
+
+/** Datos que pinta la tarjeta (sin las palabras clave del buscador). */
+export type CardData = Omit<CardItem, "keywords">;

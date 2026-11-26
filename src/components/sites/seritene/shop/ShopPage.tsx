@@ -4,6 +4,8 @@ import { ORIGIN } from "../content";
 import { SiteLink } from "../SiteLink";
 import { findCategory, pageItems, type ShopCategory } from "./catalog";
 import { CatalogBrowser } from "./CatalogBrowser";
+import { getListingFacets } from "./catalogFacets";
+import { CategoryCatalog } from "./CategoryCatalog";
 import { SeoLocal } from "./SeoLocal";
 import { getGroupData } from "./serverData";
 import type { ShopGroup } from "./types";
@@ -128,12 +130,11 @@ export function ShopPage({ group, slug }: { group: ShopGroup; slug?: string }) {
           </div>
           <p>{category ? categoryIntro(category) : texts.intro}</p>
         </header>
-        <CatalogBrowser
+        <CategoryCatalog
           group={group}
-          categoryId={categoryId}
-          basePath={path}
+          isCategory={Boolean(category)}
           initialItems={pageItems(data, categoryId, 0)}
-          totalModels={data.lists[categoryId]?.length ?? 0}
+          facets={getListingFacets(group, category?.slug)}
         />
       </div>
       <script

@@ -3,7 +3,7 @@ import { asset } from "../content";
 import { SiteLink } from "../SiteLink";
 import { formatCents, productImage, productPath } from "./catalog";
 import { cardImageProps } from "./imageSizes";
-import type { CardItem } from "./types";
+import type { CardData } from "./types";
 
 /**
  * Carga de la foto según la posición en la rejilla: las dos primeras (la primera fila en móvil, donde
@@ -19,7 +19,7 @@ export function ShopCard({
   brand,
   priority = "lazy",
 }: {
-  item: CardItem;
+  item: CardData;
   brand: string;
   priority?: CardImagePriority;
 }) {
