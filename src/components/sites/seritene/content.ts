@@ -43,17 +43,21 @@ export const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encode
 )}`;
 
 /**
- * Plazo típico de producción para el bloque «Qué pasa después» del carrito.
+ * Plazo típico de producción para la línea de tiempo del pedido (fichas y carrito).
  * Vacío a propósito: hace falta que el cliente confirme un plazo real. Mientras esté vacío no se muestra.
  */
 export const typicalLeadTime = "";
 
-/** Bloque «Qué pasa después» del carrito: pasos tras enviar la solicitud (sin plazos ni horarios inventados). */
+/**
+ * Línea de tiempo del pedido (fichas, configuradores y bloque «Qué pasa después» del carrito): pasos
+ * desde que se envía la solicitud, sin plazos ni horarios inventados.
+ */
 export const orderSteps = [
-  { title: "Te respondemos", text: "Revisamos tu solicitud y te contestamos en horario laboral." },
-  { title: "Revisamos tu diseño", text: "Comprobamos tu logo o archivo y te enviamos una prueba." },
+  { title: "Envías tu pedido y tu logo", text: "Por WhatsApp o email, con el resumen de tu selección y tu archivo." },
+  { title: "Revisamos y te enviamos una prueba", text: "Comprobamos tu logo o tu idea y te mandamos una prueba para que la veas." },
   { title: "Confirmas y pagas", text: "Cuando des el visto bueno a la prueba y al presupuesto." },
-  { title: "Producimos y entregamos", text: "Lo preparamos en nuestro taller y te lo enviamos o pasas a recogerlo." },
+  { title: "Producimos", text: "Lo preparamos en nuestro taller." },
+  { title: "Entrega o recogida", text: "Te lo enviamos o pasas a recogerlo." },
 ];
 
 export const logoHint = {

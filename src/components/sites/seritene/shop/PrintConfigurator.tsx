@@ -6,17 +6,39 @@ import { formatCents } from "./catalog";
 import { NativeOption, NativeSelect, ProductDelivery, TextInput } from "./FormControls";
 import { OrderActions } from "./OrderActions";
 import { formatUnits } from "../units";
+import { DesignStep } from "../design/DesignStep";
+import { OrderTimeline } from "../design/OrderTimeline";
+import type { PrintSize } from "../design/designChoice";
+import { useDesign } from "../design/useDesign";
 import { flyerFormats, PRINT_MINIMUM, printOrder, printQuantityOptions, type PrintProduct } from "./printData";
 
 const number = new Intl.NumberFormat("es-ES");
 const fmt = (n: number) => number.format(n);
+
+/** Medidas que da la propia ficha (formatos de flyer, trípticos, pulseras) para el aviso de resolución. */
+const FLYER_SIZES: Record<string, [number, number, string]> = {
+  a6: [105, 148, "A6 (10,5 × 14,8 cm)"],
+  a5: [148, 210, "A5 (14,8 × 21 cm)"],
+  a4: [210, 297, "A4 (21 × 29,7 cm)"],
+  dl: [100, 210, "DL (10 × 21 cm)"],
+};
+
+function printSizeFor(slug: string, format: string | undefined): PrintSize | null {
+  const flyer = slug === "flyers" && format ? FLYER_SIZES[format] : undefined;
+  if (flyer) return { widthMm: flyer[0], heightMm: flyer[1], label: `un flyer ${flyer[2]}` };
+  if (slug === "tripticos") return { widthMm: 210, heightMm: 300, label: "un tríptico de 21 × 30 cm" };
+  if (slug === "pulseras-full-color") return { widthMm: 250, heightMm: 20, label: "una pulsera de 25 × 2 cm" };
+  return null;
+}
 
 /** Configurador de imprenta: formato, caras, acabado, cantidad, diseño y envío (lógica de producción). */
 export function PrintConfigurator({ product }: { product: PrintProduct }) {
   const [delivery, setDelivery] = useState(false);
   const [variantId, setVariantId] = useState(product.variants[0]?.id ?? "");
   const [quantityText, setQuantityText] = useState(String(PRINT_MINIMUM));
-  const [design, setDesign] = useState("ready");
+  // Paso «Tu diseño» (mejora propia): sustituye al desplegable; el valor de producción sigue siendo "ready" / "help".
+  const designStep = useDesign("logo");
+  const design = designStep.option === "logo" ? "ready" : "help";
   const [customFormat, setCustomFormat] = useState("");
 
   const quantity = Number(quantityText);
@@ -187,14 +209,12 @@ export function PrintConfigurator({ product }: { product: PrintProduct }) {
       )}
 
       {!plainBracelets && (
-        <div className="print-field">
-          <label htmlFor="print-design">Tu diseño</label>
-          <NativeSelect id="print-design" value={design} onChange={(e) => setDesign(e.target.value)}>
-            <NativeOption value="ready">Ya tengo mi diseño</NativeOption>
-            <NativeOption value="help">Necesito que me lo diseñéis</NativeOption>
-          </NativeSelect>
-          {design === "help" && <small>Te presupuestamos el diseño aparte. Se cobra la primera vez si no lo aportas.</small>}
-        </div>
+        <DesignStep
+          className="print-field"
+          design={designStep}
+          printSize={printSizeFor(product.slug, variant?.format)}
+          serviceNote="Te presupuestamos el diseño aparte. Se cobra la primera vez si no lo aportas."
+        />
       )}
 
       <div className="print-total" aria-live="polite" aria-atomic="true">
@@ -227,6 +247,7 @@ export function PrintConfigurator({ product }: { product: PrintProduct }) {
           image={product.art.small || product.art.src}
           path={`/imprenta/${product.slug}/`}
           reprice={{ kind: "print", slug: product.slug, variantId, design, customFormat, delivery }}
+          design={plainBracelets ? null : designStep}
           sticky={{
             total: !custom && quote && withDelivery ? formatCents(withDelivery.total) : "A presupuestar",
             detail: formatUnits(quantity),
@@ -243,6 +264,8 @@ export function PrintConfigurator({ product }: { product: PrintProduct }) {
         {plainBracelets ? "" : "Diseño no incluido. "}
         Impuestos se confirman en el presupuesto. Revisamos archivos y plazo contigo antes de producir.
       </p>
+
+      <OrderTimeline />
     </div>
   );
 }

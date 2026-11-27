@@ -6,6 +6,7 @@
  * `/fullprint-examples/x.webp`): se resuelven con `SiteLink` / `asset()` al pintarlas, nunca al guardarlas.
  */
 import { BASE_PATH } from "../content";
+import { isDesignChoice, type DesignChoice } from "../design/designChoice";
 import { isReprice, type Reprice } from "./reprice";
 
 export type CartItem = {
@@ -26,6 +27,11 @@ export type CartItem = {
    * carrito (ver `reprice.ts`). Sin él, la cantidad solo se cambia en la ficha.
    */
   reprice?: Reprice;
+  /**
+   * Mejora propia (opcional): elección del paso «Tu diseño» en la ficha (logo propio, diseño o idea) y,
+   * si eligió archivo, su nombre, tipo, tamaño y píxeles. El archivo nunca se guarda.
+   */
+  design?: DesignChoice;
 };
 
 export type Cart = { version: 1; items: CartItem[]; delivery: boolean };
@@ -54,11 +60,17 @@ function isCartItem(value: unknown): value is CartItem {
   );
 }
 
-/** Un `reprice` mal formado se descarta sin perder la selección (pasa a cambiarse en la ficha). */
+/**
+ * Un `reprice` mal formado se descarta sin perder la selección (pasa a cambiarse en la ficha); un
+ * `design` mal formado, también (la selección queda sin línea de diseño).
+ */
 function withValidReprice(item: CartItem): CartItem {
-  if (item.reprice === undefined || isReprice(item.reprice)) return item;
+  const badReprice = item.reprice !== undefined && !isReprice(item.reprice);
+  const badDesign = item.design !== undefined && !isDesignChoice(item.design);
+  if (!badReprice && !badDesign) return item;
   const copy = { ...item };
-  delete copy.reprice;
+  if (badReprice) delete copy.reprice;
+  if (badDesign) delete copy.design;
   return copy;
 }
 

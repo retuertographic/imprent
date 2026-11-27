@@ -3,6 +3,9 @@
 import { useState } from "react";
 import { Input } from "../form-controls";
 import { OrderActions } from "../OrderActions";
+import { DesignStep } from "../../design/DesignStep";
+import { OrderTimeline } from "../../design/OrderTimeline";
+import { useDesign } from "../../design/useDesign";
 import { ProductDelivery } from "../ProductDelivery";
 import { formatEuro } from "../order";
 import { tentOrder } from "../pricing";
@@ -12,6 +15,8 @@ import { formatUnits } from "../../units";
 export function TentConfigurator({ product }: { product: TentProduct }) {
   const [quantityText, setQuantityText] = useState("1");
   const [delivery, setDelivery] = useState(false);
+  // Paso «Tu diseño» (mejora propia).
+  const designStep = useDesign("logo");
   const quantity = Number(quantityText);
   const { price, shipping, message } = tentOrder(product, quantity, delivery);
 
@@ -39,9 +44,11 @@ export function TentConfigurator({ product }: { product: TentProduct }) {
           </p>
         )}
       </div>
+      <DesignStep className="print-field" design={designStep} />
       {price && <ProductDelivery subtotal={price.total} selected={delivery} onChange={setDelivery} />}
       {price ? (
         <OrderActions
+          design={designStep}
           image={`/catalogue/carpa-seritene-${product.image}-small.webp`}
           name={product.name}
           message={message}
@@ -60,6 +67,7 @@ export function TentConfigurator({ product }: { product: TentProduct }) {
         Pack con estructura, techo impreso y bolsa con ruedas. Precios sin IGIC. Cerramientos y contrapesos aparte. Diseño,
         impuestos y plazo se confirman en el presupuesto.
       </p>
+      <OrderTimeline />
     </div>
   );
 }

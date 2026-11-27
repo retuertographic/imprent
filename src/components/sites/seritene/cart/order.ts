@@ -3,6 +3,7 @@
  * Importes en céntimos.
  */
 import { MAILTO_MAX, ORIGIN, contact, mailtoUrl } from "../content";
+import { designLine, type DesignChoice } from "../design/designChoice";
 import { type Cart, withoutBasePath } from "./storage";
 
 /** Envío a domicilio: 6 € por pedido, gratis desde 199 €. */
@@ -35,14 +36,22 @@ export function cartSummary(cart: Cart): CartSummary {
 export const formatEuro = (cents: number) =>
   new Intl.NumberFormat("es-ES", { style: "currency", currency: "EUR" }).format(cents / 100);
 
-/** Resumen completo del pedido (texto de WhatsApp, «Copiar resumen» y «Descargar»). */
-export function cartMessage(cart: Cart) {
+/**
+ * Resumen completo del pedido (texto de WhatsApp, «Copiar resumen» y «Descargar»).
+ *
+ * `design` es la elección del paso «Tu diseño» del carrito (mejora propia): añade su línea antes del
+ * cierre. Cada selección añade la suya (elegida en la ficha) solo si es distinta de la del pedido. Sin
+ * elecciones de diseño, el mensaje es exactamente el de producción.
+ */
+export function cartMessage(cart: Cart, design?: DesignChoice | null) {
   const summary = cartSummary(cart);
+  const itemDesign = (choice: DesignChoice | undefined) =>
+    choice && choice.option !== design?.option ? `${designLine(choice)}\n` : "";
   return [
     "Hola Seritene, quiero solicitar este pedido:",
     ...cart.items.map(
       (item, index) =>
-        `\n${index + 1}. ${item.name}\n${item.details}\n` +
+        `\n${index + 1}. ${item.name}\n${item.details}\n${itemDesign(item.design)}` +
         `Importe de esta selección: ${item.subtotal === null ? "A consultar" : formatEuro(item.subtotal)} (sin envío ni impuestos).\n` +
         `${ORIGIN}${withoutBasePath(item.path)}`,
     ),
@@ -52,6 +61,7 @@ export function cartMessage(cart: Cart) {
       ? `Envío: ${summary.shipping === null ? "a confirmar" : summary.shipping === 0 ? "gratuito" : formatEuro(summary.shipping)}.`
       : "Sin envío a domicilio.",
     `Total orientativo: ${summary.total === null ? "a confirmar" : formatEuro(summary.total)}. Sin IGIC.`,
+    ...(design ? [designLine(design)] : []),
     "Confirmar disponibilidad, precios, diseño y plazo antes de realizar el pedido.",
   ].join("\n");
 }

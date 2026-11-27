@@ -10,6 +10,9 @@ import { OrderActions, ProductDelivery } from "./OrderActions";
 import { formatEuros, formatNumber, fullprintOrder } from "./pricing";
 import type { FullprintModel } from "./types";
 import { formatUnits } from "../units";
+import { DesignStep } from "../design/DesignStep";
+import { OrderTimeline } from "../design/OrderTimeline";
+import { useDesign } from "../design/useDesign";
 
 const OWN_DESIGN = "Aporto mi diseño";
 const HELP_DESIGN = "Necesito ayuda con el diseño";
@@ -26,7 +29,9 @@ function FullprintConfigurator({ product, onAttachmentChange }: ConfiguratorProp
   const [extraIds, setExtraIds] = useState<string[]>([]);
   const [fabricId, setFabricId] = useState(product.fabrics?.[0]?.id ?? "");
   const [cut, setCut] = useState("Hombre");
-  const [design, setDesign] = useState(OWN_DESIGN);
+  // Paso «Tu diseño» (mejora propia): sustituye al desplegable; el texto de producción se mantiene.
+  const designStep = useDesign("logo");
+  const design = designStep.option === "logo" ? OWN_DESIGN : HELP_DESIGN;
   const [notes, setNotes] = useState("");
 
   const attachment = product.attachments?.find((a) => a.id === attachmentId);
@@ -229,14 +234,11 @@ function FullprintConfigurator({ product, onAttachmentChange }: ConfiguratorProp
         </fieldset>
       )}
 
-      <div className="print-field">
-        <label htmlFor="fullprint-design">Tu diseño</label>
-        <NativeSelect id="fullprint-design" value={design} onChange={(e) => setDesign(e.target.value)}>
-          <NativeSelectOption>{OWN_DESIGN}</NativeSelectOption>
-          <NativeSelectOption>{HELP_DESIGN}</NativeSelectOption>
-        </NativeSelect>
-        {design !== OWN_DESIGN && <small>El diseño se presupuesta aparte. Se cobra la primera vez si no lo aportas.</small>}
-      </div>
+      <DesignStep
+        className="print-field"
+        design={designStep}
+        serviceNote="El diseño se presupuesta aparte. Se cobra la primera vez si no lo aportas."
+      />
 
       <details className="custom-notes">
         <summary>Añadir tallas, colores o detalles</summary>
@@ -295,6 +297,7 @@ function FullprintConfigurator({ product, onAttachmentChange }: ConfiguratorProp
             detail: formatUnits(quantity),
             panel: ".print-total",
           }}
+          design={designStep}
         />
       ) : (
         <button type="button" disabled className="brand-button print-request">
@@ -305,6 +308,8 @@ function FullprintConfigurator({ product, onAttachmentChange }: ConfiguratorProp
       <p className="print-conditions">
         Diseño no incluido. Impuestos se confirman en el presupuesto. Revisamos archivos y plazo antes de producir.
       </p>
+
+      <OrderTimeline />
     </div>
   );
 }
