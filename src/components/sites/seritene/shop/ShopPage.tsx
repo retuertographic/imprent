@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { pageMetadata } from "./metadata";
 import { ORIGIN } from "../content";
 import { SiteLink } from "../SiteLink";
+import { WorkShowcase } from "../WorkShowcase";
 import { findCategory, pageItems, type ShopCategory } from "./catalog";
 import { CatalogBrowser } from "./CatalogBrowser";
 import { getListingFacets } from "./catalogFacets";
@@ -143,6 +144,7 @@ export function ShopPage({ group, slug }: { group: ShopGroup; slug?: string }) {
           __html: breadcrumbJsonLd([{ name: category?.name ?? (group === "ropa" ? "Ropa personalizada" : "Merchandising"), path }]),
         }}
       />
+      {!category && <WorkShowcase category={group === "ropa" ? "textil" : "merchandising"} />}
       <SeoLocal subject={category?.name} kind={group === "ropa" ? "textil" : "merchandising"} />
     </main>
   );

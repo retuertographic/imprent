@@ -2,6 +2,7 @@
 import { Check, Plus } from "lucide-react";
 import { asset } from "../content";
 import { SiteLink } from "../SiteLink";
+import { WorkShowcase } from "../WorkShowcase";
 import { Breadcrumbs, FaqSection, pad2 } from "./common";
 import { pageMetadata } from "./meta";
 import type { ServicePageData } from "./servicePages";
@@ -65,6 +66,7 @@ export function ServicePage({ page }: { page: ServicePageData }) {
           ))}
         </div>
       </section>
+      {page.works && <WorkShowcase category={page.works} />}
       {page.techniques && <TechniqueExplorer />}
       <FaqSection faqs={page.faqs} />
       <section className="wrap related-services">

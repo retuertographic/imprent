@@ -1,0 +1,87 @@
+/* Galería de trabajos reales (/trabajos/, bloques «Trabajos reales», tira de la portada) y reseñas de Google.
+   El lightbox (.work-lightbox*) se movió aquí desde home-projects.css para usarlo en todo el sitio. */
+.work-lightbox-backdrop{-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);z-index:90;background:#030603df;position:fixed;inset:0}.work-lightbox{z-index:91;color:#fff;background:#0c0c0c;border:1px solid #ffffff25;border-radius:16px;outline:none;flex-direction:column;gap:14px;width:min(1100px,100% - 40px);height:min(930px,100dvh - 40px);max-height:calc(100dvh - 40px);padding:18px 24px;display:flex;position:fixed;top:50%;left:50%;overflow:hidden;transform:translate(-50%,-50%);box-shadow:0 30px 100px #0005}.work-lightbox-top{flex-shrink:0;justify-content:space-between;align-items:center;gap:20px;display:flex}.work-lightbox-top>span{letter-spacing:.06em;color:#bbb;align-items:center;gap:13px;font-size:10px;display:flex}.work-lightbox-top i{background:#43b02a;border-radius:50%;width:3px;height:3px}.work-close{color:#fff;cursor:pointer;background:0 0;border:1px solid #ffffff30;border-radius:50%;place-items:center;width:40px;height:40px;display:grid}.work-lightbox-photo{background:#080808;border-radius:7px;flex:1;justify-content:center;align-items:center;min-height:0;display:flex;overflow:hidden}.work-lightbox-photo img{object-fit:contain;width:100%;height:100%;display:block}.work-lightbox-bottom{flex-shrink:0;justify-content:space-between;align-items:center;gap:25px;padding-top:4px;display:flex}.work-lightbox-bottom>div{min-width:0}.work-lightbox-bottom h2{letter-spacing:-.04em;color:#fff;margin:0 0 7px;font-size:22px;font-weight:750;line-height:1.15}.work-lightbox-bottom p{color:#b5b5b5;max-width:640px;margin:0;font-size:12px;line-height:1.5}.work-enquire{color:#111;background:#43b02a;border-radius:999px;flex-shrink:0;align-items:center;gap:12px;padding:12px 15px;font-size:12px;font-weight:750;text-decoration:none;display:inline-flex}.work-enquire:hover{background:#63cd48}.work-lightbox-nav{border-top:1px solid #ffffff20;flex-shrink:0;justify-content:center;align-items:center;gap:18px;padding-top:12px;display:flex}.work-lightbox-nav>span{color:#aaa;font-size:10px}.work-lightbox-nav button{color:#fff;cursor:pointer;background:0 0;border:1px solid #ffffff30;border-radius:50%;place-items:center;width:40px;height:36px;display:grid}.work-close:hover,.work-lightbox-nav button:hover{background:#ffffff18}:is(.work-lightbox button:focus-visible,.work-lightbox a:focus-visible){outline-offset:4px;outline:3px solid #43b02a}@media (max-width:600px){.work-lightbox{width:100%;height:100dvh;max-height:none;padding:calc(12px + env(safe-area-inset-top)) 14px calc(12px + env(safe-area-inset-bottom));border:0;border-radius:0;gap:12px}.work-lightbox-top>span{font-size:9px}.work-lightbox-top{gap:12px}.work-close{width:39px;height:39px}.work-lightbox-photo{border-radius:4px}.work-lightbox-bottom{padding-top:2px;display:block}.work-lightbox-bottom h2{margin-bottom:6px;font-size:18px}.work-lightbox-bottom p{font-size:11px;line-height:1.45}.work-enquire{gap:10px;margin-top:13px;padding:11px 15px;font-size:11px}.work-lightbox-nav{justify-content:space-between;padding-top:10px}.work-lightbox-nav button{width:44px;height:40px}}
+@media (prefers-reduced-motion:reduce){.work-lightbox *{transition:none!important;animation:none!important}}
+
+/* Filtros */
+.work-gallery-filters{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
+.work-gallery-filters button{position:relative;font:inherit;display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:8px 16px;border:1px solid var(--brand-line);border-radius:999px;background:#fff;color:var(--brand-ink);font-size:14px;font-weight:600;cursor:pointer;transition:background .2s,border-color .2s,color .2s}
+.work-gallery-filters button>span[aria-hidden]{min-width:22px;padding:1px 7px;border-radius:999px;background:var(--brand-soft);color:#555;font-size:12px;font-variant-numeric:tabular-nums;text-align:center}
+.work-gallery-filters button:hover{border-color:var(--brand-ink)}
+.work-gallery-filters button[aria-pressed=true]{background:var(--brand-ink);border-color:var(--brand-ink);color:#fff}
+.work-gallery-filters button[aria-pressed=true]>span[aria-hidden]{background:var(--brand-green);color:#0b1a07}
+.work-gallery-filters button:focus-visible{outline:3px solid var(--brand-green);outline-offset:3px}
+.work-gallery-status{margin:0 0 18px;color:#5f655c;font-size:13px}
+
+/* Rejilla */
+.work-gallery-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;margin:0;padding:0;list-style:none}
+.work-gallery-tile{font:inherit;color:inherit;text-align:left;display:block;width:100%;padding:0;border:0;background:none;cursor:zoom-in}
+.work-gallery-photo{position:relative;display:block;aspect-ratio:4/5;overflow:hidden;border-radius:14px;background:#ececec}
+.work-gallery-photo img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .5s cubic-bezier(.22,.7,.22,1)}
+.work-gallery-zoom{position:absolute;right:12px;bottom:12px;display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:#111c;color:#fff;opacity:0;transition:opacity .2s}
+.work-gallery-caption{display:grid;gap:3px;padding:11px 2px 0}
+.work-gallery-caption strong{font-size:15px;font-weight:650;line-height:1.3}
+.work-gallery-caption>span{color:#6a7066;font-size:12px}
+.work-gallery-tile:focus-visible{outline:none}
+.work-gallery-tile:focus-visible .work-gallery-photo{outline:3px solid var(--brand-green);outline-offset:3px}
+.work-gallery-tile:focus-visible .work-gallery-zoom{opacity:1}
+@media (hover:hover){.work-gallery-tile:hover .work-gallery-photo img{transform:scale(1.04)}.work-gallery-tile:hover .work-gallery-zoom{opacity:1}}
+@media (max-width:1000px){.work-gallery-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.work-gallery-compact .work-gallery-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:600px){.work-gallery-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.work-gallery-photo{border-radius:10px}.work-gallery-caption strong{font-size:14px}.work-gallery-filters{flex-wrap:nowrap;overflow-x:auto;margin-inline:-14px;padding:0 14px 4px;scrollbar-width:none}.work-gallery-filters::-webkit-scrollbar{display:none}.work-gallery-filters button{flex:none}}
+@media (prefers-reduced-motion:reduce){.work-gallery *{transition:none!important}}
+
+/* Bloque «Trabajos reales» de las páginas de servicio y catálogo */
+.work-showcase{padding-block:70px}
+.work-showcase-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:26px}
+.work-showcase-head .eyebrow{margin-bottom:12px}
+.brand-main .work-showcase-head h2{margin:0;font-size:clamp(28px,3.4vw,44px);line-height:1.08;letter-spacing:-.04em}
+.work-showcase-link{display:inline-flex;align-items:center;gap:8px;flex:none;padding-bottom:5px;border-bottom:1px solid;font-size:14px;font-weight:700}
+.work-showcase-link:hover{color:#2d8a17}
+@media (max-width:700px){.work-showcase{padding-block:48px}.work-showcase-head{display:block;margin-bottom:20px}.work-showcase-link{margin-top:14px}}
+
+/* Página /trabajos/ */
+.work-page .page-intro{padding-bottom:30px}
+.work-page-gallery{padding-bottom:70px}
+.work-page-cta{display:flex;justify-content:space-between;align-items:center;gap:30px;margin-bottom:80px;padding:40px;border-radius:18px;background:var(--brand-soft)}
+.work-page-cta .eyebrow{margin-bottom:10px}
+.brand-main .work-page-cta h2{margin:0 0 8px;font-size:clamp(26px,3vw,38px);letter-spacing:-.04em}
+.work-page-cta p:not(.eyebrow){margin:0;color:#555}
+.work-page-cta-actions{display:flex;align-items:center;gap:24px;flex-wrap:wrap}
+.work-page-cta-actions .brand-button{margin:0}
+.work-page-cta-actions .text-cta{display:inline-flex;align-items:center;gap:8px;margin:0}
+@media (max-width:700px){.work-page-gallery{padding-bottom:48px}.work-page-cta{display:block;padding:26px 20px;margin-bottom:56px}.work-page-cta-actions{margin-top:20px}}
+
+/* Portada: pruebas de confianza compactas tras la caja animada */
+.home-trust{background:#fff;padding:34px 0 8px}
+.home-trust-proofs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:0 0 26px;padding:0;list-style:none}
+.home-trust-proofs li{display:flex;align-items:center;gap:9px;min-height:52px;padding:10px 14px;border:1px solid #e3e3e3;border-radius:12px;font-size:14px;font-weight:600;line-height:1.3}
+.home-trust-proofs svg{flex:none;width:24px;height:24px;padding:4px;border-radius:50%;background:var(--brand-green);color:#0b1a07}
+.home-trust-label{margin:0 0 12px;color:#5f655c;font-size:13px}
+.home-trust-label span{margin-right:4px;color:var(--brand-ink);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.home-trust-works ul{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin:0;padding:0;list-style:none}
+.home-trust-works li a{display:block;aspect-ratio:1;overflow:hidden;border-radius:12px;background:#ececec}
+.home-trust-works img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .4s}
+.home-trust-works a:focus-visible{outline:3px solid var(--brand-green);outline-offset:3px}
+@media (hover:hover){.home-trust-works a:hover img{transform:scale(1.05)}}
+.home-trust-more{display:inline-flex;align-items:center;gap:8px;margin-top:14px;padding-bottom:4px;border-bottom:1px solid;font-size:14px;font-weight:700}
+.home-trust-more:hover{color:#2d8a17}
+@media (max-width:900px){.home-trust-proofs{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:700px){.home-trust{padding:26px 0 0}.home-trust-proofs{gap:8px;margin-bottom:20px}.home-trust-proofs li{min-height:48px;padding:8px 10px;font-size:13px;gap:8px}.home-trust-proofs svg{width:22px;height:22px}.home-trust-works ul{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.home-trust-works li a{border-radius:9px}}
+@media (prefers-reduced-motion:reduce){.home-trust *{transition:none!important}}
+
+/* Reseñas de Google (solo se pintan con datos reales en content.ts) */
+.google-reviews{padding-block:60px}
+.google-reviews-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:24px}
+.google-reviews-head .eyebrow{margin-bottom:10px}
+.brand-main .google-reviews-head h2{margin:0;font-size:clamp(26px,3vw,40px);letter-spacing:-.04em}
+.google-reviews-score{display:flex;align-items:center;gap:10px;margin:0;color:#555;font-size:14px}
+.google-reviews-score strong{color:var(--brand-ink);font-size:32px;letter-spacing:-.03em}
+.google-reviews-stars{display:inline-flex;gap:2px;color:#e5a400}
+.google-reviews-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:0 0 22px;padding:0;list-style:none}
+.google-reviews-list figure{height:100%;margin:0;padding:22px;border:1px solid var(--brand-line);border-radius:14px}
+.google-reviews-list blockquote{margin:12px 0}
+.google-reviews-list blockquote p{margin:0;font-size:15px;line-height:1.6}
+.google-reviews-list figcaption{color:#666;font-size:13px}
+.google-reviews-link{display:inline-flex;align-items:center;gap:8px;padding-bottom:4px;border-bottom:1px solid;font-size:14px;font-weight:700}
+@media (max-width:800px){.google-reviews-head{display:block}.google-reviews-score{margin-top:14px}.google-reviews-list{grid-template-columns:1fr}}
+.work-compact-copy .work-browse-gallery{margin-left:22px;text-decoration:none}@media (max-width:400px){.work-compact-copy .work-browse-gallery{margin-left:0;display:flex;width:max-content}}

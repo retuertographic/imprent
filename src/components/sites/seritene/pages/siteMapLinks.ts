@@ -67,6 +67,7 @@ export const siteMapLinks: [href: string, label: string][] = [
   ["/productos/", "Productos y configurador"],
   ["/catalogos/", "Catálogos"],
   ["/sobre-nosotros/", "Nuestro equipo"],
+  ["/trabajos/", "Trabajos reales"],
   ["/nuestros-valores/", "Nuestros valores"],
   ["/blog/", "Ideas y guías"],
   ["/contacto/", "Contacto"],
