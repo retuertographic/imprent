@@ -1,11 +1,13 @@
-import { ORIGIN, contact, mapsUrl } from "./content";
+import { ORIGIN, contact, googleReviews, mapsUrl } from "./content";
+import { hasGoogleRating } from "./GoogleReviews";
 
 /**
  * Grafo JSON-LD de todo el sitio (LocalBusiness + logo + WebSite + servicios), copia del que publica
  * seritene.com en cada página, con `hasMap` y `geo` desde `contact`. Las URL apuntan a producción
  * porque los canonicals también lo hacen. Las fichas y páginas de servicio enlazan a estos nodos por
  * `@id` (`/#organization`, `/#website`) y usan los suyos propios (`/producto/…/#product`, `…/#service`).
- * Sin `openingHoursSpecification` hasta tener el horario del cliente.
+ * Sin `openingHoursSpecification` hasta tener el horario del cliente, y sin `aggregateRating` mientras
+ * `googleReviews` (content.ts) no tenga valoración media y número de reseñas reales de Google.
  */
 const ORG_ID = `${ORIGIN}/#organization`;
 const LOGO_ID = `${ORIGIN}/#logo`;
@@ -108,6 +110,17 @@ const graph = {
         "Soportes publicitarios",
       ],
       sameAs: [contact.instagram, contact.facebook],
+      ...(hasGoogleRating(googleReviews)
+        ? {
+            aggregateRating: {
+              "@type": "AggregateRating",
+              ratingValue: googleReviews.rating,
+              reviewCount: googleReviews.count,
+              bestRating: 5,
+              worstRating: 1,
+            },
+          }
+        : {}),
       contactPoint: {
         "@type": "ContactPoint",
         telephone: contact.phone,

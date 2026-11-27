@@ -5,6 +5,7 @@ import "../styles/seritene/print.css";
 import "../styles/seritene/collections.css";
 import { fullprintLanding } from "@/components/sites/seritene/fullprint/data";
 import { Breadcrumbs, FullprintLanding, JsonLd, pageMetadata } from "@/components/sites/seritene/fullprint/FullprintPages";
+import { WorkShowcase } from "@/components/sites/seritene/WorkShowcase";
 
 export const metadata = pageMetadata(fullprintLanding.meta, "/fullprint/");
 
@@ -14,6 +15,7 @@ export default function FullprintPage() {
       <JsonLd data={fullprintLanding.jsonLd} />
       <Breadcrumbs trail={[["Inicio", "/"]]} current="Fullprint" />
       <FullprintLanding />
+      <WorkShowcase category="fullprint" title="Fullprint de verdad, hecho aquí." />
     </main>
   );
 }

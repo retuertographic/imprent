@@ -13,6 +13,7 @@ import {
   SocialSection,
 } from "@/components/sites/seritene/HomeSections";
 import { HomeTeam } from "@/components/sites/seritene/HomeTeam";
+import { HomeTrust } from "@/components/sites/seritene/HomeTrust";
 import { UnboxHero } from "@/components/sites/seritene/UnboxHero";
 
 export default function Home() {
@@ -21,6 +22,7 @@ export default function Home() {
       <main id="contenido" className="brand-main bold-home">
         <UnboxHero />
         <HomeMotion>
+          <HomeTrust />
           <ServicesSection />
           <BrandSection />
           <HomeProjects />

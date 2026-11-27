@@ -1,11 +1,13 @@
 "use client";
 
 import { useRef, useState, useSyncExternalStore } from "react";
-import { Check, MessageCircle, ShoppingCart } from "lucide-react";
+import { Check, ShoppingCart } from "lucide-react";
 import { SiteLink } from "../SiteLink";
 import { CART_LIMIT, cartDetails, currentProductPath, readCart, writeCart } from "../cart/storage";
-import { whatsappUrl } from "./order";
 import type { Reprice } from "../cart/reprice";
+import { DesignSendNotes, OrderWhatsApp } from "../design/DesignSend";
+import { withDesignLine } from "../design/designChoice";
+import type { DesignState } from "../design/useDesign";
 import { StickyOrderBar, type StickyOrder } from "./StickyOrderBar";
 
 type Props = {
@@ -22,16 +24,21 @@ type Props = {
   reprice?: Reprice;
   /** Barra fija inferior en móvil con el total y «Añadir al carrito» (mejora propia). */
   sticky?: StickyOrder;
+  /** Paso «Tu diseño» (mejora propia): añade la línea de diseño y el envío del logo. */
+  design?: DesignState | null;
 };
 
 const noopSubscribe = () => () => {};
 
 /** «Solicitar pedido» por WhatsApp y «Añadir al carrito» (localStorage). */
-export function OrderActions({ name, message, quantity = null, subtotal = null, image = "", delivery = false, expiresAt, reprice, sticky }: Props) {
+export function OrderActions({ name, message, quantity = null, subtotal = null, image = "", delivery = false, expiresAt, reprice, sticky, design }: Props) {
   const actionsRef = useRef<HTMLDivElement>(null);
   const [addedKey, setAddedKey] = useState("");
   const [error, setError] = useState("");
-  const key = JSON.stringify([message, subtotal]);
+  const [sendStatus, setSendStatus] = useState("");
+  const choice = design?.choice ?? null;
+  const fullMessage = withDesignLine(message, choice);
+  const key = JSON.stringify([message, subtotal, choice]);
   const [lastKey, setLastKey] = useState(key);
   // El botón se habilita tras hidratar, como en producción.
   const mounted = useSyncExternalStore(noopSubscribe, () => true, () => false);
@@ -64,6 +71,7 @@ export function OrderActions({ name, message, quantity = null, subtotal = null, 
             addedAt: Date.now(),
             expiresAt,
             reprice,
+            ...(choice ? { design: choice } : {}),
           },
         ],
       });
@@ -81,14 +89,12 @@ export function OrderActions({ name, message, quantity = null, subtotal = null, 
   return (
     <div className="order-actions" ref={actionsRef}>
       <div className="order-actions-buttons">
-        <a className="brand-button order-direct" href={whatsappUrl(message)} target="_blank" rel="noreferrer">
-          <MessageCircle size={18} />
-          Solicitar pedido
-        </a>
+        <OrderWhatsApp message={fullMessage} design={design} onStatus={setSendStatus} />
         <button type="button" className="brand-button order-add" onClick={addToCart} disabled={!mounted || added}>
           {added ? <Check size={18} /> : <ShoppingCart size={18} />} {added ? "Añadido al carrito" : "Añadir al carrito"}
         </button>
       </div>
+      <DesignSendNotes message={fullMessage} name={name} design={design} status={sendStatus} onStatus={setSendStatus} />
       {added && (
         <p className="order-added" role="status">
           Selección guardada. <SiteLink href="/carrito/">Ver carrito →</SiteLink>

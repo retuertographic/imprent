@@ -2,10 +2,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Dialog } from "@base-ui/react/dialog";
-import { ChevronLeft, ChevronRight, Expand, MessageCircle, Pause, Play, X } from "lucide-react";
-import { asset, contact, projects } from "./content";
+import { ArrowUpRight, ChevronLeft, ChevronRight, Expand, Pause, Play } from "lucide-react";
+import { asset, projects } from "./content";
+import { SiteLink } from "./SiteLink";
 import { useCarouselEnvironment } from "./useMotionAllowed";
+import { WorkLightbox } from "./WorkLightbox";
 
 const slides = projects.filter((project) => !project.presentation);
 
@@ -29,9 +30,6 @@ export function HomeProjects() {
     })
     .filter(({ offset }) => Math.abs(offset) <= 2);
 
-  const openIndex = projects.findIndex((project) => project.id === openId);
-  const opened = openIndex >= 0 ? projects[openIndex] : undefined;
-
   useEffect(() => {
     if (paused || keyboardFocus || !inView || !motionAllowed || !pageVisible || openId) return;
     const timer = setInterval(() => setStep((s) => s + 1), 2500);
@@ -39,8 +37,6 @@ export function HomeProjects() {
   }, [paused, keyboardFocus, inView, motionAllowed, pageVisible, openId]);
 
   const move = (delta: number) => setStep((s) => s + delta);
-  const moveLightbox = (delta: number) =>
-    setOpenId(projects[(openIndex + delta + projects.length) % projects.length].id);
 
   return (
     <section
@@ -71,6 +67,10 @@ export function HomeProjects() {
             <Expand size={17} />
             Ver todos los trabajos
           </button>
+          <SiteLink className="work-browse work-browse-gallery" href="/trabajos/">
+            Galería por categorías
+            <ArrowUpRight size={17} />
+          </SiteLink>
         </div>
         <div
           className="work-depth-carousel"
@@ -165,74 +165,7 @@ export function HomeProjects() {
         </div>
       </div>
 
-      <Dialog.Root
-        open={Boolean(opened)}
-        onOpenChange={(open) => {
-          if (!open) setOpenId(null);
-        }}
-      >
-        <Dialog.Portal>
-          <Dialog.Backdrop className="work-lightbox-backdrop" />
-          <Dialog.Popup
-            className="work-lightbox"
-            finalFocus={returnFocusRef}
-            onKeyDown={(event) => {
-              if (event.key === "ArrowLeft") {
-                event.preventDefault();
-                moveLightbox(-1);
-              }
-              if (event.key === "ArrowRight") {
-                event.preventDefault();
-                moveLightbox(1);
-              }
-            }}
-          >
-            {opened && (
-              <>
-                <div className="work-lightbox-top">
-                  <span>
-                    {opened.presentation ? "PRESENTACIÓN DIGITAL" : opened.category.toLocaleUpperCase("es")}
-                    <i />
-                    {openIndex + 1} / {projects.length}
-                  </span>
-                  <Dialog.Close className="work-close" aria-label="Cerrar fotografía">
-                    <X size={23} />
-                  </Dialog.Close>
-                </div>
-                <div className="work-lightbox-photo">
-                  <img key={opened.id} src={asset(`/trabajos/proyecto-${opened.id}-full.webp`)} alt={opened.description} />
-                </div>
-                <div className="work-lightbox-bottom">
-                  <div>
-                    <Dialog.Title>{opened.title}</Dialog.Title>
-                    <Dialog.Description>{opened.description}</Dialog.Description>
-                  </div>
-                  <a
-                    className="work-enquire"
-                    href={`${contact.whatsapp}?text=${encodeURIComponent(
-                      `Hola Seritene, he visto en vuestra galería «${opened.title}» (proyecto ${opened.id}) y me gustaría consultar algo parecido.`,
-                    )}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <MessageCircle size={18} />
-                    Quiero algo así
-                  </a>
-                </div>
-                <div className="work-lightbox-nav">
-                  <button type="button" onClick={() => moveLightbox(-1)} aria-label="Fotografía anterior">
-                    <ChevronLeft size={22} />
-                  </button>
-                  <span>Explora los detalles.</span>
-                  <button type="button" onClick={() => moveLightbox(1)} aria-label="Fotografía siguiente">
-                    <ChevronRight size={22} />
-                  </button>
-                </div>
-              </>
-            )}
-          </Dialog.Popup>
-        </Dialog.Portal>
-      </Dialog.Root>
+      <WorkLightbox items={projects} openId={openId} onOpenIdChange={setOpenId} finalFocus={returnFocusRef} />
     </section>
   );
 }

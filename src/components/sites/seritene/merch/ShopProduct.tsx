@@ -14,6 +14,10 @@ import { merchOrder, OVER_STOCK, stockStatus, withModelPricing } from "./order";
 import { MARK_SIZES, choiceMarks, markGroups, markingOptions, productSummary, volumeTiers, type Marking } from "./pricing";
 import type { ProductHeading } from "./productSeo";
 import { VolumeTiers } from "./VolumeTiers";
+import { DesignStep } from "../design/DesignStep";
+import { OrderTimeline } from "../design/OrderTimeline";
+import { mockupZone, type PrintSize } from "../design/designChoice";
+import { useDesign } from "../design/useDesign";
 import type { Brand, MerchProduct, MerchVariant, ProductContext } from "./types";
 
 type Props = {
@@ -45,6 +49,14 @@ const GARMENT_KINDS = new Set(["camiseta", "polo", "sudadera", "prenda-superior"
 
 /** Talla o variante real (no «TALLA ÚNICA ADULTO», «UNICA»…). */
 const realSize = (size: string | null | undefined) => !!size && !/^(?:talla )?[uú]nica\b/i.test(size.trim());
+
+/** Tamaño de impresión del marcaje más grande elegido (para avisar si el logo tiene poca resolución). */
+function markPrintSize(marks: Marking[]): PrintSize | null {
+  const sizes = marks.map((m) => MARK_SIZES.find((s) => s.code === m.size)).filter((s) => !!s);
+  if (!sizes.length) return null;
+  const big = sizes.reduce((a, b) => (b.width * b.height > a.width * a.height ? b : a));
+  return { widthMm: big.width, heightMm: big.height, label: `un marcaje de ${big.label.replace("Hasta", "hasta")} (${big.dimensions})` };
+}
 
 /** Técnica de marcaje tal como se explica al cliente. */
 const TECHNIQUES: Record<string, string> = {
@@ -111,6 +123,9 @@ export function ShopProduct({ brand: brandProp, model, product, warehouse, price
   const [nextRowId, setNextRowId] = useState(2);
   const [allColors, setAllColors] = useState(false);
   const [notes, setNotes] = useState("");
+  // Paso «Tu diseño» (mejora propia): solo cuando hay marcaje o se pide con logo.
+  const designStep = useDesign("logo");
+  const wantsDesign = marks.length > 0 || askLogo;
 
   const current = p.variants.find((v) => v.sku === rows[0]?.sku);
   const updateRow = (id: number, patch: Partial<Selection>) =>
@@ -498,6 +513,24 @@ export function ShopProduct({ brand: brandProp, model, product, warehouse, price
                 </div>
               </details>
             </section>
+            {wantsDesign && (
+              <section className="shop-step shop-design-step">
+                <DesignStep
+                  design={designStep}
+                  title={
+                    <>
+                      <b>03</b> Tu diseño
+                    </>
+                  }
+                  printSize={markPrintSize(marks)}
+                  mockup={(() => {
+                    const zone = marks.map((m) => mockupZone(m.position)).find((z) => !!z);
+                    const photo = current?.image || p.image;
+                    return zone && photo ? { src: imageSrc(photo), zone } : null;
+                  })()}
+                />
+              </section>
+            )}
             <section className="shop-price-panel" aria-label="Resumen de precio">
               <div className="shop-summary-top">
                 <span>TU PEDIDO</span>
@@ -572,6 +605,7 @@ export function ShopProduct({ brand: brandProp, model, product, warehouse, price
                     detail: `${quote.quantity} ${quote.quantity === 1 ? "unidad" : "unidades"}`,
                     panel: ".shop-price-panel",
                   }}
+                  design={wantsDesign ? designStep : null}
                 />
               ) : (
                 <button className="brand-button" disabled>
@@ -579,6 +613,7 @@ export function ShopProduct({ brand: brandProp, model, product, warehouse, price
                 </button>
               )}
               <p>Se abre WhatsApp con tu selección.</p>
+              <OrderTimeline />
             </section>
           </div>
           <div className="shop-product-visual">

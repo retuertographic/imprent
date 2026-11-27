@@ -130,6 +130,7 @@ export const LOCAL_ROUTES = new Set<string>([
   "/soportes-publicitarios/roll-up-85x200/",
   "/soportes-publicitarios/vela/",
   "/textil-personalizado/",
+  "/trabajos/",
 ]);
 
 const normalize = (path: string) => {

@@ -4,6 +4,7 @@ import "../styles/seritene/product-catalog.css";
 import { EventsHeading } from "@/components/sites/seritene/eventos/EventPages";
 import { eventJsonLd, eventLanding, eventMeta } from "@/components/sites/seritene/eventos/data.generated";
 import { Breadcrumbs, JsonLd, SupportProducts } from "@/components/sites/seritene/soportes/shared";
+import { WorkShowcase } from "@/components/sites/seritene/WorkShowcase";
 
 const ROUTE = "/eventos/";
 
@@ -18,6 +19,7 @@ export default function EventosPage() {
         <EventsHeading heading={eventLanding.heading} />
         <SupportProducts section={eventLanding.section} />
       </div>
+      <WorkShowcase category="eventos" title="Premios y detalles que ya se han entregado." />
     </main>
   );
 }

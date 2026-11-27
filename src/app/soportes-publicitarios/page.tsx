@@ -6,6 +6,7 @@ import "../styles/seritene/product-catalog.css";
 import { SiteLink } from "@/components/sites/seritene/SiteLink";
 import { supportJsonLd, supportLanding, supportMeta } from "@/components/sites/seritene/soportes/data.generated";
 import { JsonLd, SupportProducts } from "@/components/sites/seritene/soportes/shared";
+import { WorkShowcase } from "@/components/sites/seritene/WorkShowcase";
 import type { SupportCardData } from "@/components/sites/seritene/soportes/types";
 
 const ROUTE = "/soportes-publicitarios/";
@@ -62,6 +63,7 @@ export default function SoportesPage() {
         </header>
       </div>
       <SupportProducts section={section} />
+      <WorkShowcase category="soportes" title="Soportes que ya están en la calle." />
       <section className="wrap support-shop-help" id="ayuda-soportes">
         <div>
           <h2>{help.title}</h2>

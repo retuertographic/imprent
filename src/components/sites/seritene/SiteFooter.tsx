@@ -19,6 +19,7 @@ const explore: [string, string][] = [
 
 const company: [string, string][] = [
   ["Nuestro equipo", "/sobre-nosotros/"],
+  ["Trabajos reales", "/trabajos/"],
   ["Nuestros valores", "/nuestros-valores/"],
   ["Catálogos", "/catalogos/"],
   ["Ideas y guías", "/blog/"],
