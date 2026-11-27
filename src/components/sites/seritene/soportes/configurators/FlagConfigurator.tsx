@@ -5,6 +5,9 @@ import { useState } from "react";
 import { asset } from "../../content";
 import { Input, NativeSelect, NativeSelectOption } from "../form-controls";
 import { OrderActions } from "../OrderActions";
+import { DesignStep } from "../../design/DesignStep";
+import { OrderTimeline } from "../../design/OrderTimeline";
+import { useDesign } from "../../design/useDesign";
 import { ProductDelivery } from "../ProductDelivery";
 import { formatEuro } from "../order";
 import { FLAG_BASES, flagOrder, flagTiers, type CatalogArt, type FlagPack as Pack } from "../pricing";
@@ -38,6 +41,8 @@ function BaseArt({ art, name }: { art: CatalogArt; name: string }) {
 
 export function FlagConfigurator({ product }: { product: FlagProduct }) {
   const [delivery, setDelivery] = useState(false);
+  // Paso «Tu diseño» (mejora propia).
+  const designStep = useDesign("logo");
   const [sizeId, setSizeId] = useState("S");
   const [pack, setPack] = useState<Pack>("complete");
   const [baseId, setBaseId] = useState("cruz");
@@ -157,9 +162,11 @@ export function FlagConfigurator({ product }: { product: FlagProduct }) {
           </p>
         )}
       </div>
+      <DesignStep className="print-field" design={designStep} />
       <ProductDelivery subtotal={price?.total} selected={delivery} onChange={setDelivery} />
       {price ? (
         <OrderActions
+          design={designStep}
           image={FLAG_CART_IMAGES[product.art.src] ?? product.art.src}
           name={product.name}
           message={message}
@@ -177,6 +184,7 @@ export function FlagConfigurator({ product }: { product: FlagProduct }) {
       <p className="print-conditions">
         Precios sin IGIC. Impuestos y diseño se confirman en el presupuesto. Revisamos tu archivo y el plazo antes de producir.
       </p>
+      <OrderTimeline />
       <details className="print-tariffs">
         <summary>Comparar tamaños y precios · 1 unidad</summary>
         <div className="print-table-wrap">

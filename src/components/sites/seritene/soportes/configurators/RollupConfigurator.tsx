@@ -3,6 +3,9 @@
 import { useState } from "react";
 import { Input } from "../form-controls";
 import { OrderActions } from "../OrderActions";
+import { DesignStep } from "../../design/DesignStep";
+import { OrderTimeline } from "../../design/OrderTimeline";
+import { useDesign } from "../../design/useDesign";
 import { ProductDelivery } from "../ProductDelivery";
 import { formatEuro } from "../order";
 import { ROLLUP_TIERS as TIERS, rollupOrder } from "../pricing";
@@ -15,6 +18,8 @@ const tierLabel = (min: number, next: number | undefined) =>
 export function RollupConfigurator({ product }: { product: RollupProduct }) {
   const [quantityText, setQuantityText] = useState("1");
   const [delivery, setDelivery] = useState(false);
+  // Paso «Tu diseño» (mejora propia).
+  const designStep = useDesign("logo");
   const quantity = Number(quantityText);
   const { price, shipping, message } = rollupOrder(product, quantity, delivery);
 
@@ -73,9 +78,11 @@ export function RollupConfigurator({ product }: { product: RollupProduct }) {
           </p>
         )}
       </div>
+      <DesignStep className="print-field" design={designStep} />
       <ProductDelivery subtotal={price?.total} selected={delivery} onChange={setDelivery} />
       {price ? (
         <OrderActions
+          design={designStep}
           image={`/catalogue/rollup-seritene-${product.width}-v2-small.webp`}
           name={product.name}
           message={message}
@@ -93,6 +100,7 @@ export function RollupConfigurator({ product }: { product: RollupProduct }) {
       <p className="print-conditions">
         Precios sin IGIC. Impuestos, diseño y plazo se confirman en el presupuesto. Revisamos tu archivo antes de producir.
       </p>
+      <OrderTimeline />
     </div>
   );
 }

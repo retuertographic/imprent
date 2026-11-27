@@ -1,0 +1,559 @@
+/*
+ * Paso «Tu diseño» (design/DesignStep.tsx), envío del logo (design/DesignSend.tsx) y línea de tiempo del
+ * pedido (design/OrderTimeline.tsx). Mejora propia; no existe en seritene.com.
+ */
+
+/* ---------- Paso «Tu diseño» ---------- */
+.design-step {
+  min-width: 0;
+  margin: 0 0 16px;
+  padding: 0;
+  border: 0;
+}
+
+.design-step.print-field {
+  padding-bottom: 18px;
+}
+
+.design-step > legend {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 10px;
+  padding: 0;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.shop-design-step .design-step {
+  margin: 0;
+}
+
+.shop-design-step .design-step > legend {
+  margin-bottom: 14px;
+  font-size: 16px;
+}
+
+.shop-design-step .design-step > legend b {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  color: #a3df87;
+  background: #1c2b17;
+  border-radius: 50%;
+  font-size: 10px;
+}
+
+.design-step-options {
+  display: grid;
+  gap: 8px;
+}
+
+.design-step-option {
+  position: relative;
+  display: grid;
+  grid-template-columns: 20px 1fr;
+  align-items: start;
+  gap: 10px;
+  padding: 11px 12px;
+  background: #fff;
+  border: 1px solid #d6dfd0;
+  border-radius: 10px;
+  cursor: pointer;
+  line-height: 1.35;
+}
+
+.design-step-option:hover {
+  border-color: #8fbf7c;
+}
+
+.design-step-option.is-selected {
+  background: #f1f8ec;
+  border-color: #43b02a;
+  box-shadow: inset 0 0 0 1px #43b02a;
+}
+
+.design-step-option input {
+  width: 18px;
+  height: 18px;
+  margin: 1px 0 0;
+  accent-color: #2f7d1d;
+}
+
+.design-step-option input:focus-visible {
+  outline: 2px solid var(--brand-ink, #080808);
+  outline-offset: 2px;
+}
+
+.design-step-option:has(input:focus-visible) {
+  border-color: var(--brand-ink, #080808);
+}
+
+.design-step-option strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.design-step-option small {
+  display: block;
+  margin-top: 2px;
+  color: #5a6653;
+  font-size: 12px;
+}
+
+/* Archivo */
+.design-step-file {
+  margin-top: 12px;
+}
+
+/* El input real queda accesible (teclado, lectores de pantalla) pero oculto; la etiqueta hace de botón. */
+.design-step-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  opacity: 0;
+}
+
+.design-step-pick {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 16px;
+  color: #1d3317;
+  background: #fff;
+  border: 1.5px dashed #43b02a;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.design-step-pick small {
+  color: #5a6653;
+  font-weight: 400;
+}
+
+.design-step-pick:hover {
+  background: #f1f8ec;
+}
+
+.design-step-input:focus-visible + .design-step-pick {
+  outline: 2px solid var(--brand-ink, #080808);
+  outline-offset: 2px;
+}
+
+.design-step-hint,
+.design-step-note {
+  margin: 8px 0 0;
+  color: #4f5c49;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.design-step-note {
+  padding: 10px 12px;
+  background: #f6f8f3;
+  border-radius: 10px;
+}
+
+.design-step-status > p {
+  margin: 10px 0 0;
+  font-size: 13px;
+}
+
+.design-step-preview {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+  padding: 10px;
+  background: #fff;
+  border: 1px solid #dce4d6;
+  border-radius: 10px;
+}
+
+/* Fondo de cuadros para ver la transparencia del logo. */
+.design-step-preview img,
+.design-step-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 8px;
+}
+
+.design-step-preview img {
+  object-fit: contain;
+  background: repeating-conic-gradient(#e9ede6 0% 25%, #fff 0% 50%) 50% / 12px 12px;
+}
+
+.design-step-icon {
+  display: grid;
+  place-items: center;
+  color: #2f7d1d;
+  background: #eef6e9;
+}
+
+.design-step-preview dl {
+  min-width: 0;
+  margin: 0;
+  font-size: 12px;
+  color: #4f5c49;
+}
+
+.design-step-preview dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.design-step-preview .design-step-name {
+  color: #111;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.design-step-remove {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 36px;
+  padding: 6px 10px;
+  color: #4f5c49;
+  background: transparent;
+  border: 1px solid #d6dfd0;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.design-step-remove:hover {
+  color: #111;
+  border-color: #111;
+}
+
+.design-step-remove:focus-visible {
+  outline: 2px solid var(--brand-ink, #080808);
+  outline-offset: 2px;
+}
+
+.design-step-tips {
+  display: grid;
+  gap: 6px;
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+.design-step-tips li {
+  display: grid;
+  grid-template-columns: 16px 1fr;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+}
+
+.design-step-tips svg {
+  margin-top: 1px;
+}
+
+.design-step-tips .is-ok {
+  color: #1f4d14;
+  background: #eef7e9;
+}
+
+.design-step-tips .is-warn {
+  color: #6b3d00;
+  background: #fff4e0;
+}
+
+.design-step-tips .is-info {
+  color: #33402d;
+  background: #f4f6f2;
+}
+
+/* Vista orientativa del logo sobre la foto del producto */
+.design-step-mockup {
+  margin: 12px 0 0;
+}
+
+.design-step-mockup-frame {
+  position: relative;
+  max-width: 260px;
+  overflow: hidden;
+  background: #f4f4f4;
+  border-radius: 10px;
+}
+
+.design-step-mockup-frame > img:first-child {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.design-step-mockup-logo {
+  position: absolute;
+  height: auto;
+  max-height: 30%;
+  object-fit: contain;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.design-step-mockup figcaption {
+  margin-top: 6px;
+  color: #4f5c49;
+  font-size: 12px;
+}
+
+/* ---------- Envío del pedido con el logo ---------- */
+.order-design {
+  margin-top: 10px;
+}
+
+.order-design-note {
+  display: grid;
+  grid-template-columns: 16px 1fr;
+  gap: 8px;
+  margin: 10px 0 0;
+  padding: 10px 12px;
+  color: #33402d;
+  background: #f1f8ec;
+  border: 1px solid #cfe5c4;
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.45;
+  text-align: left;
+}
+
+.order-design-note svg {
+  margin-top: 2px;
+  color: #2f7d1d;
+}
+
+.order-design-note a {
+  color: #20351a;
+  text-decoration: underline;
+}
+
+.order-design-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.order-email {
+  display: inline-flex;
+  flex: 1 1 160px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 14px;
+  color: #111;
+  background: #fff;
+  border: 1px solid #b9c7b1;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.order-email:hover {
+  border-color: var(--brand-ink, #080808);
+}
+
+.order-email:focus-visible,
+.order-share:focus-visible,
+.cart-share:focus-visible,
+.order-design-note a:focus-visible {
+  outline: 2px solid var(--brand-ink, #080808);
+  outline-offset: 2px;
+}
+
+.order-design-small {
+  margin: 6px 0 0;
+  color: #5a6653;
+  font-size: 12px;
+}
+
+.order-design-status {
+  margin: 6px 0 0;
+  font-size: 13px;
+}
+
+.order-design-status:empty {
+  display: none;
+}
+
+.order-actions .order-share,
+.cart-share {
+  border: 0;
+  cursor: pointer;
+}
+
+.cart-share {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  width: 100%;
+}
+
+/* Carrito */
+.cart-design {
+  margin: 16px 0;
+  padding: 14px;
+  background: #fff;
+  border: 1px solid #dce4d6;
+  border-radius: 12px;
+}
+
+.cart-design > legend {
+  float: left;
+  width: 100%;
+  font-size: 15px;
+}
+
+.cart-design > legend + * {
+  clear: both;
+}
+
+.cart-item-design {
+  margin: 6px 0 0;
+  color: #33402d;
+  font-size: 13px;
+}
+
+/* ---------- Línea de tiempo del pedido (plegable en fichas) ---------- */
+.order-timeline {
+  margin-top: 16px;
+  background: #f6f8f3;
+  border: 1px solid #dce4d6;
+  border-radius: 12px;
+  color: #1b2617;
+  text-align: left;
+}
+
+/* El panel de precio de las fichas es oscuro y tiñe los textos: aquí se fijan. */
+.order-timeline strong {
+  color: #111;
+}
+
+.order-timeline > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 14px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.order-timeline > summary::-webkit-details-marker {
+  display: none;
+}
+
+.order-timeline > summary:focus-visible {
+  outline: 2px solid var(--brand-ink, #080808);
+  outline-offset: 2px;
+  border-radius: 12px;
+}
+
+.order-timeline > summary strong {
+  display: block;
+  font-size: 14px;
+}
+
+.order-timeline > summary small {
+  display: block;
+  color: #4f5c49;
+  font-size: 12px;
+}
+
+/* Doble clase: otras hojas giran los iconos de los `summary` de las fichas. */
+.order-timeline.order-timeline > summary svg {
+  flex: none;
+  transform: none;
+  transition: transform 0.2s;
+}
+
+.order-timeline.order-timeline[open] > summary svg {
+  transform: rotate(180deg);
+}
+
+.order-timeline .order-timeline-steps {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 2px 14px 14px;
+  list-style: none;
+  counter-reset: order-step;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.order-timeline .order-timeline-steps li {
+  position: relative;
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  column-gap: 10px;
+  counter-increment: order-step;
+}
+
+.order-timeline .order-timeline-steps li::before {
+  content: counter(order-step);
+  grid-row: span 2;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  color: #fff;
+  background: #2f7d1d;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.order-timeline .order-timeline-steps span,
+.order-timeline .cart-next-lead {
+  color: #4f5c49;
+}
+
+.order-timeline .cart-next-lead {
+  margin: 0;
+  padding: 0 14px 14px;
+  font-size: 13px;
+}
+
+/* Fichas de producto: `.shop-product label` (shop.css) convierte las etiquetas en rejilla en negrita. */
+.shop-product label.design-step-option {
+  display: grid;
+  grid-template-columns: 20px 1fr;
+  gap: 10px;
+  font-weight: 400;
+}
+
+.shop-product label.design-step-pick {
+  display: inline-flex;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.shop-product .design-step-pick small {
+  font-weight: 400;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .order-timeline > summary svg {
+    transition: none;
+  }
+}

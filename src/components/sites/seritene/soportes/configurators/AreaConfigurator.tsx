@@ -8,6 +8,9 @@
 import { useState, type ReactNode } from "react";
 import { Input } from "../form-controls";
 import { OrderActions } from "../OrderActions";
+import { DesignStep } from "../../design/DesignStep";
+import { OrderTimeline } from "../../design/OrderTimeline";
+import { useDesign } from "../../design/useDesign";
 import { ProductDelivery } from "../ProductDelivery";
 import { formatEuro } from "../order";
 import { formatUnits } from "../../units";
@@ -174,6 +177,8 @@ export function AreaConfigurator({ kind }: { kind: AreaKind }) {
   const [quantityText, setQuantityText] = useState("1");
   const [options, setOptionsState] = useState<Options>({ thickness: 5, finish: "Mate" });
   const [delivery, setDelivery] = useState(false);
+  // Paso «Tu diseño» (mejora propia).
+  const designStep = useDesign("logo");
   const setOptions = (patch: Partial<Options>) => setOptionsState((o) => ({ ...o, ...patch }));
 
   const width = parse(widthText);
@@ -265,9 +270,15 @@ export function AreaConfigurator({ kind }: { kind: AreaKind }) {
             Para medidas fuera de rango, consúltanos.
           </p>
         )}
+        <DesignStep
+          className="print-field"
+          design={designStep}
+          printSize={price ? { widthMm: width * 10, heightMm: height * 10, label: `una pieza de ${widthText} × ${heightText} cm` } : null}
+        />
         {price && <ProductDelivery subtotal={price.total} selected={delivery} onChange={setDelivery} />}
         {price ? (
           <OrderActions
+            design={designStep}
             image={AREA_PRICING[kind].cart.image}
             name={AREA_PRICING[kind].cart.name}
             message={message}
@@ -283,6 +294,7 @@ export function AreaConfigurator({ kind }: { kind: AreaKind }) {
           </button>
         )}
         <p className="print-conditions">{config.conditions}</p>
+        <OrderTimeline />
       </div>
     </div>
   );

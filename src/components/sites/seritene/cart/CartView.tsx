@@ -1,8 +1,13 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { ArrowRight, Copy, Download, Mail, MessageCircle, ShoppingCart, Trash2 } from "lucide-react";
-import { asset, contact, logoHint, orderSteps, typicalLeadTime } from "../content";
+import { ArrowRight, Copy, Download, Mail, MessageCircle, Paperclip, Share2, ShoppingCart, Trash2 } from "lucide-react";
+import { asset, contact } from "../content";
+import { DesignStep } from "../design/DesignStep";
+import { canShareLogo, shareLogo } from "../design/DesignSend";
+import { ATTACH_REMINDER, designLine } from "../design/designChoice";
+import { OrderTimeline } from "../design/OrderTimeline";
+import { useDesign } from "../design/useDesign";
 import { SiteLink } from "../SiteLink";
 import { firstImage } from "../shop/imageSizes";
 import {
@@ -53,6 +58,7 @@ function CartLine({ item, onRemove, onQuantity, onAnnounce }: LineProps) {
         </SiteLink>
         <QuantityEditor item={item} onApply={onQuantity} onAnnounce={onAnnounce} />
         <strong>{item.subtotal === null ? "A presupuestar" : formatEuro(item.subtotal)}</strong>
+        {item.design && <p className="cart-item-design">{designLine(item.design)}</p>}
         <details>
           <summary>Ver selección</summary>
           <p className="cart-details">{item.details}</p>
@@ -116,39 +122,29 @@ function ClearCart({ count, onClear }: { count: number; onClear: () => void }) {
   );
 }
 
-/** «Qué pasa después» (mejora propia): pasos tras enviar la solicitud y cómo mandar el logo. */
-function OrderNextSteps() {
-  return (
-    <section className="cart-next" aria-labelledby="cart-next-title">
-      <h3 id="cart-next-title">Qué pasa después</h3>
-      <ol>
-        {orderSteps.map((step) => (
-          <li key={step.title}>
-            <strong>{step.title}</strong>
-            <span>{step.text}</span>
-          </li>
-        ))}
-      </ol>
-      {typicalLeadTime && <p className="cart-next-lead">Plazo típico: {typicalLeadTime}.</p>}
-      <p className="cart-next-logo">
-        <strong>{logoHint.title}:</strong> {logoHint.text}
-      </p>
-    </section>
-  );
-}
-
 /** Página /carrito/ (portada del componente `CartView` de seritene.com). */
 export function CartView() {
   const { cart, ready, error, update } = useCart();
   const [status, setStatus] = useState("");
   const [cleared, setCleared] = useState(false);
   const [announcement, setAnnouncement] = useState("");
+  // Paso «Tu diseño» del pedido (mejora propia): empieza con la elección hecha en las fichas.
+  const design = useDesign(null);
+  const { option: designOption, setOption: setDesignOption } = design;
+  const fromItems = cart.items.find((i) => i.design)?.design;
+  const remembered = cart.items.find((i) => i.design?.file)?.design?.file ?? null;
+  const designTouched = useRef(false);
+  useEffect(() => {
+    if (!designTouched.current && !designOption && fromItems) setDesignOption(fromItems.option);
+  }, [designOption, fromItems, setDesignOption]);
   const summary = cartSummary(cart);
-  const message = cartMessage(cart);
+  const message = cartMessage(cart, design.choice);
   const isLong = message.length > LONG_MESSAGE;
   const hasExpired = hasExpiredFiles(cart);
   const whatsapp = whatsappUrl(isLong ? LONG_MESSAGE_TEXT : message);
-  const email = emailOrder(message);
+  const withLogo = design.option === "logo";
+  const email = emailOrder(withLogo ? `${message}\n\nOs adjunto mi logo en este correo.` : message);
+  const share = canShareLogo(design);
 
   function download() {
     const url = URL.createObjectURL(new Blob([message], { type: "text/plain;charset=utf-8" }));
@@ -295,10 +291,52 @@ export function CartView() {
                   </p>
                 )
               )}
-              <a className="brand-button" href={whatsapp} target="_blank" rel="noreferrer">
-                <MessageCircle size={19} />
-                Solicitar pedido por WhatsApp
-              </a>
+              <DesignStep
+                className="cart-design"
+                title="Tu diseño"
+                design={{
+                  ...design,
+                  setOption: (option) => {
+                    designTouched.current = true;
+                    setDesignOption(option);
+                  },
+                }}
+                remembered={remembered}
+              />
+              {share ? (
+                <button
+                  type="button"
+                  className="brand-button cart-share"
+                  onClick={async () => setStatus(await shareLogo(design.file as File, message))}
+                >
+                  <Share2 size={19} aria-hidden="true" />
+                  Enviar por WhatsApp con el logo
+                </button>
+              ) : (
+                <a className="brand-button" href={whatsapp} target="_blank" rel="noreferrer">
+                  <MessageCircle size={19} />
+                  Solicitar pedido por WhatsApp
+                </a>
+              )}
+              {withLogo && (
+                <p className="order-design-note">
+                  <Paperclip size={16} aria-hidden="true" />
+                  <span>
+                    {share ? (
+                      <>
+                        Elige <strong>WhatsApp</strong> en el menú: tu logo irá adjunto con el resumen del pedido.{" "}
+                        <a href={whatsapp} target="_blank" rel="noreferrer">
+                          Abrir WhatsApp sin adjunto
+                        </a>
+                      </>
+                    ) : (
+                      <>
+                        <strong>{ATTACH_REMINDER}</strong> Por email, adjúntalo al correo antes de enviarlo.
+                      </>
+                    )}
+                  </span>
+                </p>
+              )}
               <a className="cart-email" href={email.url}>
                 <Mail size={17} />
                 Enviar por email
@@ -315,7 +353,7 @@ export function CartView() {
                 </button>
               </div>
               <p role="status">{status}</p>
-              <OrderNextSteps />
+              <OrderTimeline variant="full" />
             </aside>
           </div>
         ) : (

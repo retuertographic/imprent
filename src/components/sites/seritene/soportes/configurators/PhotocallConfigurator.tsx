@@ -3,6 +3,9 @@
 import { useState } from "react";
 import { Input } from "../form-controls";
 import { OrderActions } from "../OrderActions";
+import { DesignStep } from "../../design/DesignStep";
+import { OrderTimeline } from "../../design/OrderTimeline";
+import { useDesign } from "../../design/useDesign";
 import { ProductDelivery } from "../ProductDelivery";
 import { formatEuro } from "../order";
 import { photocallOrder } from "../pricing";
@@ -12,6 +15,8 @@ import { formatUnits } from "../../units";
 export function PhotocallConfigurator({ product }: { product: PhotocallProduct }) {
   const [quantityText, setQuantityText] = useState("1");
   const [delivery, setDelivery] = useState(false);
+  // Paso «Tu diseño» (mejora propia).
+  const designStep = useDesign("logo");
   const quantity = Number(quantityText);
   const { price, shipping, message, valid } = photocallOrder(product, quantity, delivery);
 
@@ -40,9 +45,11 @@ export function PhotocallConfigurator({ product }: { product: PhotocallProduct }
         )}
         {product.unit === null && <p>Indícanos las unidades y te confirmamos el importe.</p>}
       </div>
+      <DesignStep className="print-field" design={designStep} />
       {price && <ProductDelivery subtotal={price.total} selected={delivery} onChange={setDelivery} />}
       {valid ? (
         <OrderActions
+          design={designStep}
           image={`/catalogue/photocall-seritene-${product.size.toLowerCase()}-small.webp`}
           name={product.name}
           message={message}
@@ -60,6 +67,7 @@ export function PhotocallConfigurator({ product }: { product: PhotocallProduct }
       <p className="print-conditions">
         Pack completo con impresión y bolsa. Precios sin IGIC. Diseño, impuestos y plazo se confirman en el presupuesto.
       </p>
+      <OrderTimeline />
     </div>
   );
 }

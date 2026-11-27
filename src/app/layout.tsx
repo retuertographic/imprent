@@ -9,6 +9,7 @@ import "./styles/seritene/a11y-fixes.css";
 import "./styles/seritene/product-seo.css";
 import "./styles/seritene/search.css";
 import "./styles/seritene/listing-filters.css";
+import "./styles/seritene/design-step.css";
 import { RevealMotion } from "@/components/sites/seritene/RevealMotion";
 import { SiteFooter } from "@/components/sites/seritene/SiteFooter";
 import { SiteHeader } from "@/components/sites/seritene/SiteHeader";
