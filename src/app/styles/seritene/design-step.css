@@ -111,8 +111,17 @@
 /* El input real queda accesible (teclado, lectores de pantalla) pero oculto; la etiqueta hace de botón. */
 .design-step-input {
   position: absolute;
+  /* Las hojas del sitio dan width: 100% a los inputs de los configuradores: max-width lo neutraliza
+     (si no, el input oculto se sale por la derecha y aparece scroll horizontal). */
+  top: 0;
+  left: 0;
   width: 1px;
+  max-width: 1px;
   height: 1px;
+  max-height: 1px;
+  margin: 0;
+  padding: 0;
+  border: 0;
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
