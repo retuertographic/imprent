@@ -1,4 +1,5 @@
 /** Contenidos de las páginas de servicio (/textil-personalizado/, /rotulacion/, …). */
+import type { WorkCategory } from "../content";
 
 export type ServicePageData = {
   path: string;
@@ -19,6 +20,8 @@ export type ServicePageData = {
   techniques?: boolean;
   faqs: { q: string; a: string }[];
   related: { label: string; href: string }[];
+  /** Categoría del bloque «Trabajos reales» (solo si hay fotos reales de esa categoría). */
+  works?: WorkCategory;
 };
 
 const related = {
@@ -33,6 +36,7 @@ const mockupAlt = "Mockups ilustrativos de prendas personalizadas";
 
 export const textilPage: ServicePageData = {
   path: "/textil-personalizado/",
+  works: "textil",
   crumb: "Textil personalizado",
   metaTitle: "Textil personalizado en Tenerife",
   metaDescription:
@@ -79,6 +83,7 @@ export const textilPage: ServicePageData = {
 
 export const rotulacionPage: ServicePageData = {
   path: "/rotulacion/",
+  works: "soportes",
   crumb: "Rotulación, lonas y cartelería",
   metaTitle: "Rotulación, lonas y cartelería en Tenerife",
   metaDescription:
@@ -182,6 +187,7 @@ export const disenoPage: ServicePageData = {
 
 export const banderasPage: ServicePageData = {
   path: "/banderas-rollups/",
+  works: "soportes",
   crumb: "Soportes publicitarios personalizados",
   metaTitle: "Soportes publicitarios personalizados en Tenerife",
   metaDescription:

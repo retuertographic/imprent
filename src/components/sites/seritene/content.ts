@@ -130,6 +130,7 @@ export const navCategories: NavCategory[] = [
 export const utilityLinks: [string, string][] = [
   ["Nuestro equipo", "/sobre-nosotros/"],
   ["Servicios", "/servicios/"],
+  ["Trabajos reales", "/trabajos/"],
   ["Catálogos", "/catalogos/"],
   ["Contacto", "/contacto/"],
 ];
@@ -150,6 +151,35 @@ export const proofs = [
   "Servicio en Tenerife y Canarias.",
   "Amplio catálogo.",
 ];
+
+/**
+ * Reseñas de Google (componente `GoogleReviews` y `aggregateRating` del JSON-LD). VACÍO A PROPÓSITO:
+ * no tenemos todavía la ficha ni las reseñas del cliente, y mientras todo esté vacío no se muestra nada.
+ * Datos que hacen falta (siempre reales, copiados de la ficha de Google Business Profile):
+ * - `profileUrl`: enlace público a la ficha o a sus reseñas (p. ej. el enlace «Compartir» de Google Maps).
+ *   Con solo esto se muestra «Ver nuestras reseñas en Google».
+ * - `rating` (media, p. ej. 4.9) y `count` (número total de reseñas): se muestran las estrellas y el número,
+ *   y se añaden como `aggregateRating` al LocalBusiness del JSON-LD (solo si están los dos).
+ * - `reviews`: hasta 3 reseñas literales (texto, nombre tal como aparece en Google y fecha ISO «AAAA-MM-DD»)
+ *   y su puntuación. Conviene tener el permiso del autor o usar solo el nombre de pila.
+ */
+export type GoogleReview = { text: string; author: string; date: string; rating: number };
+export const googleReviews: {
+  profileUrl: string;
+  rating: number | null;
+  count: number | null;
+  reviews: GoogleReview[];
+} = {
+  profileUrl: "",
+  rating: null,
+  count: null,
+  reviews: [],
+};
+
+/** Pruebas de confianza de la portada (bloque compacto tras la caja animada): las cuatro primeras de `proofs`. */
+export const homeTrustProofs = proofs.slice(0, 4);
+/** Fotos de la tira de trabajos de la portada (ids de `projects`, una por categoría y alguna más). */
+export const homeTrustWorks = ["09", "16", "01", "12", "07", "15"];
 
 export const reels = [
   { id: "Dc3a3mKKL6B", title: "Equipaciones a tu manera", alt: "Portada del reel de Seritene sobre equipaciones deportivas personalizadas." },
@@ -185,6 +215,21 @@ export const faqs = [
   },
 ];
 
+/**
+ * Categorías de la galería de trabajos (/trabajos/ y bloques «Trabajos reales»). Solo las que tienen fotos
+ * reales del taller: todavía no hay fotos de trabajos de imprenta (si llegan, añade la categoría aquí y
+ * etiqueta las fotos en `projects`). `href` es la página de servicio o catálogo de la categoría.
+ */
+export type WorkCategory = "textil" | "fullprint" | "merchandising" | "eventos" | "soportes";
+
+export const workCategories: { id: WorkCategory; label: string; title: string; href: string }[] = [
+  { id: "textil", label: "Textil", title: "Textil personalizado", href: "/textil-personalizado/" },
+  { id: "fullprint", label: "Fullprint", title: "Fullprint y sublimación", href: "/fullprint/" },
+  { id: "merchandising", label: "Merchandising", title: "Merchandising", href: "/merchandising/" },
+  { id: "eventos", label: "Trofeos y eventos", title: "Trofeos, placas y eventos", href: "/eventos/" },
+  { id: "soportes", label: "Soportes", title: "Soportes publicitarios", href: "/soportes-publicitarios/" },
+];
+
 export type Project = {
   id: string;
   title: string;
@@ -192,29 +237,36 @@ export type Project = {
   description: string;
   position: string;
   presentation?: boolean;
+  /**
+   * Categorías de la galería (una foto puede estar en varias). Vacío = no sale en la galería
+   * (la presentación digital no es una foto de un trabajo terminado).
+   */
+  gallery: WorkCategory[];
+  /** Tamaño de la foto `thumb` (740 px el lado mayor): da la proporción a `width`/`height`. */
+  size: [number, number];
 };
 
 export const projects: Project[] = [
-  { id: "09", title: "Camisetas para HYROX", category: "Textil", description: "Diseño fullprint negro y amarillo, con nombre personalizado en la espalda.", position: "50% 48%" },
-  { id: "07", title: "Una sudadera con mucho sabor", category: "Textil", description: "Sudadera azul con capucha y diseño integral para hostelería.", position: "50% 48%" },
-  { id: "11", title: "Tu marca, siempre a mano", category: "Accesorios", description: "Llaveros textiles personalizados con distintos diseños y acabados.", position: "50% 36%" },
-  { id: "16", title: "Roll-ups que abren el apetito", category: "Soportes", description: "Soportes enrollables para comunicar actividades y proyectos de cocina.", position: "50% 48%" },
-  { id: "08", title: "Color para entrenar", category: "Textil", description: "Camiseta deportiva de tirantes con diseño geométrico a todo color.", position: "50% 48%" },
-  { id: "10", title: "Identidad de club", category: "Textil", description: "Camiseta deportiva en naranja y amarillo con el nombre del club en la espalda.", position: "50% 46%" },
-  { id: "19", title: "Un delantal con personalidad", category: "Textil", description: "Delantal personalizado con un diseño colorido para el día a día en el comercio.", position: "48% 55%" },
-  { id: "20", title: "Una toalla que motiva", category: "Textil", description: "Toalla verde personalizada con un mensaje deportivo.", position: "50% 48%" },
-  { id: "12", title: "Lanyards a todo color", category: "Accesorios", description: "Cintas personalizadas con diferentes colores, logotipos y terminaciones.", position: "50% 25%" },
-  { id: "13", title: "Pulseras para recordar", category: "Accesorios", description: "Pulseras textiles personalizadas para eventos, equipos y celebraciones.", position: "50% 40%" },
-  { id: "18", title: "Tradición con identidad", category: "Textil", description: "Pañuelo personalizado con motivos de La Orotava.", position: "50% 40%" },
-  { id: "15", title: "Que te vean desde la calle", category: "Soportes", description: "Banderas publicitarias instaladas en el exterior de un negocio.", position: "50% 49%" },
-  { id: "14", title: "Banderines con mucho detalle", category: "Soportes", description: "Banderines personalizados con acabado de flecos, preparados en el taller.", position: "50% 32%" },
-  { id: "17", title: "Tu marca también se sienta a la mesa", category: "Soportes", description: "Mantel corporativo personalizado para una mesa de presentación.", position: "50% 53%" },
-  { id: "01", title: "Una temporada para celebrar", category: "Trofeos", description: "Trofeos transparentes personalizados para un equipo campeón.", position: "46% 42%" },
-  { id: "02", title: "El recuerdo de un equipo", category: "Trofeos", description: "Placas con fotografía y mensaje conmemorativo sobre soportes de sobremesa.", position: "50% 43%" },
-  { id: "03", title: "Reconocimientos con carácter", category: "Trofeos", description: "Trofeos transparentes BOLD con personalización en color violeta.", position: "50% 49%" },
-  { id: "05", title: "Trofeos de madera", category: "Trofeos", description: "Piezas conmemorativas de madera con silueta recortada y texto personalizado.", position: "50% 49%" },
-  { id: "04", title: "El primer contacto lleva tu nombre", category: "Accesorios", description: "Identificadores de personal con nombre y logotipo para Beach Mate.", position: "50% 36%" },
-  { id: "06", title: "Diseño para un equipo de boxeo", category: "Textil", description: "Presentación digital del diseño de camiseta, con vistas delantera y trasera.", position: "50% 50%", presentation: true },
+  { id: "09", title: "Camisetas para HYROX", category: "Textil", description: "Diseño fullprint negro y amarillo, con nombre personalizado en la espalda.", position: "50% 48%", gallery: ["textil", "fullprint"], size: [555, 740] },
+  { id: "07", title: "Una sudadera con mucho sabor", category: "Textil", description: "Sudadera azul con capucha y diseño integral para hostelería.", position: "50% 48%", gallery: ["textil", "fullprint"], size: [555, 740] },
+  { id: "11", title: "Tu marca, siempre a mano", category: "Accesorios", description: "Llaveros textiles personalizados con distintos diseños y acabados.", position: "50% 36%", gallery: ["merchandising"], size: [740, 555] },
+  { id: "16", title: "Roll-ups que abren el apetito", category: "Soportes", description: "Soportes enrollables para comunicar actividades y proyectos de cocina.", position: "50% 48%", gallery: ["soportes"], size: [555, 740] },
+  { id: "08", title: "Color para entrenar", category: "Textil", description: "Camiseta deportiva de tirantes con diseño geométrico a todo color.", position: "50% 48%", gallery: ["textil", "fullprint"], size: [555, 740] },
+  { id: "10", title: "Identidad de club", category: "Textil", description: "Camiseta deportiva en naranja y amarillo con el nombre del club en la espalda.", position: "50% 46%", gallery: ["textil", "fullprint"], size: [416, 740] },
+  { id: "19", title: "Un delantal con personalidad", category: "Textil", description: "Delantal personalizado con un diseño colorido para el día a día en el comercio.", position: "48% 55%", gallery: ["textil", "fullprint"], size: [555, 740] },
+  { id: "20", title: "Una toalla que motiva", category: "Textil", description: "Toalla verde personalizada con un mensaje deportivo.", position: "50% 48%", gallery: ["textil"], size: [555, 740] },
+  { id: "12", title: "Lanyards a todo color", category: "Accesorios", description: "Cintas personalizadas con diferentes colores, logotipos y terminaciones.", position: "50% 25%", gallery: ["merchandising", "fullprint", "eventos"], size: [740, 555] },
+  { id: "13", title: "Pulseras para recordar", category: "Accesorios", description: "Pulseras textiles personalizadas para eventos, equipos y celebraciones.", position: "50% 40%", gallery: ["eventos", "fullprint"], size: [555, 740] },
+  { id: "18", title: "Tradición con identidad", category: "Textil", description: "Pañuelo personalizado con motivos de La Orotava.", position: "50% 40%", gallery: ["textil", "fullprint"], size: [416, 740] },
+  { id: "15", title: "Que te vean desde la calle", category: "Soportes", description: "Banderas publicitarias instaladas en el exterior de un negocio.", position: "50% 49%", gallery: ["soportes"], size: [523, 740] },
+  { id: "14", title: "Banderines con mucho detalle", category: "Soportes", description: "Banderines personalizados con acabado de flecos, preparados en el taller.", position: "50% 32%", gallery: ["soportes"], size: [555, 740] },
+  { id: "17", title: "Tu marca también se sienta a la mesa", category: "Soportes", description: "Mantel corporativo personalizado para una mesa de presentación.", position: "50% 53%", gallery: ["soportes"], size: [740, 566] },
+  { id: "01", title: "Una temporada para celebrar", category: "Trofeos", description: "Trofeos transparentes personalizados para un equipo campeón.", position: "46% 42%", gallery: ["eventos"], size: [740, 555] },
+  { id: "02", title: "El recuerdo de un equipo", category: "Trofeos", description: "Placas con fotografía y mensaje conmemorativo sobre soportes de sobremesa.", position: "50% 43%", gallery: ["eventos"], size: [740, 555] },
+  { id: "03", title: "Reconocimientos con carácter", category: "Trofeos", description: "Trofeos transparentes BOLD con personalización en color violeta.", position: "50% 49%", gallery: ["eventos"], size: [555, 740] },
+  { id: "05", title: "Trofeos de madera", category: "Trofeos", description: "Piezas conmemorativas de madera con silueta recortada y texto personalizado.", position: "50% 49%", gallery: ["eventos"], size: [740, 333] },
+  { id: "04", title: "El primer contacto lleva tu nombre", category: "Accesorios", description: "Identificadores de personal con nombre y logotipo para Beach Mate.", position: "50% 36%", gallery: ["merchandising"], size: [740, 555] },
+  { id: "06", title: "Diseño para un equipo de boxeo", category: "Textil", description: "Presentación digital del diseño de camiseta, con vistas delantera y trasera.", position: "50% 50%", presentation: true, gallery: [], size: [592, 740] },
 ];
 
 export type TeamMember = {
